@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'features/auth/presentation/view/auth_landing_page.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const AuthLandingPage(),
+      home: const LoginPage(),
     );
   }
 }
