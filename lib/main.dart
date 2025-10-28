@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,14 +16,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'RPL Notepad',
-            style: TextStyle(fontSize: 20),
-          ),
-        ),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: const DashboardMahasiswa(), 
     );
   }
 }

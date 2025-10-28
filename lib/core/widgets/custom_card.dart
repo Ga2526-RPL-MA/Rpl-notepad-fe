@@ -5,6 +5,7 @@ class CustomCard extends StatelessWidget {
   final double width;
   final double height;
   final double cornerRadius;
+  final Color? color;
 
   const CustomCard({
     super.key,
@@ -12,6 +13,7 @@ class CustomCard extends StatelessWidget {
     this.width = 370,
     this.height = 571,
     this.cornerRadius = 13.43,
+    this.color,
   });
 
   @override
@@ -20,6 +22,7 @@ class CustomCard extends StatelessWidget {
       width: width,
       height: height,
       child: Card(
+        color: color ?? Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(cornerRadius)),
