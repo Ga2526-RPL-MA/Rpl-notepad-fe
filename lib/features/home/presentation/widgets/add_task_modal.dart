@@ -56,7 +56,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
         Positioned.fill(
           child: BackdropFilter(
             filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: Container(color: Colors.black.withOpacity(0.35)),
+            child: Container(color: Colors.transparent,),
           ),
         ),
         Center(
