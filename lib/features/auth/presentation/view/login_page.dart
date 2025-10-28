@@ -29,25 +29,25 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget _buildLoginCard(BuildContext context) {
-    final isWeb = MediaQuery.of(context).size.width > 600;
-    final cardWidth = isWeb ? MediaQuery.of(context).size.width / 2 : 370.0;
-    final cardHeight = isWeb ? MediaQuery.of(context).size.height : 571.0;
+  final isWeb = MediaQuery.of(context).size.width > 600;
+  final cardWidth = isWeb ? MediaQuery.of(context).size.width / 2 : 370.0;
+  final cardHeight = isWeb ? MediaQuery.of(context).size.height * 1 : 571.0;
 
-    return CustomCard(
-      width: cardWidth,
-      height: cardHeight,
-      cornerRadius: 13.43,
+  return CustomCard(
+    width: cardWidth,
+    height: cardHeight,
+    cornerRadius: 13.43,
+    child: Center(
       child: SingleChildScrollView(
         child: Padding(
-          padding: isWeb
-              ? EdgeInsets.symmetric(horizontal: cardWidth * 0.15, vertical: 40)
-              : const EdgeInsets.all(0),
+          padding: EdgeInsets.symmetric(
+            horizontal: isWeb ? cardWidth * 0.1 : 20,
+            vertical: 40,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 24),
-              // Avatar
+              // Logo
               SizedBox(
                 width: isWeb ? 105 : 59,
                 height: isWeb ? 105 : 59,
@@ -60,7 +60,8 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              // Welcome text
+
+              // Welcome Text
               Text(
                 'Selamat Datang di RPL Notepad',
                 textAlign: TextAlign.center,
@@ -81,7 +82,8 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 28),
-              // Input fields
+
+              // Input Fields
               Column(
                 children: [
                   SizedBox(
@@ -103,6 +105,7 @@ class LoginPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 30),
+
               // Buttons
               Column(
                 mainAxisSize: MainAxisSize.min,
@@ -130,6 +133,8 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
+
+                  // Button Daftar 
                   isWeb
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -138,19 +143,18 @@ class LoginPage extends StatelessWidget {
                               'Belum punya akun? ',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: const Color(0xFF212936),
+                                color: Color(0xFF212936),
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {
-                              },
+                              onTap: () {},
                               child: const Text(
                                 'Daftar disini',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: const Color(0xFF1C4D27),
+                                  color: Color(0xFF1C4D27),
                                   fontWeight: FontWeight.w600,
-                                  fontFamily: "Inter", 
+                                  fontFamily: "Inter",
                                 ),
                               ),
                             ),
@@ -181,6 +185,8 @@ class LoginPage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
