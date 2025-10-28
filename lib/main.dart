@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,6 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'RPL Notepad',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
