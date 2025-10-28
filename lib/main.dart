@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
-import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 
 void main() {
   runApp(const MyApp());
