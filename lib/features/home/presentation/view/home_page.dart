@@ -15,13 +15,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late DashboardViewModel _viewModel;
+  late HomeViewModel _viewModel;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _viewModel = DashboardViewModel();
+    _viewModel = HomeViewModel();
   }
 
   @override
