@@ -1,7 +1,7 @@
 // dashboard_viewmodel.dart
 import 'package:flutter/material.dart';
 
-class DashboardViewModel extends ChangeNotifier {
+class HomeViewModel extends ChangeNotifier {
   String _currentPage = 'beranda';
   final List<Map<String, dynamic>> _tugas = [
     {
