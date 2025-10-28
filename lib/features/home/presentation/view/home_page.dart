@@ -83,6 +83,7 @@ class _HomePageState extends State<HomePage> {
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
+                                            fontFamily: 'Inter',
                                           ),
                                         ),
                                         const SizedBox(height: 2),
@@ -91,6 +92,7 @@ class _HomePageState extends State<HomePage> {
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[500],
+                                            fontFamily: 'Inter',
                                           ),
                                         ),
                                       ],
@@ -196,11 +198,22 @@ class _HomePageState extends State<HomePage> {
                                           builder: (BuildContext context) {
                                             return AddTaskModal(
                                               parentContext: context,
-                                              onSave: (title, status, deadline, description) {
-                                                setState(() {
-                                                  _viewModel.addTask(title, status, deadline, description);
-                                                });
-                                              },
+                                              onSave:
+                                                  (
+                                                    title,
+                                                    status,
+                                                    deadline,
+                                                    description,
+                                                  ) {
+                                                    setState(() {
+                                                      _viewModel.addTask(
+                                                        title,
+                                                        status,
+                                                        deadline,
+                                                        description,
+                                                      );
+                                                    });
+                                                  },
                                             );
                                           },
                                         );

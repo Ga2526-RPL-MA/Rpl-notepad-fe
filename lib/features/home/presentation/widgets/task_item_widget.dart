@@ -75,6 +75,7 @@ class TaskItemWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  fontFamily: 'Inter',
                   color: getTextColor(),
                 ),
               ),
