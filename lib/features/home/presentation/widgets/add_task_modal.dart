@@ -94,6 +94,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
+                          fontFamily: 'Inter',
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -104,6 +105,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           color: Colors.black87,
+                          fontFamily: 'Inter',
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -137,6 +139,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           color: Colors.black87,
+                          fontFamily: 'Inter',
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -186,6 +189,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           color: Colors.black87,
+                          fontFamily: 'Inter',
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -233,6 +237,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
+                              fontFamily: 'Inter',
                             ),
                           ),
                         ),

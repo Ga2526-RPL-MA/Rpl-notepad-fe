@@ -7,14 +7,14 @@ import '../widgets/add_task_modal.dart';
 import '../../../../core/widgets/menu_drawer.dart';
 import '../viewmodel/home_viewmodel.dart';
 
-class DashboardMahasiswa extends StatefulWidget {
-  const DashboardMahasiswa({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<DashboardMahasiswa> createState() => _DashboardMahasiswaState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _DashboardMahasiswaState extends State<DashboardMahasiswa> {
+class _HomePageState extends State<HomePage> {
   late DashboardViewModel _viewModel;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -83,6 +83,7 @@ class _DashboardMahasiswaState extends State<DashboardMahasiswa> {
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
+                                            fontFamily: 'Inter',
                                           ),
                                         ),
                                         const SizedBox(height: 2),
@@ -91,6 +92,7 @@ class _DashboardMahasiswaState extends State<DashboardMahasiswa> {
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[500],
+                                            fontFamily: 'Inter',
                                           ),
                                         ),
                                       ],
