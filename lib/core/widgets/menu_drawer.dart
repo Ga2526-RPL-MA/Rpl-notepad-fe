@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String currentPage; 
@@ -224,7 +225,13 @@ class MenuDrawer extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Keluar',
                         style: TextStyle(
