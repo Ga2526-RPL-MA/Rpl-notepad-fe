@@ -12,12 +12,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'RPL Notepad',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      debugShowCheckedModeBanner: false,
-      home: const DashboardMahasiswa(), 
+      home: const HomePage(),
     );
   }
 }
