@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view/widgets/custom_input_field.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -77,7 +78,14 @@ class LoginPage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           minimumSize: const Size(160, 40),
