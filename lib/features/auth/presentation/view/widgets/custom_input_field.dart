@@ -27,16 +27,30 @@ class _CustomInputFieldState extends State<CustomInputField> {
 
   @override
   Widget build(BuildContext context) {
+    final isWeb = MediaQuery.of(context).size.width > 600;
+
     return TextField(
-      obscureText: _obscureText,
+      obscureText: widget.isPassword ? _obscureText : false,
+      style: TextStyle(
+        fontSize: isWeb ? 16 : 13,
+        color: Colors.black,
+      ),
       decoration: InputDecoration(
         hintText: widget.hintText,
         fillColor: Colors.transparent,
         filled: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+        contentPadding: isWeb 
+            ? const EdgeInsets.symmetric(vertical: 20, horizontal: 20)
+            : const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         prefixIcon: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Image.asset(widget.iconPath, width: 20, height: 20),
+          padding: isWeb 
+              ? const EdgeInsets.all(20.0)
+              : const EdgeInsets.all(12.0),
+          child: Image.asset(
+            widget.iconPath, 
+            width: isWeb ? 28 : 20, 
+            height: isWeb ? 28 : 20,
+          ),
         ),
         suffixIcon: widget.isPassword
             ? IconButton(
@@ -44,8 +58,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
                   _obscureText
                       ? 'assets/icon/eye-off-icon.png'
                       : 'assets/icon/eye-on-icon.png',
-                  width: 20,
-                  height: 20,
+                  width: isWeb ? 28 : 20,
+                  height: isWeb ? 28 : 20,
                 ),
                 onPressed: () {
                   setState(() {
@@ -55,15 +69,18 @@ class _CustomInputFieldState extends State<CustomInputField> {
               )
             : null,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(
+            color: Colors.grey, 
+            width: isWeb ? 2.0 : 1.5,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
           borderSide: const BorderSide(color: Colors.grey, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
           borderSide: const BorderSide(color: Colors.grey, width: 1.5),
         ),
       ),
