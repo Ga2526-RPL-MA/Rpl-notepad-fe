@@ -73,14 +73,14 @@ class LoginPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 30),
                   // Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
-                          fixedSize: const Size(110, 33),
+                          minimumSize: const Size(160, 40),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -95,12 +95,12 @@ class LoginPage extends StatelessWidget {
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(height: 10),
                       OutlinedButton(
                         onPressed: () {},
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.black, width: 1),
-                          fixedSize: const Size(110, 33),
+                          minimumSize: const Size(160, 40),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
