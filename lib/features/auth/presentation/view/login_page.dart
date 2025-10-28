@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view/widgets/custom_input_field.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
