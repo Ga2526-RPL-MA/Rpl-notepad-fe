@@ -9,125 +9,186 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWeb = MediaQuery.of(context).size.width > 600;
+
     return Scaffold(
       body: GradientBackground(
         child: SafeArea(
-          child: Center(
-            child: CustomCard(
-              width: 370,
-              height: 571,
-              cornerRadius: 13.43,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+          child: isWeb
+              ? Row(
+                  children: [
+                    // Left side
+                    Expanded(child: Container()),
+                    // Right side
+                    Expanded(child: Center(child: _buildLoginCard(context))),
+                  ],
+                )
+              : Center(child: _buildLoginCard(context)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginCard(BuildContext context) {
+    final isWeb = MediaQuery.of(context).size.width > 600;
+    final cardWidth = isWeb ? MediaQuery.of(context).size.width / 2 : 370.0;
+    final cardHeight = isWeb ? MediaQuery.of(context).size.height : 571.0;
+
+    return CustomCard(
+      width: cardWidth,
+      height: cardHeight,
+      cornerRadius: 13.43,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: isWeb
+              ? EdgeInsets.symmetric(horizontal: cardWidth * 0.15, vertical: 0)
+              : const EdgeInsets.all(0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              const SizedBox(height: 24),
+              // Avatar
+              SizedBox(
+                width: isWeb ? 105 : 59,
+                height: isWeb ? 105 : 59,
+                child: CircleAvatar(
+                  radius: isWeb ? 52.5 : 29.5,
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: const AssetImage(
+                    'assets/icon/user-icon.png',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Welcome text
+              Text(
+                'Selamat Datang di RPL Notepad',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isWeb ? 24 : 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Inter',
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Eksplorasi catatan dan ide dari sesama mahasiswa RPL.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isWeb ? 14 : 11,
+                  color: Colors.grey,
+                  fontFamily: 'Roboto',
+                ),
+              ),
+              const SizedBox(height: 28),
+              // Input fields
+              Column(
                 children: [
-                  const SizedBox(height: 24),
-                  // Avatar
-                  CircleAvatar(
-                    radius: 59 / 2,
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: const AssetImage(
-                      'assets/icon/user-icon.png',
+                  SizedBox(
+                    width: isWeb ? 500 : 300,
+                    child: const CustomInputField(
+                      hintText: 'Masukkan Email',
+                      iconPath: 'assets/icon/mail-icon.png',
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // Welcome text
-                  const Text(
-                    'Selamat Datang di RPL Notepad',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter',
+                  SizedBox(height: isWeb ? 20 : 12),
+                  SizedBox(
+                    width: isWeb ? 500 : 300,
+                    child: const CustomInputField(
+                      hintText: 'Kata Sandi',
+                      iconPath: 'assets/icon/key-icon.png',
+                      isPassword: true,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Eksplorasi catatan dan ide dari sesama mahasiswa RPL.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey,
-                      fontFamily: 'Roboto',
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  // Input fields
-                  Column(
-                    children: const [
-                      SizedBox(
-                        width: 300,
-                        child: CustomInputField(
-                          hintText: 'Masukkan Email',
-                          iconPath: 'assets/icon/mail-icon.png',
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      SizedBox(
-                        width: 300,
-                        child: CustomInputField(
-                          hintText: 'Kata Sandi',
-                          iconPath: 'assets/icon/key-icon.png',
-                          isPassword: true,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  // Buttons
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const HomePage(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          minimumSize: const Size(160, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          textStyle: const TextStyle(
-                            fontSize: 13,
-                            fontFamily: "Inter",
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        child: const Text(
-                          'Masuk',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.black, width: 1),
-                          minimumSize: const Size(160, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          textStyle: const TextStyle(
-                            fontSize: 13,
-                            fontFamily: "Inter",
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        child: const Text(
-                          'Daftar',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 30),
+              // Buttons
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomePage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      minimumSize: Size(isWeb ? 246 : 160, isWeb ? 56 : 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: TextStyle(
+                        fontSize: isWeb ? 16 : 13,
+                        fontFamily: "Inter",
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    child: Text(
+                      'Masuk',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isWeb ? 16 : null,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  isWeb
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Belum punya akun? ',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF212936),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                // Navigate to register
+                              },
+                              child: const Text(
+                                'Daftar disini',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF1C4D27),
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "Inter",
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : OutlinedButton(
+                          onPressed: () {
+                            // Navigate to register
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.black, width: 1),
+                            minimumSize: const Size(160, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            textStyle: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: "Inter",
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          child: const Text(
+                            'Daftar',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
