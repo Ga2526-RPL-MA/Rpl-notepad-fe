@@ -25,7 +25,7 @@ class LoginPage extends StatelessWidget {
                     radius: 59 / 2,
                     backgroundColor: Colors.transparent,
                     backgroundImage: const AssetImage(
-                      'assets/images/user-circle.png',
+                      'assets/icon/user-icon.png',
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -57,7 +57,7 @@ class LoginPage extends StatelessWidget {
                         width: 300,
                         child: CustomInputField(
                           hintText: 'Masukkan Email',
-                          iconPath: 'assets/images/mail.png',
+                          iconPath: 'assets/icon/mail-icon.png',
                         ),
                       ),
                       SizedBox(height: 12),
@@ -65,7 +65,7 @@ class LoginPage extends StatelessWidget {
                         width: 300,
                         child: CustomInputField(
                           hintText: 'Kata Sandi',
-                          iconPath: 'assets/images/key-alt.png',
+                          iconPath: 'assets/icon/key-icon.png',
                           isPassword: true,
                         ),
                       ),

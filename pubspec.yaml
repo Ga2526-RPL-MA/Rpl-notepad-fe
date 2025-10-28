@@ -60,11 +60,11 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/user-circle.png
-    - assets/images/key-alt.png
-    - assets/images/mail.png
-    - assets/images/eye-alt.png
-    - assets/images/eye-off.png
+    - assets/icon/user-icon.png
+    - assets/icon/key-icon.png
+    - assets/icon/mail-icon.png
+    - assets/icon/eye-on-icon.png
+    - assets/icon/eye-off-icon.png
 
   #   - images/a_dot_ham.jpeg
 

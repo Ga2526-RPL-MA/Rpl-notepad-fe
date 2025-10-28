@@ -42,8 +42,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
             ? IconButton(
                 icon: Image.asset(
                   _obscureText
-                      ? 'assets/images/eye-off.png'
-                      : 'assets/images/eye-alt.png',
+                      ? 'assets/icon/eye-off-icon.png'
+                      : 'assets/icon/eye-on-icon.png',
                   width: 20,
                   height: 20,
                 ),
