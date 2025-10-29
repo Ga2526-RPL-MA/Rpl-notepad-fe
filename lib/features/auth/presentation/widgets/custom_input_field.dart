@@ -4,12 +4,14 @@ class CustomInputField extends StatefulWidget {
   final String hintText;
   final String iconPath;
   final bool isPassword;
+  final TextEditingController? controller;
 
   const CustomInputField({
     super.key,
     required this.hintText,
     required this.iconPath,
     this.isPassword = false,
+    this.controller,
   });
 
   @override
@@ -17,7 +19,7 @@ class CustomInputField extends StatefulWidget {
 }
 
 class _CustomInputFieldState extends State<CustomInputField> {
-  bool _obscureText = true;
+  late bool _obscureText;
 
   @override
   void initState() {
@@ -30,6 +32,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
     final isWeb = MediaQuery.of(context).size.width > 600;
 
     return TextField(
+      controller: widget.controller,
       obscureText: widget.isPassword ? _obscureText : false,
       style: TextStyle(
         fontSize: isWeb ? 16 : 13,
@@ -39,16 +42,16 @@ class _CustomInputFieldState extends State<CustomInputField> {
         hintText: widget.hintText,
         fillColor: Colors.transparent,
         filled: true,
-        contentPadding: isWeb 
+        contentPadding: isWeb
             ? const EdgeInsets.symmetric(vertical: 20, horizontal: 20)
             : const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         prefixIcon: Padding(
-          padding: isWeb 
+          padding: isWeb
               ? const EdgeInsets.all(20.0)
               : const EdgeInsets.all(12.0),
           child: Image.asset(
-            widget.iconPath, 
-            width: isWeb ? 28 : 20, 
+            widget.iconPath,
+            width: isWeb ? 28 : 20,
             height: isWeb ? 28 : 20,
           ),
         ),
@@ -71,7 +74,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide(
-            color: Colors.grey, 
+            color: Colors.grey,
             width: isWeb ? 2.0 : 1.5,
           ),
         ),

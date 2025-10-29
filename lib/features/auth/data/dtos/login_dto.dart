@@ -21,7 +21,7 @@ class LoginDto extends Equatable {
         'password': password,
       };
 
-  // Creating a copy with some fields changed
+  // Creating a copy 
   LoginDto copyWith({
     String? email,
     String? password,
