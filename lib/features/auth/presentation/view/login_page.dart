@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/network/api_sevice.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
@@ -28,7 +29,7 @@ class LoginPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ApiService().alice.showInspector();
+          getIt<ApiService>().alice.showInspector();
         },
         backgroundColor: Colors.black,
         child: const Icon(Icons.bug_report, color: Colors.white),
@@ -41,11 +42,9 @@ class LoginPage extends StatelessWidget {
     final cardWidth = isWeb ? MediaQuery.of(context).size.width / 2 : 370.0;
     final cardHeight = isWeb ? MediaQuery.of(context).size.height * 1 : 571.0;
 
-    return ChangeNotifierProvider(
-      create: (_) => LoginViewModel(),
-      child: Consumer<LoginViewModel>(
-        builder: (context, viewModel, _) {
-          return CustomCard(
+    return Consumer<LoginViewModel>(
+      builder: (context, viewModel, _) {
+        return CustomCard(
             width: cardWidth,
             height: cardHeight,
             cornerRadius: 13.43,
@@ -253,7 +252,6 @@ class LoginPage extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
+      );
   }
 }

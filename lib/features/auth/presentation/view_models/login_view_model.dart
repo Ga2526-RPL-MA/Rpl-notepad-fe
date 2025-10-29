@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../data/dtos/login_dto.dart';
 import '../../data/dtos/login_response_dto.dart';
-import '../../data/repositories/auth_repository_impl.dart';
+import '../../domain/usecases/login_usecase.dart';
 
 class LoginViewModel extends ChangeNotifier {
-  final AuthRepositoryImpl _repository;
+  final LoginUseCase _loginUseCase;
 
-  LoginViewModel({AuthRepositoryImpl? repository})
-      : _repository = repository ?? AuthRepositoryImpl();
+  LoginViewModel({required LoginUseCase useCase})
+      : _loginUseCase = useCase;
 
   // Controllers 
   final TextEditingController emailController = TextEditingController();
@@ -40,7 +40,7 @@ class LoginViewModel extends ChangeNotifier {
 
     try {
       final dto = LoginDto(email: email, password: password);
-      _user = await _repository.login(dto);
+      _user = await _loginUseCase.execute(dto);
     } catch (e) {
       _error = e.toString();
     } finally {
