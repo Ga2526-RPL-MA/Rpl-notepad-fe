@@ -4,6 +4,7 @@ import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/network/api_sevice.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
 
@@ -208,7 +209,15 @@ class LoginPage extends StatelessWidget {
                                       ),
                                     ),
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const RegisterPage(),
+                                          ),
+                                        );
+                                      },
                                       child: const Text(
                                         'Daftar disini',
                                         style: TextStyle(
@@ -222,7 +231,15 @@ class LoginPage extends StatelessWidget {
                                   ],
                                 )
                               : OutlinedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const RegisterPage(),
+                                      ),
+                                    );
+                                  },
                                   style: OutlinedButton.styleFrom(
                                     side: const BorderSide(
                                       color: Colors.black,

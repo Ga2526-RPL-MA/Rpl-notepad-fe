@@ -4,6 +4,7 @@ import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/network/api_sevice.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => getIt<LoginViewModel>()),
+        ChangeNotifierProvider(create: (_) => getIt<RegisterViewModel>()),
       ],
       child: MaterialApp(
         title: 'RPL Notepad',

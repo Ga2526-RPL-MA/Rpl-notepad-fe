@@ -71,6 +71,8 @@ flutter:
     - assets/icon/mail-icon.png
     - assets/icon/eye-on-icon.png
     - assets/icon/eye-off-icon.png
+    - assets/icon/name-icon.png
+    - assets/icon/nrp-icon.png
 
   #   - images/a_dot_ham.jpeg
 

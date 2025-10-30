@@ -1,7 +1,8 @@
 import 'package:rpl_notepad_fe/core/network/api_config.dart';
 
 enum APIEndpoint {
-  login
+  login,
+  register
 }
 
 extension APIEndpointExtension on APIEndpoint {
@@ -10,6 +11,8 @@ extension APIEndpointExtension on APIEndpoint {
       case APIEndpoint.login:
         return "/login";
 
+      case APIEndpoint.register:
+        return "/register";
     }
   }
 
