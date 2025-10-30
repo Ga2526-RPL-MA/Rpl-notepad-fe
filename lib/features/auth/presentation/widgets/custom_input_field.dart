@@ -40,7 +40,7 @@ class _CustomInputFieldState extends State<CustomInputField>
       vsync: this,
     );
 
-    _offsetAnimation = Tween<double>(begin: 0, end: -12).animate(
+    _offsetAnimation = Tween<double>(begin: 0, end: -14).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
@@ -91,7 +91,7 @@ class _CustomInputFieldState extends State<CustomInputField>
           focusNode: _focusNode,
           controller: _controller,
           obscureText: widget.isPassword ? _obscureText : false,
-          style: TextStyle(fontSize: isWeb ? 16 : 11, color: Colors.black),
+          style: TextStyle(fontSize: isWeb ? 16 : 13, color: Colors.black),
           decoration: InputDecoration(
             hintText: '',
             fillColor: Colors.transparent,
@@ -151,7 +151,7 @@ class _CustomInputFieldState extends State<CustomInputField>
         // Animated Hint Text
         Positioned(
           left: isWeb ? 70 : 50,
-          top: isWeb ? 14 : 14,
+          top: isWeb ? 14 : 15,
           child: AnimatedBuilder(
             animation: _offsetAnimation,
             builder: (context, child) {
