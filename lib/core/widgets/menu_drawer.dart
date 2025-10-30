@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MenuDrawer extends StatelessWidget {
-  final String currentPage; 
+  final String currentPage;
   final Function(String) onPageChanged;
 
   const MenuDrawer({
@@ -14,19 +14,21 @@ class MenuDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isWeb = MediaQuery.of(context).size.width > 600;
     final width = isWeb ? 393.0 : MediaQuery.of(context).size.width * 0.75;
-    
+
     return Drawer(
       width: width,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      child: Container(
-        margin: isWeb ? const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20) : null,
-        decoration: BoxDecoration(
-          color: isWeb ? const Color(0x80FFFFFF) : Colors.grey,
-          borderRadius: isWeb ? BorderRadius.circular(20) : null,
-        ),
-        child: ClipRRect(
-          borderRadius: isWeb ? BorderRadius.circular(20) : BorderRadius.zero,
+      child: ClipRRect(
+        borderRadius: isWeb ? BorderRadius.circular(20) : BorderRadius.zero,
+        child: Container(
+          margin: isWeb
+              ? const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20)
+              : null,
+          decoration: BoxDecoration(
+            color: const Color(0x8AFFFFFF),
+            borderRadius: isWeb ? BorderRadius.circular(20) : null,
+          ),
           child: SafeArea(
             child: Container(
               width: double.infinity,
@@ -116,54 +118,6 @@ class MenuDrawer extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: currentPage == 'beranda'
-                                    ? Colors.white
-                                    : const Color(0xFF4D5461),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Tugas Selesai
-                  GestureDetector(
-                    onTap: () {
-                      onPageChanged('tugas_selesai');
-                      Navigator.of(context).pop();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: currentPage == 'tugas_selesai'
-                            ? Colors.black
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            'assets/icon/task-icon.png',
-                            width: 22,
-                            height: 22,
-                            color: currentPage == 'tugas_selesai'
-                                ? Colors.white
-                                : const Color(0xFF4D5461),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Tugas selesai',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: currentPage == 'tugas_selesai'
                                     ? Colors.white
                                     : const Color(0xFF4D5461),
                                 fontSize: 16,
