@@ -8,9 +8,9 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_v
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await setupDependencyInjection();
-  
+
   runApp(const MyApp());
 }
 
