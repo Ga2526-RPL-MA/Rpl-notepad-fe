@@ -20,8 +20,8 @@ class RegisterPage extends StatelessWidget {
           child: isWeb
               ? Row(
                   children: [
-                    Expanded(child: Container()),
                     Expanded(child: Center(child: _buildLoginCard(context))),
+                    Expanded(child: Container()),
                   ],
                 )
               : Center(child: _buildLoginCard(context)),
