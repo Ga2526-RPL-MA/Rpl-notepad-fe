@@ -7,6 +7,7 @@ import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -21,8 +22,8 @@ class LoginPage extends StatelessWidget {
           child: isWeb
               ? Row(
                   children: [
-                    Expanded(child: Container()),
                     Expanded(child: Center(child: _buildLoginCard(context))),
+                    Expanded(child: Container()),
                   ],
                 )
               : Center(child: _buildLoginCard(context)),
@@ -41,7 +42,7 @@ class LoginPage extends StatelessWidget {
   Widget _buildLoginCard(BuildContext context) {
     final isWeb = MediaQuery.of(context).size.width > 600;
     final cardWidth = isWeb ? MediaQuery.of(context).size.width / 2 : 370.0;
-    final cardHeight = isWeb ? MediaQuery.of(context).size.height * 1 : 571.0;
+    final cardHeight = isWeb ? MediaQuery.of(context).size.height : 571.0;
 
     return Consumer<LoginViewModel>(
       builder: (context, viewModel, _) {
@@ -154,6 +155,12 @@ class LoginPage extends StatelessWidget {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Login berhasil!'),
+                                      ),
+                                    );
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const HomePage(),
                                       ),
                                     );
                                   }
