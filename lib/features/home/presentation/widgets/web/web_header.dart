@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
+import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
-import '../../../../../../core/widgets/custom_card.dart';
 import '../../viewmodel/home_viewmodel.dart';
 
 class WebHeader extends StatelessWidget {
@@ -31,11 +34,15 @@ class WebHeader extends StatelessWidget {
             const SizedBox(width: 20),
             
             // Profile Section
-            UserProfile(
-              name: 'Andina Pasha Rahmania',
-              id: '505323101@student.its.ac.id',
-              avatarSize: 40,
-              avatarColor: Colors.blue,
+            Consumer<LoginViewModel>(
+              builder: (context, loginVM, _) {
+                return UserProfile(
+                  name: AuthService.userName ?? 'User',
+                  email: AuthService.userEmail ?? 'No email',
+                  avatarSize: 40,
+                  avatarColor: Colors.blue,
+                );
+              },
             ),
           ],
         ),

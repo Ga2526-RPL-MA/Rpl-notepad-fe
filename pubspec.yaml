@@ -41,6 +41,11 @@ dependencies:
   alice: ^1.0.0
   alice_dio: ^1.0.7
   get_it: ^8.0.3
+  jwt_decoder: ^2.0.1
+  shared_preferences: ^2.2.2
+  shared_preferences_android: ^2.2.1
+  shared_preferences_foundation: ^2.3.2
+  shared_preferences_platform_interface: ^2.2.0
 
 dev_dependencies:
   flutter_test:

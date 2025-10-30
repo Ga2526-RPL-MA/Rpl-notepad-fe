@@ -3,7 +3,7 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/profile_avatar
 
 class UserProfile extends StatelessWidget {
   final String name;
-  final String id;
+  final String email;
   final double avatarSize;
   final Color? avatarColor;
   final bool showOnlineIndicator;
@@ -12,7 +12,7 @@ class UserProfile extends StatelessWidget {
   const UserProfile({
     super.key,
     required this.name,
-    required this.id,
+    required this.email,
     this.avatarSize = 40,
     this.avatarColor,
     this.showOnlineIndicator = true,
@@ -35,7 +35,7 @@ class UserProfile extends StatelessWidget {
                   ),
             ),
             Text(
-              id,
+              email,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),

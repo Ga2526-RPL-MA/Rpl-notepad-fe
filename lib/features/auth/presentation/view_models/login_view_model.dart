@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import '../../data/dtos/login_dto.dart';
 import '../../data/dtos/login_response_dto.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -41,6 +42,11 @@ class LoginViewModel extends ChangeNotifier {
     try {
       final dto = LoginDto(email: email, password: password);
       _user = await _loginUseCase.execute(dto);
+      
+      // Save token after successful login
+      if (_user?.accessToken != null) {
+        await AuthService.saveToken(_user!.accessToken);
+      }
     } catch (e) {
       _error = e.toString();
     } finally {
