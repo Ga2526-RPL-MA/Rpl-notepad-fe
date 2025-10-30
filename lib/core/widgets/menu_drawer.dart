@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
+import 'package:rpl_notepad_fe/features/auth/data/dtos/logout_dto.dart';
+import 'package:rpl_notepad_fe/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 
 class MenuDrawer extends StatelessWidget {
-  final String currentPage; 
+  final String currentPage;
   final Function(String) onPageChanged;
 
   const MenuDrawer({
@@ -38,7 +43,9 @@ class MenuDrawer extends StatelessWidget {
                 iconPath,
                 width: 22,
                 height: 22,
-                color: currentPage == pageKey ? Colors.white : const Color(0xFF4D5461),
+                color: currentPage == pageKey
+                    ? Colors.white
+                    : const Color(0xFF4D5461),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -47,7 +54,9 @@ class MenuDrawer extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: currentPage == pageKey ? Colors.white : const Color(0xFF4D5461),
+                    color: currentPage == pageKey
+                        ? Colors.white
+                        : const Color(0xFF4D5461),
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
                     fontFamily: 'Inter',
@@ -153,13 +162,53 @@ class MenuDrawer extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const LoginPage(),
-                            ),
-                          );
+                        onPressed: () async {
+                          try {
+                            // Clear local authentication 
+                            await AuthService.clearToken();
+                            
+                            // Reset the login view model
+                            final loginVM = Provider.of<LoginViewModel>(
+                              context,
+                              listen: false,
+                            );
+                            loginVM.reset();
+
+                            // Navigate to login page
+                            if (!context.mounted) return;
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(),
+                              ),
+                              (route) => false, 
+                            );
+                            
+                            // Call  logout API 
+                            final token = AuthService.token;
+                            if (token != null && token.isNotEmpty) {
+                              try {
+                                final logoutDto = LogoutDto(refreshToken: token);
+                                final logoutUseCase = LogoutUseCase(
+                                  loginVM.loginUseCase.repository,
+                                );
+                                await logoutUseCase.execute(logoutDto);
+                              } catch (e) {
+                                debugPrint('API Logout failed (non-critical): $e');
+                              }
+                            }
+                          } catch (e) {
+                            debugPrint('Logout error: $e');
+                            if (context.mounted) {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                                (route) => false,
+                              );
+                            }
+                          }
                         },
+
                         child: const Text(
                           'Keluar',
                           style: TextStyle(

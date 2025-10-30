@@ -7,10 +7,11 @@ import '../../domain/usecases/login_usecase.dart';
 class LoginViewModel extends ChangeNotifier {
   final LoginUseCase _loginUseCase;
 
-  LoginViewModel({required LoginUseCase useCase})
-      : _loginUseCase = useCase;
+  LoginViewModel({required LoginUseCase useCase}) : _loginUseCase = useCase;
 
-  // Controllers 
+  LoginUseCase get loginUseCase => _loginUseCase;
+
+  // Controllers
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -42,7 +43,7 @@ class LoginViewModel extends ChangeNotifier {
     try {
       final dto = LoginDto(email: email, password: password);
       _user = await _loginUseCase.execute(dto);
-      
+
       // Save token after successful login
       if (_user?.accessToken != null) {
         await AuthService.saveToken(_user!.accessToken);
@@ -53,5 +54,13 @@ class LoginViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void reset() {
+    _user = null;
+    _error = null;
+    emailController.clear();
+    passwordController.clear();
+    notifyListeners();
   }
 }

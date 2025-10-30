@@ -1,5 +1,5 @@
 import 'package:get_it/get_it.dart';
-import 'package:rpl_notepad_fe/core/network/api_sevice.dart';
+import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:rpl_notepad_fe/features/auth/domain/repositories/auth_repository.dart';
 import 'package:rpl_notepad_fe/features/auth/domain/usecases/login_usecase.dart';

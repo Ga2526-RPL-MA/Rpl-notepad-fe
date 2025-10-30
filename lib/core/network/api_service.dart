@@ -4,7 +4,6 @@ import 'package:alice_dio/alice_dio_adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:rpl_notepad_fe/core/network/api_config.dart';
 
-
 class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
@@ -45,9 +44,9 @@ class ApiService {
   }
 
   // POST
-  Future<T> post<T>(String path, {dynamic data}) async {
+  Future<T> post<T>(String path, {dynamic data, Options? options}) async {
     try {
-      final response = await _dio.post(path, data: data);
+      final response = await _dio.post(path, data: data, options: options);
       return response.data as T;
     } on DioException catch (e) {
       throw Exception(e.response?.data ?? e.message);

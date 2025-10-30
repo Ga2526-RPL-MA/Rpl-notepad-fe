@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
-import 'package:rpl_notepad_fe/core/network/api_sevice.dart';
+import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
