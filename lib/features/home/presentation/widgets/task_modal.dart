@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
 
 String formatDate(DateTime date) {
   initializeDateFormatting('id_ID', null);
@@ -275,9 +276,31 @@ class _AddTaskModalState extends State<AddTaskModal> {
                                 width: 160,
                                 height: 48,
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    widget.onDelete!();
-                                    Navigator.of(widget.parentContext).pop();
+                                  onPressed: () async {
+                                    final shouldDelete =
+                                        await CustomModal.show<bool>(
+                                          widget.parentContext,
+                                          title: 'Apakah anda yakin?',
+                                          message:
+                                              'Pastikan lagi kembali sebelum dihapus',
+                                          primaryButtonText: 'Hapus',
+                                          secondaryButtonText: 'Batal',
+                                          onPrimaryPressed: () => Navigator.pop(
+                                            widget.parentContext,
+                                            true,
+                                          ),
+                                          onSecondaryPressed: () =>
+                                              Navigator.pop(
+                                                widget.parentContext,
+                                                false,
+                                              ),
+                                        );
+
+                                    if (shouldDelete == true &&
+                                        widget.onDelete != null) {
+                                      widget.onDelete!();
+                                      Navigator.of(widget.parentContext).pop();
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFEE443F),

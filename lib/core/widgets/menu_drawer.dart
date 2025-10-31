@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String currentPage;
@@ -192,7 +193,21 @@ class MenuDrawer extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () async {
+                            final shouldLogout = await CustomModal.show<bool>(
+                              context,
+                              title: 'Apakah anda yakin?',
+                              message: 'Pastikan lagi kembali sebelum keluar',
+                              primaryButtonText: 'Keluar',
+                              secondaryButtonText: 'Batal',
+                              onPrimaryPressed: () =>
+                                  Navigator.pop(context, true),
+                              onSecondaryPressed: () =>
+                                  Navigator.pop(context, false),
+                            );
+
+                            if (shouldLogout == true) {}
+                          },
                           child: const Text(
                             'Keluar',
                             style: TextStyle(
