@@ -8,6 +8,7 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dar
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
+import 'package:rpl_notepad_fe/core/widgets/error_modal.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -42,7 +43,7 @@ class LoginPage extends StatelessWidget {
   Widget _buildLoginCard(BuildContext context) {
     final isWeb = MediaQuery.of(context).size.width > 600;
     final cardWidth = isWeb ? MediaQuery.of(context).size.width / 2 : 370.0;
-    final cardHeight = isWeb ? MediaQuery.of(context).size.height : 571.0;
+    final cardHeight = isWeb ? MediaQuery.of(context).size.height : 591.0;
 
     return Consumer<LoginViewModel>(
       builder: (context, viewModel, _) {
@@ -51,110 +52,132 @@ class LoginPage extends StatelessWidget {
           height: cardHeight,
           cornerRadius: 13.43,
           child: Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isWeb ? cardWidth * 0.1 : 20,
-                  vertical: 40,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Logo
-                    SizedBox(
-                      width: isWeb ? 105 : 59,
-                      height: isWeb ? 105 : 59,
-                      child: CircleAvatar(
-                        radius: isWeb ? 52.5 : 29.5,
-                        backgroundColor: Colors.transparent,
-                        backgroundImage: const AssetImage(
-                          'assets/icon/user-icon.png',
-                        ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isWeb ? cardWidth * 0.1 : 20,
+                vertical: 40,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo
+                  SizedBox(
+                    width: isWeb ? 105 : 59,
+                    height: isWeb ? 105 : 59,
+                    child: CircleAvatar(
+                      radius: isWeb ? 52.5 : 29.5,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: const AssetImage(
+                        'assets/icon/user-icon.png',
                       ),
                     ),
-                    const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 24),
 
-                    // Welcome Text
-                    Text(
-                      'Selamat Datang di RPL Notepad',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: isWeb ? 24 : 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter',
-                      ),
+                  // Welcome Text
+                  Text(
+                    'Selamat Datang di RPL Notepad',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: isWeb ? 24 : 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter',
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Eksplorasi catatan dan ide dari sesama mahasiswa RPL.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: isWeb ? 14 : 11,
-                        color: Colors.grey,
-                        fontFamily: 'Roboto',
-                      ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Eksplorasi catatan dan ide dari sesama mahasiswa RPL.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: isWeb ? 14 : 11,
+                      color: Colors.grey,
+                      fontFamily: 'Roboto',
                     ),
-                    const SizedBox(height: 28),
+                  ),
+                  const SizedBox(height: 28),
 
-                    // Error Message
-                    if (viewModel.error != null)
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade100,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.shade400),
-                        ),
-                        child: Text(
-                          viewModel.error!,
-                          style: TextStyle(
-                            color: Colors.red.shade700,
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.center,
+                  // Input Fields
+                  Column(
+                    children: [
+                      // Email Field
+                      SizedBox(
+                        width: isWeb ? 500 : 300,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomInputField(
+                              hintText: 'Email',
+                              iconPath: 'assets/icon/mail-icon.png',
+                              controller: viewModel.emailController,
+                            ),
+                            if (viewModel.isEmailError)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8.0,
+                                  top: 4.0,
+                                ),
+                                child: Text(
+                                  viewModel.emailErrorMsg ?? '',
+                                  style: TextStyle(
+                                    color: Colors.red.shade600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
+                      SizedBox(height: isWeb ? 20 : 12),
 
-                    // Input Fields
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: isWeb ? 500 : 300,
-                          child: CustomInputField(
-                            hintText: 'Email',
-                            iconPath: 'assets/icon/mail-icon.png',
-                            controller: viewModel.emailController,
-                          ),
-                        ),
-                        SizedBox(height: isWeb ? 20 : 12),
-                        SizedBox(
-                          width: isWeb ? 500 : 300,
-                          child: CustomInputField(
-                            hintText: 'Kata Sandi',
-                            iconPath: 'assets/icon/key-icon.png',
-                            isPassword: true,
-                            controller: viewModel.passwordController,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
+                      // Password Field
+                      SizedBox(
+                        width: isWeb ? 500 : 300,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomInputField(
+                              hintText: 'Kata Sandi',
+                              iconPath: 'assets/icon/key-icon.png',
+                              isPassword: true,
+                              controller: viewModel.passwordController,
+                            ),
+                            if (viewModel.isPasswordError)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8.0,
+                                  top: 4.0,
+                                ),
+                                child: Text(
+                                  viewModel.passwordErrorMsg ?? '',
 
-                    // Buttons
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ElevatedButton(
-                          onPressed: viewModel.isLoading
-                              ? null
-                              : () async {
-                                  await viewModel.login();
-                                  if (context.mounted &&
-                                      viewModel.user != null) {
+                                  style: TextStyle(
+                                    color: Colors.red.shade600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Buttons
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ElevatedButton(
+                        onPressed: viewModel.isLoading
+                            ? null
+                            : () async {
+                                final success = await viewModel.login();
+                                if (context.mounted) {
+                                  if (success) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Login berhasil!'),
+                                        backgroundColor: Colors.green,
                                       ),
                                     );
                                     Navigator.pushReplacement(
@@ -163,112 +186,114 @@ class LoginPage extends StatelessWidget {
                                         builder: (_) => const HomePage(),
                                       ),
                                     );
+                                  } else if (viewModel.error != null) {
+                                    context.showErrorModal(
+                                      title: 'Gagal Login',
+                                      message: viewModel.error!,
+                                      buttonText: 'Tutup',
+                                    );
                                   }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            minimumSize: Size(
-                              isWeb ? 246 : 160,
-                              isWeb ? 56 : 40,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            textStyle: TextStyle(
-                              fontSize: isWeb ? 16 : 13,
-                              fontFamily: "Inter",
-                              fontWeight: FontWeight.w600,
-                            ),
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          minimumSize: Size(isWeb ? 246 : 160, isWeb ? 56 : 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: viewModel.isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  'Masuk',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: isWeb ? 16 : null,
-                                  ),
-                                ),
+                          textStyle: TextStyle(
+                            fontSize: isWeb ? 16 : 13,
+                            fontFamily: "Inter",
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        const SizedBox(height: 10),
-
-                        // Button Daftar
-                        isWeb
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'Belum punya akun? ',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Color(0xFF212936),
-                                    ),
+                        child: viewModel.isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
                                   ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const RegisterPage(),
-                                        ),
-                                      );
-                                    },
-                                    child: const Text(
-                                      'Daftar disini',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Color(0xFF1C4D27),
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: "Inter",
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : OutlinedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const RegisterPage(),
-                                    ),
-                                  );
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(
-                                    color: Colors.black,
-                                    width: 1,
-                                  ),
-                                  minimumSize: const Size(160, 40),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  textStyle: const TextStyle(
-                                    fontSize: 13,
-                                    fontFamily: "Inter",
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  strokeWidth: 2,
                                 ),
-                                child: const Text(
-                                  'Daftar',
-                                  style: TextStyle(color: Colors.black),
+                              )
+                            : Text(
+                                'Masuk',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isWeb ? 16 : null,
                                 ),
                               ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Button Daftar
+                      isWeb
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Belum punya akun? ',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF212936),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const RegisterPage(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Daftar disini',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF1C4D27),
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: "Inter",
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : OutlinedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const RegisterPage(),
+                                  ),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 1,
+                                ),
+                                minimumSize: const Size(160, 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                textStyle: const TextStyle(
+                                  fontSize: 13,
+                                  fontFamily: "Inter",
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              child: const Text(
+                                'Daftar',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

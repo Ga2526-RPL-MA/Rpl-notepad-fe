@@ -39,8 +39,8 @@ class ApiService {
     try {
       final response = await _dio.get(path, queryParameters: queryParams);
       return response.data as T;
-    } on DioException catch (e) {
-      throw Exception(e.response?.data ?? e.message);
+    } on DioException {
+      rethrow;
     }
   }
 
@@ -49,8 +49,8 @@ class ApiService {
     try {
       final response = await _dio.post(path, data: data);
       return response.data as T;
-    } on DioException catch (e) {
-      throw Exception(e.response?.data ?? e.message);
+    } on DioException {
+      rethrow;
     }
   }
 
