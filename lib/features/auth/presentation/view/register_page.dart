@@ -52,52 +52,52 @@ class RegisterPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: isWeb ? cardWidth * 0.1 : 20,
-                vertical: 40,
+                vertical: isWeb ? 20 : 30,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Logo
                   SizedBox(
-                    width: isWeb ? 105 : 59,
-                    height: isWeb ? 105 : 59,
+                    width: isWeb ? 80 : 59,
+                    height: isWeb ? 80 : 59,
                     child: CircleAvatar(
-                      radius: isWeb ? 52.5 : 29.5,
+                      radius: isWeb ? 40 : 29.5,
                       backgroundColor: Colors.transparent,
                       backgroundImage: const AssetImage(
                         'assets/icon/user-icon.png',
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: isWeb ? 16 : 20),
 
                   // Welcome Text
                   Text(
                     'Selamat Datang di RPL Notepad',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: isWeb ? 24 : 18,
+                      fontSize: isWeb ? 22 : 18,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Inter',
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: isWeb ? 6 : 8),
                   Text(
                     'Eksplorasi catatan dan ide dari sesama mahasiswa RPL.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: isWeb ? 14 : 10,
+                      fontSize: isWeb ? 13 : 10,
                       color: Color(0xFF979797),
                       fontFamily: 'Roboto',
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  SizedBox(height: isWeb ? 20 : 24),
 
                   // Error Message
                   if (viewModel.error != null)
                     Container(
                       padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(bottom: 16),
+                      margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
                         color: Colors.red.shade100,
                         borderRadius: BorderRadius.circular(8),
@@ -124,7 +124,7 @@ class RegisterPage extends StatelessWidget {
                           controller: viewModel.nameController,
                         ),
                       ),
-                      SizedBox(height: isWeb ? 20 : 12),
+                      SizedBox(height: isWeb ? 14 : 12),
                       SizedBox(
                         width: isWeb ? 500 : 300,
                         child: CustomInputField(
@@ -133,7 +133,7 @@ class RegisterPage extends StatelessWidget {
                           controller: viewModel.nrpController,
                         ),
                       ),
-                      SizedBox(height: isWeb ? 20 : 12),
+                      SizedBox(height: isWeb ? 14 : 12),
                       SizedBox(
                         width: isWeb ? 500 : 300,
                         child: CustomInputField(
@@ -142,7 +142,7 @@ class RegisterPage extends StatelessWidget {
                           controller: viewModel.emailController,
                         ),
                       ),
-                      SizedBox(height: isWeb ? 20 : 12),
+                      SizedBox(height: isWeb ? 14 : 12),
                       SizedBox(
                         width: isWeb ? 500 : 300,
                         child: CustomInputField(
@@ -152,7 +152,7 @@ class RegisterPage extends StatelessWidget {
                           controller: viewModel.passwordController,
                         ),
                       ),
-                      SizedBox(height: isWeb ? 20 : 12),
+                      SizedBox(height: isWeb ? 14 : 12),
                       SizedBox(
                         width: isWeb ? 500 : 300,
                         child: CustomInputField(
@@ -164,7 +164,7 @@ class RegisterPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 30),
+                  SizedBox(height: isWeb ? 20 : 24),
 
                   // Buttons
                   Column(
@@ -185,7 +185,7 @@ class RegisterPage extends StatelessWidget {
                               },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
-                          minimumSize: Size(isWeb ? 246 : 160, isWeb ? 56 : 40),
+                          minimumSize: Size(isWeb ? 246 : 160, isWeb ? 50 : 40),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
