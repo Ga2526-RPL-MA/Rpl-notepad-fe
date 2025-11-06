@@ -8,6 +8,7 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
 
+
 // Add this function to handle CORS for web
 void enableCorsForWeb() {
   if (kIsWeb) {
