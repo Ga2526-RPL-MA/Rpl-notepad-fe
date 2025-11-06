@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/view/class_discussion_page.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/view/discussion_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const LoginPage(),
+      home: const DiscussionPage(),
     );
   }
 }

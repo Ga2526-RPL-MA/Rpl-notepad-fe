@@ -20,11 +20,15 @@ class GradientBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(begin: begin, end: end, colors: colors),
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(begin: begin, end: end, colors: colors),
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 }
