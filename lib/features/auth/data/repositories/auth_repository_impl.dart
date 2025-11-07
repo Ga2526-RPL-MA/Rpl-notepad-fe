@@ -22,21 +22,37 @@ class AuthRepositoryImpl implements AuthRepository {
         APIEndpoint.login.path,
         data: loginDto.toJson(),
       );
+
       return LoginResponseDto.fromJson(response);
     } on DioException catch (e) {
-      // Custom error messages based on status code
+      // Handle specific error types
+      if (e.type == DioExceptionType.connectionError ||
+          e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+      }
+
+      // Handle response-based error
       switch (e.response?.statusCode) {
-        case 404:
         case 401:
-          throw 'Email tidak ditemukan atau Kata sandi salah';
+        case 404:
+          throw 'Email tidak ditemukan atau kata sandi salah.';
         case 403:
-          throw 'Akses ditolak. Anda tidak memiliki izin untuk mengakses.';
+          throw 'Akses ditolak. Anda tidak memiliki izin.';
         case 500:
           throw 'Terjadi kesalahan pada server. Silakan coba lagi nanti.';
         default:
-          throw 'Terjadi kesalahan. Silakan coba lagi.';
+          final message = e.response?.data is Map
+              ? (e.response?.data['message'] ??
+                    'Terjadi kesalahan. Silakan coba lagi.')
+              : 'Terjadi kesalahan. Silakan coba lagi.';
+          throw message;
       }
     } catch (e) {
+      if (e is String) {
+        throw e;
+      }
+
       throw 'Terjadi kesalahan tak terduga. Silakan coba lagi nanti.';
     }
   }

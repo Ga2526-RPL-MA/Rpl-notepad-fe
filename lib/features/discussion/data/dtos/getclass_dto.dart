@@ -19,7 +19,7 @@ class GetClassDto extends Equatable {
     required this.tasks,
   });
 
-  // Convert JSON → DTO
+  // Convert JSON to DTO
   factory GetClassDto.fromJson(Map<String, dynamic> json) {
     return GetClassDto(
       id: json['id'] as int,

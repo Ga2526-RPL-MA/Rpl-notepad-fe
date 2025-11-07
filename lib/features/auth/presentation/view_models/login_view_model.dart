@@ -100,6 +100,7 @@ class LoginViewModel extends BaseAuthViewModel {
       }
       return true;
     } catch (e) {
+      print('💥 Error dari repository: $e');
       setError(e.toString());
       return false;
     } finally {
