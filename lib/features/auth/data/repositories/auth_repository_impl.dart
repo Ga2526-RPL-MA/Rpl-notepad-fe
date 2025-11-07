@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:rpl_notepad_fe/core/network/api_endpoint.dart';
-import 'package:rpl_notepad_fe/core/network/api_sevice.dart';
+import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/features/auth/data/dtos/login_dto.dart';
 import 'package:rpl_notepad_fe/features/auth/data/dtos/login_response_dto.dart';
 import 'package:rpl_notepad_fe/features/auth/data/dtos/register_dto.dart';
