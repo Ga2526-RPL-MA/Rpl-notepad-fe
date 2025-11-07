@@ -1,23 +1,22 @@
-// dashboard_viewmodel.dart
 import 'package:flutter/material.dart';
 
 class HomeViewModel extends ChangeNotifier {
   String _currentPage = 'beranda';
   final List<Map<String, dynamic>> _tugas = [
     {
-      'title': 'Tugas 1', 
+      'title': 'Tugas 1',
       'status': 'in_progress',
       'deadline': DateTime.now().add(const Duration(days: 2)),
       'description': 'Ini adalah contoh tugas yang sedang berjalan',
     },
     {
-      'title': 'Tugas 2', 
+      'title': 'Tugas 2',
       'status': 'pending',
       'deadline': DateTime.now().add(const Duration(days: 5)),
       'description': 'Ini adalah contoh tugas yang belum dimulai',
     },
     {
-      'title': 'Tugas 3', 
+      'title': 'Tugas 3',
       'status': 'completed',
       'deadline': DateTime.now().subtract(const Duration(days: 2)),
       'description': 'Ini adalah contoh tugas yang sudah selesai',
@@ -34,9 +33,14 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addTask(String title, String status, DateTime deadline, String description) {
+  void addTask(
+    String title,
+    String status,
+    DateTime deadline,
+    String description,
+  ) {
     _tugas.add({
-      'title': title, 
+      'title': title,
       'status': status,
       'deadline': deadline,
       'description': description,
@@ -44,10 +48,16 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateTask(int index, String title, String status, DateTime deadline, String description) {
+  void updateTask(
+    int index,
+    String title,
+    String status,
+    DateTime deadline,
+    String description,
+  ) {
     if (index < _tugas.length) {
       _tugas[index] = {
-        'title': title, 
+        'title': title,
         'status': status,
         'deadline': deadline,
         'description': description,

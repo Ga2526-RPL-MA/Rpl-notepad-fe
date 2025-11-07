@@ -29,15 +29,16 @@ class ApiService {
           'Accept': 'application/json',
         },
         validateStatus: (status) {
-          return status! < 500; 
+          // Anggap semua status <500 valid supaya bisa ditangani manual
+          return status! < 500;
         },
       ),
     );
 
-    // Add interceptors
+    // Tambahkan interceptor custom
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        // Remove any CORS headers that might be added by the browser
+        // Hapus header CORS yang bisa ganggu
         options.headers.remove('access-control-allow-origin');
         options.headers.remove('access-control-allow-methods');
         options.headers.remove('access-control-allow-headers');
@@ -48,14 +49,15 @@ class ApiService {
       },
       onError: (DioException e, handler) async {
         if (e.response != null) {
-          print('Error response: ${e.response?.statusCode} - ${e.response?.data}');
+          print('❌ Error response: ${e.response?.statusCode} - ${e.response?.data}');
         } else {
-          print('Error: ${e.message}');
+          print('❌ Error: ${e.message}');
         }
         return handler.next(e);
       },
     ));
 
+    // Tambahkan adapter Alice
     final aliceAdapter = AliceDioAdapter();
     alice.addAdapter(aliceAdapter);
     _dio.interceptors.add(aliceAdapter);
@@ -63,18 +65,27 @@ class ApiService {
 
   Dio get client => _dio;
 
+  // ====================
+  // HTTP METHODS
+  // ====================
+
   // GET
-  Future<T> get<T>(String path, {Map<String, dynamic>? queryParams, Options? options}) async {
+  Future<T> get<T>(
+    String path, {
+    Map<String, dynamic>? queryParams,
+    Options? options,
+  }) async {
     try {
       final response = await _dio.get<T>(
         path,
         queryParameters: queryParams,
-        options: options ?? Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        ),
+        options: options ??
+            Options(
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+            ),
       );
       return response.data as T;
     } on DioException catch (e) {
@@ -83,17 +94,22 @@ class ApiService {
   }
 
   // POST
-  Future<T> post<T>(String path, {dynamic data, Options? options}) async {
+  Future<T> post<T>(
+    String path, {
+    dynamic data,
+    Options? options,
+  }) async {
     try {
       final response = await _dio.post<T>(
         path,
         data: data,
-        options: options ?? Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        ),
+        options: options ??
+            Options(
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+            ),
       );
       return response.data as T;
     } on DioException catch (e) {
@@ -101,5 +117,51 @@ class ApiService {
     }
   }
 
-  // TODO: Add PUT, DELETE
+  // PUT
+  Future<T> put<T>(
+    String path, {
+    dynamic data,
+    Options? options,
+  }) async {
+    try {
+      final response = await _dio.put<T>(
+        path,
+        data: data,
+        options: options ??
+            Options(
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+            ),
+      );
+      return response.data as T;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?.toString() ?? e.message);
+    }
+  }
+
+  // DELETE
+  Future<T> delete<T>(
+    String path, {
+    dynamic data,
+    Options? options,
+  }) async {
+    try {
+      final response = await _dio.delete<T>(
+        path,
+        data: data,
+        options: options ??
+            Options(
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+            ),
+      );
+      return response.data as T;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?.toString() ?? e.message);
+    }
+  }
 }

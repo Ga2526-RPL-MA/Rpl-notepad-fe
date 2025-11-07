@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class ClassCard extends StatelessWidget {
   final String iconPath;
   final String className;
-  final String classDescription;
+  final String classTime;
+  final String classRoom;
   final Color cardBackgroundColor;
   final Color cardOutlineColor;
 
@@ -11,7 +12,8 @@ class ClassCard extends StatelessWidget {
     super.key,
     required this.iconPath,
     required this.className,
-    required this.classDescription,
+    required this.classTime,
+    required this.classRoom,
     required this.cardBackgroundColor,
     required this.cardOutlineColor,
   });
@@ -33,8 +35,8 @@ class ClassCard extends StatelessWidget {
           children: [
             // Icon
             Image.asset(
-              iconPath, 
-              width: 22, 
+              iconPath,
+              width: 22,
               height: 22,
               color: cardOutlineColor,
             ),
@@ -57,9 +59,9 @@ class ClassCard extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  // Deskripsi
+                  // Time and Room
                   Text(
-                    classDescription,
+                    '$classTime, $classRoom',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0XFF6D717F),

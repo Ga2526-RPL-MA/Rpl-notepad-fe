@@ -20,6 +20,27 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _viewModel = HomeViewModel();
+    
+    // Handle route arguments when the page is first loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleRouteArguments();
+    });
+  }
+  
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Handle route arguments when coming back from another screen
+    _handleRouteArguments();
+  }
+  
+  void _handleRouteArguments() {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && args['tab'] == 'completed') {
+      _viewModel.changePage('tugas_selesai');
+    } else {
+      _viewModel.changePage('beranda');
+    }
   }
 
   @override
@@ -32,9 +53,19 @@ class _HomePageState extends State<HomePage> {
       drawer: !isWeb
           ? MenuDrawer(
               currentPage: _viewModel.currentPage,
-              onPageChanged: (page) {
+              onPageChanged: (page) async {
+                // Close the drawer first
+                if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+                  Navigator.of(context).pop();
+                  // Wait for the drawer to close
+                  await Future.delayed(const Duration(milliseconds: 200));
+                }
+
                 setState(() {
                   _viewModel.changePage(page);
+                  if (page == 'diskusi') {
+                    Navigator.pushReplacementNamed(context, '/discussion');
+                  }
                 });
               },
             )
@@ -49,6 +80,9 @@ class _HomePageState extends State<HomePage> {
                   onPageChanged: (page) {
                     setState(() {
                       _viewModel.changePage(page);
+                      if (page == 'diskusi') {
+                        Navigator.pushNamed(context, '/discussion');
+                      }
                     });
                   },
                 )

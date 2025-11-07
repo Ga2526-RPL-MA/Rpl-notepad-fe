@@ -6,6 +6,10 @@ import 'package:rpl_notepad_fe/features/auth/domain/usecases/login_usecase.dart'
 import 'package:rpl_notepad_fe/features/auth/domain/usecases/register_usecase.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
+import 'package:rpl_notepad_fe/features/discussion/data/repositories/class_repository_impl.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/repositories/class_repository.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/getclass_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -33,5 +37,26 @@ Future<void> setupDependencyInjection() async {
   );
   getIt.registerFactory<RegisterViewModel>(
     () => RegisterViewModel(useCase: getIt<RegisterUseCase>()),
+  );
+
+  // Register ApiService as a singleton
+  if (!getIt.isRegistered<ApiService>()) {
+    getIt.registerLazySingleton(() => ApiService());
+  }
+
+  // Register repositories
+  getIt.registerLazySingleton<ClassRepository>(
+    () => ClassRepositoryImpl(api: getIt<ApiService>()),
+  );
+
+  // Register use cases
+  getIt.registerLazySingleton<GetclassUsecase>(
+    () => GetclassUsecase(getIt<ClassRepository>()),
+  );
+
+  // Discussion Feature
+  // View Model
+  getIt.registerFactory<DiscussionViewModel>(
+    () => DiscussionViewModel(usecase: getIt<GetclassUsecase>()),
   );
 }

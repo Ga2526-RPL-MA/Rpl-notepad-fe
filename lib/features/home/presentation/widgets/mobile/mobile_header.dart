@@ -21,7 +21,7 @@ class MobileHeader extends StatelessWidget {
             icon: const Icon(Icons.menu, size: 24),
             onPressed: onMenuPressed,
           ),
-          
+
           // User info and avatar
           Consumer<LoginViewModel>(
             builder: (context, loginVM, _) {

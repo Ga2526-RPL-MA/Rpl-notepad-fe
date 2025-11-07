@@ -28,8 +28,14 @@ class MenuDrawer extends StatelessWidget {
     }) {
       return GestureDetector(
         onTap: () {
-          onPageChanged(pageKey);
           Navigator.of(context).pop();
+
+          if (currentPage == pageKey) return;
+
+          onPageChanged(pageKey);
+          if (pageKey == 'diskusi') {
+            Navigator.pushReplacementNamed(context, '/discussion');
+          }
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -164,10 +170,8 @@ class MenuDrawer extends StatelessWidget {
                         ),
                         onPressed: () async {
                           try {
-                            // Clear local authentication 
                             await AuthService.clearToken();
-                            
-                            // Reset the login view model
+
                             final loginVM = Provider.of<LoginViewModel>(
                               context,
                               listen: false,
@@ -180,20 +184,22 @@ class MenuDrawer extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (context) => const LoginPage(),
                               ),
-                              (route) => false, 
+                              (route) => false,
                             );
-                            
-                            // Call  logout API 
+
+                            // logout
                             final token = AuthService.token;
                             if (token != null && token.isNotEmpty) {
                               try {
-                                final logoutDto = LogoutDto(refreshToken: token);
-                                final logoutUseCase = LogoutUseCase(
-                                  loginVM.loginUseCase.repository,
+                                final logoutDto = LogoutDto(
+                                  refreshToken: token,
                                 );
+                                final logoutUseCase = LogoutUseCase(loginVM.loginUseCase.repository);
                                 await logoutUseCase.execute(logoutDto);
                               } catch (e) {
-                                debugPrint('API Logout failed (non-critical): $e');
+                                debugPrint(
+                                  'API Logout failed (non-critical): $e',
+                                );
                               }
                             }
                           } catch (e) {
