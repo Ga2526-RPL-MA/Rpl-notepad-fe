@@ -28,26 +28,21 @@ class ApiService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        validateStatus: (status) {
-          // Anggap semua status <500 valid supaya bisa ditangani manual
-          return status! < 500;
-        },
+        validateStatus: (status) => status != null && status < 500,
       ),
     );
 
-    // Tambahkan interceptor custom
+    // Interceptor custom
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        // Hapus header CORS yang bisa ganggu
+        // Hapus header CORS
         options.headers.remove('access-control-allow-origin');
         options.headers.remove('access-control-allow-methods');
         options.headers.remove('access-control-allow-headers');
         return handler.next(options);
       },
-      onResponse: (response, handler) {
-        return handler.next(response);
-      },
-      onError: (DioException e, handler) async {
+      onResponse: (response, handler) => handler.next(response),
+      onError: (DioException e, handler) {
         if (e.response != null) {
           print('❌ Error response: ${e.response?.statusCode} - ${e.response?.data}');
         } else {
@@ -69,7 +64,6 @@ class ApiService {
   // HTTP METHODS
   // ====================
 
-  // GET
   Future<T> get<T>(
     String path, {
     Map<String, dynamic>? queryParams,
@@ -79,13 +73,7 @@ class ApiService {
       final response = await _dio.get<T>(
         path,
         queryParameters: queryParams,
-        options: options ??
-            Options(
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-            ),
+        options: options,
       );
       return response.data as T;
     } on DioException catch (e) {
@@ -93,7 +81,6 @@ class ApiService {
     }
   }
 
-  // POST
   Future<T> post<T>(
     String path, {
     dynamic data,
@@ -103,13 +90,7 @@ class ApiService {
       final response = await _dio.post<T>(
         path,
         data: data,
-        options: options ??
-            Options(
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-            ),
+        options: options,
       );
       return response.data as T;
     } on DioException catch (e) {
@@ -117,7 +98,6 @@ class ApiService {
     }
   }
 
-  // PUT
   Future<T> put<T>(
     String path, {
     dynamic data,
@@ -127,13 +107,7 @@ class ApiService {
       final response = await _dio.put<T>(
         path,
         data: data,
-        options: options ??
-            Options(
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-            ),
+        options: options,
       );
       return response.data as T;
     } on DioException catch (e) {
@@ -141,7 +115,6 @@ class ApiService {
     }
   }
 
-  // DELETE
   Future<T> delete<T>(
     String path, {
     dynamic data,
@@ -151,13 +124,7 @@ class ApiService {
       final response = await _dio.delete<T>(
         path,
         data: data,
-        options: options ??
-            Options(
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-            ),
+        options: options,
       );
       return response.data as T;
     } on DioException catch (e) {

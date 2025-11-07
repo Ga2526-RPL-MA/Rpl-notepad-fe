@@ -85,7 +85,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return LogoutResponseDto.fromJson(response);
     } catch (e) {
-      rethrow;
+      throw e.toString().replaceAll('Exception: ', '');
     }
   }
 }

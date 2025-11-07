@@ -1,64 +1,115 @@
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
-import '../../data/dtos/login_dto.dart';
-import '../../data/dtos/login_response_dto.dart';
-import '../../domain/usecases/login_usecase.dart';
+import 'package:rpl_notepad_fe/features/auth/data/dtos/login_dto.dart';
+import 'package:rpl_notepad_fe/features/auth/data/dtos/login_response_dto.dart';
+import 'package:rpl_notepad_fe/features/auth/domain/usecases/login_usecase.dart';
+import 'base_auth_view_model.dart';
 
-class LoginViewModel extends ChangeNotifier {
+class LoginViewModel extends BaseAuthViewModel {
   final LoginUseCase _loginUseCase;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  LoginResponseDto? _user;
+  LoginResponseDto? get user => _user;
 
   LoginViewModel({required LoginUseCase useCase}) : _loginUseCase = useCase;
 
   LoginUseCase get loginUseCase => _loginUseCase;
 
-  // Controllers
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  // Field error states
+  bool _isEmailError = false;
+  bool _isPasswordError = false;
 
-  // State UI
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  // Field error messages
+  String? _emailErrorMsg;
+  String? _passwordErrorMsg;
 
-  LoginResponseDto? _user;
-  LoginResponseDto? get user => _user;
+  // Getters
+  bool get isEmailError => _isEmailError;
+  bool get isPasswordError => _isPasswordError;
 
-  String? _error;
-  String? get error => _error;
+  String? get emailErrorMsg => _emailErrorMsg;
+  String? get passwordErrorMsg => _passwordErrorMsg;
 
-  // Login Function
-  Future<void> login() async {
+  // Regex patterns
+  static final _emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+
+  // Clear all errors
+  void _clearErrors() {
+    clearError();
+    _isEmailError = false;
+    _isPasswordError = false;
+    _emailErrorMsg = null;
+    _passwordErrorMsg = null;
+  }
+
+  // Validate all fields
+  bool _validateFields() {
+    _clearErrors();
+    bool isValid = true;
+
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      _error = 'Email dan password wajib diisi';
-      notifyListeners();
-      return;
+    // Email
+    if (email.isEmpty) {
+      _isEmailError = true;
+      _emailErrorMsg = 'Email wajib diisi';
+      isValid = false;
+    } else if (!_emailRegex.hasMatch(email)) {
+      _isEmailError = true;
+      _emailErrorMsg = 'Format email tidak valid';
+      isValid = false;
     }
 
-    _isLoading = true;
-    _error = null;
+    // Password
+    if (password.isEmpty) {
+      _isPasswordError = true;
+      _passwordErrorMsg = 'Kata sandi wajib diisi';
+      isValid = false;
+    }
+
     notifyListeners();
+    return isValid;
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  // Login Function
+  Future<bool> login() async {
+    if (!_validateFields()) return false;
+
+    setLoading(true);
 
     try {
-      final dto = LoginDto(email: email, password: password);
+      final dto = LoginDto(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
       _user = await _loginUseCase.execute(dto);
 
       // Save token after successful login
       if (_user?.accessToken != null) {
         await AuthService.saveToken(_user!.accessToken);
       }
+      return true;
     } catch (e) {
-      _error = e.toString();
+      setError(e.toString());
+      return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      setLoading(false);
     }
   }
 
   void reset() {
     _user = null;
-    _error = null;
+    clearError();
     emailController.clear();
     passwordController.clear();
     notifyListeners();
