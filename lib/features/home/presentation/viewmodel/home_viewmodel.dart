@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 
 class HomeViewModel extends ChangeNotifier {
   String _currentPage = 'beranda';
+  String _filter = 'all'; // 'all', 'ongoing', 'completed'
+
   final List<Map<String, dynamic>> _tugas = [
     {
       'title': 'Tugas 1',
-      'status': 'in_progress',
+      'status': 'ongoing',
       'deadline': DateTime.now().add(const Duration(days: 2)),
-      'description': 'Ini adalah contoh tugas yang sedang berjalan',
+      'description': 'Membuat laporan mingguan',
     },
     {
       'title': 'Tugas 2',
-      'status': 'pending',
+      'status': 'ongoing',
       'deadline': DateTime.now().add(const Duration(days: 5)),
-      'description': 'Ini adalah contoh tugas yang belum dimulai',
+      'description': 'Ini adalah contoh tugas yang sedang berjalan',
     },
     {
       'title': 'Tugas 3',
@@ -23,9 +25,22 @@ class HomeViewModel extends ChangeNotifier {
     },
   ];
 
-  // Getter
+  // Getters
   String get currentPage => _currentPage;
-  List<Map<String, dynamic>> get tugas => _tugas;
+  String get currentFilter => _filter;
+  
+  List<Map<String, dynamic>> get tugas {
+    if (_filter == 'all') return List.from(_tugas);
+    return _tugas.where((task) => task['status'] == _filter).toList();
+  }
+
+  // Setter for filter
+  void setFilter(String filter) {
+    if (['all', 'ongoing', 'completed'].contains(filter)) {
+      _filter = filter;
+      notifyListeners();
+    }
+  }
 
   // Methods
   void changePage(String page) {

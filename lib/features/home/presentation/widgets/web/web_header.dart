@@ -32,13 +32,12 @@ class WebHeader extends StatelessWidget {
               child: CustomSearchBar(),
             ),
             const SizedBox(width: 20),
-            
             // Profile Section
             Consumer<LoginViewModel>(
               builder: (context, loginVM, _) {
                 return UserProfile(
                   name: AuthService.userName ?? 'User',
-                  email: AuthService.userEmail ?? 'No email',
+                  email: AuthService.userEmail ?? 'user@example.com',
                   avatarSize: 40,
                   avatarColor: Colors.blue,
                 );

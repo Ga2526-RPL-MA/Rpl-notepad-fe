@@ -20,26 +20,30 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _viewModel = HomeViewModel();
-    
     // Handle route arguments when the page is first loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleRouteArguments();
     });
   }
-  
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Handle route arguments when coming back from another screen
     _handleRouteArguments();
   }
-  
+
   void _handleRouteArguments() {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null && args['tab'] == 'completed') {
-      _viewModel.changePage('tugas_selesai');
-    } else {
-      _viewModel.changePage('beranda');
+      setState(() {
+        _viewModel.changePage('tugas_selesai');
+      });
+    } else if (_viewModel.currentPage.isEmpty) {
+      setState(() {
+        _viewModel.changePage('beranda');
+      });
     }
   }
 
@@ -60,13 +64,14 @@ class _HomePageState extends State<HomePage> {
                   // Wait for the drawer to close
                   await Future.delayed(const Duration(milliseconds: 200));
                 }
-
                 setState(() {
                   _viewModel.changePage(page);
-                  if (page == 'diskusi') {
-                    Navigator.pushReplacementNamed(context, '/discussion');
-                  }
                 });
+                // Navigate to discussion page if needed
+                if (page == 'diskusi') {
+                  if (!mounted) return;
+                  Navigator.pushReplacementNamed(context, '/discussion');
+                }
               },
             )
           : null,
@@ -80,10 +85,11 @@ class _HomePageState extends State<HomePage> {
                   onPageChanged: (page) {
                     setState(() {
                       _viewModel.changePage(page);
-                      if (page == 'diskusi') {
-                        Navigator.pushNamed(context, '/discussion');
-                      }
                     });
+                    // Navigate to discussion page if needed
+                    if (page == 'diskusi') {
+                      Navigator.pushNamed(context, '/discussion');
+                    }
                   },
                 )
               : MobileLayout(

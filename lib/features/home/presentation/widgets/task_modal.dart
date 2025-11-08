@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
 
 String formatDate(DateTime date) {
   initializeDateFormatting('id_ID', null);
@@ -11,11 +12,15 @@ String formatDate(DateTime date) {
 class AddTaskModal extends StatefulWidget {
   final BuildContext parentContext;
   final Function(String, String, DateTime, String) onSave;
+  final VoidCallback? onDelete;
+  final Map<String, dynamic>? initialData;
 
   const AddTaskModal({
     super.key,
     required this.parentContext,
     required this.onSave,
+    this.onDelete,
+    this.initialData,
   });
 
   @override
@@ -24,9 +29,23 @@ class AddTaskModal extends StatefulWidget {
 
 class _AddTaskModalState extends State<AddTaskModal> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  DateTime _deadline = DateTime.now().add(const Duration(days: 1));
+  late final TextEditingController _titleController;
+  late final TextEditingController _descriptionController;
+  late DateTime _deadline;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(
+      text: widget.initialData?['title'] ?? '',
+    );
+    _descriptionController = TextEditingController(
+      text: widget.initialData?['description'] ?? '',
+    );
+    _deadline =
+        widget.initialData?['deadline'] ??
+        DateTime.now().add(const Duration(days: 1));
+  }
 
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
@@ -56,7 +75,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
         Positioned.fill(
           child: BackdropFilter(
             filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: Container(color: Colors.transparent,),
+            child: Container(color: Colors.transparent),
           ),
         ),
         Center(
@@ -88,15 +107,16 @@ class _AddTaskModalState extends State<AddTaskModal> {
                           ),
                         ],
                       ),
-                      const Text(
-                        'Tambah Tugas',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Inter',
+                      if (widget.initialData == null)
+                        const Text(
+                          'Tambah Tugas',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Inter',
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 24),
 
                       // Nama Tugas
@@ -135,7 +155,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
 
                       // Deadline
                       Text(
-                        'Deadline',
+                        'Tenggat waktu',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           color: Colors.black87,
@@ -209,37 +229,110 @@ class _AddTaskModalState extends State<AddTaskModal> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Button Simpan
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              widget.onSave(
-                                _titleController.text.trim(),
-                                'pending',
-                                _deadline,
-                                _descriptionController.text.trim(),
-                              );
-                              Navigator.of(widget.parentContext).pop();
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                      // Buttons Column
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Save Button
+                            SizedBox(
+                              width: 160,
+                              height: 48,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    widget.onSave(
+                                      _titleController.text,
+                                      widget.initialData?['status'] ??
+                                          'ongoing',
+                                      _deadline,
+                                      _descriptionController.text,
+                                    );
+                                    Navigator.of(widget.parentContext).pop();
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0XFF212936),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Simpan',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                    fontFamily: 'Inter',
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          child: const Text(
-                            'Simpan',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              fontFamily: 'Inter',
-                            ),
-                          ),
+
+                            // Delete Button
+                            if (widget.onDelete != null) ...[
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: 160,
+                                height: 48,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    final shouldDelete =
+                                        await CustomModal.show<bool>(
+                                          widget.parentContext,
+                                          title: 'Apakah anda yakin?',
+                                          message:
+                                              'Pastikan lagi kembali sebelum dihapus',
+                                          primaryButtonText: 'Hapus',
+                                          secondaryButtonText: 'Batal',
+                                          onPrimaryPressed: () => Navigator.pop(
+                                            widget.parentContext,
+                                            true,
+                                          ),
+                                          onSecondaryPressed: () =>
+                                              Navigator.pop(
+                                                widget.parentContext,
+                                                false,
+                                              ),
+                                        );
+
+                                    if (shouldDelete == true &&
+                                        widget.onDelete != null) {
+                                      widget.onDelete!();
+                                      Navigator.of(widget.parentContext).pop();
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFEE443F),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Image.asset(
+                                        'assets/icon/trash-icon.png',
+                                        width: 18,
+                                        height: 18,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Text(
+                                        'Hapus',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                          fontFamily: 'Inter',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       const SizedBox(height: 8),

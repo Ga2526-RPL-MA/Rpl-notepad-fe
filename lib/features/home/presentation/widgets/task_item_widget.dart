@@ -4,20 +4,20 @@ class TaskItemWidget extends StatelessWidget {
   final String title;
   final String status;
   final VoidCallback? onTap;
+  final ValueChanged<String>? onStatusChanged;
 
   const TaskItemWidget({
     Key? key,
     required this.title,
     required this.status,
     this.onTap,
+    this.onStatusChanged,
   }) : super(key: key);
 
   Color getBackgroundColor() {
     switch (status) {
-      case 'in_progress':
+      case 'ongoing':
         return const Color(0xFFECF8EF);
-      case 'pending':
-        return Colors.white;
       case 'completed':
         return const Color(0xFF6A766C);
       default:
@@ -31,8 +31,7 @@ class TaskItemWidget extends StatelessWidget {
 
   IconData getIconData() {
     switch (status) {
-      case 'in_progress':
-      case 'pending':
+      case 'ongoing':
         return Icons.radio_button_unchecked;
       case 'completed':
         return Icons.check_circle_outline_rounded;
@@ -42,7 +41,7 @@ class TaskItemWidget extends StatelessWidget {
   }
 
   Color getIconColor() {
-    if (status == 'in_progress') return const Color(0xFF69C57D);
+    if (status == 'ongoing') return const Color(0xFF69C57D);
     if (status == 'completed') return Colors.white;
     return Color(0xFF6D717F);
   }
@@ -50,7 +49,8 @@ class TaskItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap ?? () {},
+      behavior: HitTestBehavior.opaque,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
@@ -58,7 +58,7 @@ class TaskItemWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: status != 'completed'
               ? Border.all(
-                  color: status == 'in_progress'
+                  color: status == 'ongoing'
                       ? const Color(0xFF43B75D)
                       : Colors.black,
                 )
@@ -68,7 +68,16 @@ class TaskItemWidget extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(getIconData(), color: getIconColor(), size: 24),
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: onStatusChanged != null ? () {
+                    final newStatus = status == 'ongoing' ? 'completed' : 'ongoing';
+                    onStatusChanged!(newStatus);
+                  } : null,
+                  child: Icon(getIconData(), color: getIconColor(), size: 24),
+                ),
+              ),
               const SizedBox(width: 12),
               Text(
                 title,

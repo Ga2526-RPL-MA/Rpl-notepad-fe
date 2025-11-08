@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
+import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
 import 'package:rpl_notepad_fe/features/auth/data/dtos/logout_dto.dart';
 import 'package:rpl_notepad_fe/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
@@ -79,14 +80,16 @@ class MenuDrawer extends StatelessWidget {
       width: width,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      child: Container(
-        margin: isWeb ? const EdgeInsets.all(20) : null,
-        decoration: BoxDecoration(
-          color: isWeb ? const Color(0x80FFFFFF) : Colors.grey,
-          borderRadius: isWeb ? BorderRadius.circular(20) : null,
-        ),
-        child: ClipRRect(
-          borderRadius: isWeb ? BorderRadius.circular(20) : BorderRadius.zero,
+      child: ClipRRect(
+        borderRadius: isWeb ? BorderRadius.circular(20) : BorderRadius.zero,
+        child: Container(
+          margin: isWeb
+              ? const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20)
+              : null,
+          decoration: BoxDecoration(
+            color: const Color(0x8AFFFFFF),
+            borderRadius: isWeb ? BorderRadius.circular(20) : null,
+          ),
           child: SafeArea(
             child: Container(
               width: double.infinity,
@@ -100,35 +103,41 @@ class MenuDrawer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/images/logo.png',
-                            width: 70,
-                            height: 80,
-                            fit: BoxFit.contain,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'RPL Notepad',
-                            style: TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Inter',
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/logo.png',
+                              width: 70,
+                              height: 80,
+                              fit: BoxFit.contain,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            const Text(
+                              'RPL Notepad',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Inter',
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       if (!isWeb)
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/icon/menu-icon.png',
-                            width: 24,
-                            height: 24,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6.0),
+                          child: IconButton(
+                            icon: Image.asset(
+                              'assets/icon/menu-icon.png',
+                              width: 24,
+                              height: 24,
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
                           ),
-                          onPressed: () => Navigator.of(context).pop(),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
                         ),
                     ],
                   ),
@@ -157,76 +166,92 @@ class MenuDrawer extends StatelessWidget {
                   const Spacer(),
 
                   // Button Keluar
-                  Center(
-                    child: SizedBox(
-                      width: 160,
-                      height: 42,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF394050)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16, top: 16),
+                    child: Center(
+                      child: SizedBox(
+                        width: 160,
+                        height: 42,
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFF394050)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ),
-                        onPressed: () async {
-                          try {
-                            await AuthService.clearToken();
-
-                            final loginVM = Provider.of<LoginViewModel>(
+                          onPressed: () async {
+                            final shouldLogout = await CustomModal.show<bool>(
                               context,
-                              listen: false,
-                            );
-                            loginVM.reset();
-
-                            // Navigate to login page
-                            if (!context.mounted) return;
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
-                              ),
-                              (route) => false,
+                              title: 'Apakah anda yakin?',
+                              message: 'Pastikan lagi kembali sebelum keluar',
+                              primaryButtonText: 'Keluar',
+                              secondaryButtonText: 'Batal',
+                              onPrimaryPressed: () =>
+                                  Navigator.pop(context, true),
+                              onSecondaryPressed: () =>
+                                  Navigator.pop(context, false),
                             );
 
-                            // logout
-                            final token = AuthService.token;
-                            if (token != null && token.isNotEmpty) {
+                            if (shouldLogout == true) {
                               try {
-                                final logoutDto = LogoutDto(
-                                  refreshToken: token,
+                                await AuthService.clearToken();
+
+                                final loginVM = Provider.of<LoginViewModel>(
+                                  context,
+                                  listen: false,
                                 );
-                                final logoutUseCase = LogoutUseCase(loginVM.loginUseCase.repository);
-                                await logoutUseCase.execute(logoutDto);
+                                loginVM.reset();
+
+                                // Navigate to login page
+                                if (!context.mounted) return;
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                    builder: (context) => const LoginPage(),
+                                  ),
+                                  (route) => false,
+                                );
+
+                                // logout
+                                final token = AuthService.token;
+                                if (token != null && token.isNotEmpty) {
+                                  try {
+                                    final logoutDto = LogoutDto(
+                                      refreshToken: token,
+                                    );
+                                    final logoutUseCase = LogoutUseCase(
+                                        loginVM.loginUseCase.repository);
+                                    await logoutUseCase.execute(logoutDto);
+                                  } catch (e) {
+                                    debugPrint(
+                                      'API Logout failed (non-critical): $e',
+                                    );
+                                  }
+                                }
                               } catch (e) {
-                                debugPrint(
-                                  'API Logout failed (non-critical): $e',
-                                );
+                                debugPrint('Logout error: $e');
+                                if (context.mounted) {
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginPage(),
+                                    ),
+                                    (route) => false,
+                                  );
+                                }
                               }
                             }
-                          } catch (e) {
-                            debugPrint('Logout error: $e');
-                            if (context.mounted) {
-                              Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginPage(),
-                                ),
-                                (route) => false,
-                              );
-                            }
-                          }
-                        },
-
-                        child: const Text(
-                          'Keluar',
-                          style: TextStyle(
-                            color: Color(0xFF394050),
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Inter',
+                          },
+                          child: const Text(
+                            'Keluar',
+                            style: TextStyle(
+                              color: Color(0xFF394050),
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Inter',
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),

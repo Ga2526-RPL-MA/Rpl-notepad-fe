@@ -21,13 +21,12 @@ class MobileHeader extends StatelessWidget {
             icon: const Icon(Icons.menu, size: 24),
             onPressed: onMenuPressed,
           ),
-
           // User info and avatar
           Consumer<LoginViewModel>(
             builder: (context, loginVM, _) {
               return UserProfile(
                 name: AuthService.userName ?? 'User',
-                email: AuthService.userEmail ?? 'No email',
+                email: AuthService.userEmail ?? 'user@example.com',
                 avatarSize: 40,
                 avatarColor: Colors.blue,
               );

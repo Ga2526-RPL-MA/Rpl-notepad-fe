@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:rpl_notepad_fe/features/home/presentation/widgets/add_task_modal.dart';
+import 'package:provider/provider.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_modal.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_filter_dropdown.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_item_widget.dart';
 import '../../viewmodel/home_viewmodel.dart';
 
-class MobileContentArea extends StatelessWidget {
+class MobileContentArea extends StatefulWidget {
   final HomeViewModel viewModel;
   final bool isWeb;
 
@@ -15,37 +17,66 @@ class MobileContentArea extends StatelessWidget {
   });
 
   @override
+  State<MobileContentArea> createState() => _MobileContentAreaState();
+}
+
+class _MobileContentAreaState extends State<MobileContentArea> {
+  @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        children: [
-          // Search bar for mobile
-          const CustomSearchBar(),
-          const SizedBox(height: 24),
-          
-          // Title
-          Text(
-            'Tugas Kuliah',
-            style: TextStyle(
-              fontSize: isWeb ? 26 : 20,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Inter',
+    return ChangeNotifierProvider.value(
+      value: widget.viewModel,
+      child: Consumer<HomeViewModel>(
+        builder: (context, viewModel, child) {
+          return Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              children: [
+                // Search bar for mobile
+                const CustomSearchBar(),
+                const SizedBox(height: 24),
+                // Title
+                Text(
+                  'Tugas Kuliah',
+                  style: TextStyle(
+                    fontSize: widget.isWeb ? 26 : 20,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Filter Dropdown
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: const [TaskFilterDropdown()],
+                ),
+                const SizedBox(height: 16),
+                // Task List
+                ...viewModel.tugas.asMap().entries.map(
+                  (entry) => TaskItemWidget(
+                    title: entry.value['title'] as String,
+                    status: entry.value['status'] as String,
+                    onStatusChanged: (newStatus) {
+                      viewModel.updateTask(
+                        entry.key,
+                        entry.value['title'] as String,
+                        newStatus,
+                        entry.value['deadline'] as DateTime,
+                        entry.value['description'] as String,
+                      );
+                    },
+                    onTap: () {
+                      _showEditTaskModal(context, entry.key, entry.value);
+                    },
+                  ),
+                ),
+                // Add Task Button (Mobile)
+                const SizedBox(height: 24),
+                _buildAddButton(context),
+                const SizedBox(height: 24),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          
-          // Task List
-          ...viewModel.tugas.map((item) => TaskItemWidget(
-                title: item['title'] as String,
-                status: item['status'] as String,
-              )),
-              
-          // Add Task Button (Mobile)
-          const SizedBox(height: 24),
-          _buildAddButton(context),
-          const SizedBox(height: 24),
-        ],
+          );
+        },
       ),
     );
   }
@@ -84,6 +115,7 @@ class MobileContentArea extends StatelessWidget {
   }
 
   void _showAddTaskModal(BuildContext context) {
+    final viewModel = Provider.of<HomeViewModel>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -94,6 +126,36 @@ class MobileContentArea extends StatelessWidget {
           onSave: (title, status, deadline, description) {
             viewModel.addTask(title, status, deadline, description);
           },
+        );
+      },
+    );
+  }
+
+  void _showEditTaskModal(
+    BuildContext context,
+    int index,
+    Map<String, dynamic> task,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return AddTaskModal(
+          parentContext: context,
+          onSave: (title, status, deadline, description) {
+            widget.viewModel.updateTask(
+              index,
+              title,
+              status,
+              deadline,
+              description,
+            );
+          },
+          onDelete: () {
+            widget.viewModel.deleteTask(index);
+          },
+          initialData: task,
         );
       },
     );
