@@ -3,6 +3,7 @@ import 'package:alice/model/alice_configuration.dart';
 import 'package:alice_dio/alice_dio_adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:rpl_notepad_fe/core/network/api_config.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -35,8 +36,14 @@ class ApiService {
     // Interceptor
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
-          // Delete header CORS
+        onRequest: (options, handler) async {
+          // Authorization header 
+          final token = await AuthService.token;
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          
+          // Delete header 
           options.headers.remove('access-control-allow-origin');
           options.headers.remove('access-control-allow-methods');
           options.headers.remove('access-control-allow-headers');
@@ -46,10 +53,10 @@ class ApiService {
         onError: (DioException e, handler) {
           if (e.response != null) {
             print(
-              '❌ Error response: ${e.response?.statusCode} - ${e.response?.data}',
+              'Error response: ${e.response?.statusCode} - ${e.response?.data}',
             );
           } else {
-            print('❌ Error: ${e.message}');
+            print('Error: ${e.message}');
           }
           return handler.next(e);
         },

@@ -10,7 +10,7 @@ class AuthService {
   static Completer<void>? _initCompleter;
   static bool get isInitialized => _initCompleter?.isCompleted ?? false;
 
-  // Initialize AuthService
+  // Init
   static Future<void> init() async {
     if (isInitialized) return;
     
@@ -47,7 +47,7 @@ class AuthService {
     }
   }
 
-  // Save authentication token
+  // Save token
   static Future<void> saveToken(String token) async {
     try {
       await _ensureInitialized();
@@ -66,7 +66,7 @@ class AuthService {
     }
   }
 
-  // Clear authentication token
+  // Clear token
   static Future<void> clearToken() async {
     try {
       await _ensureInitialized();
@@ -85,7 +85,7 @@ class AuthService {
     }
   }
 
-  // Get current token
+  // Get  token
   static String? get token {
     if (!isInitialized) {
       debugPrint('Warning: Accessing token before AuthService is initialized');
@@ -94,10 +94,10 @@ class AuthService {
     return _token;
   }
 
-  // Check if user is logged in
+  // Check user logged in
   static bool get isLoggedIn => token != null;
 
-  // Get user email from token
+  // Get email from token
   static String? get userEmail {
     final currentToken = token;
     return currentToken != null ? JwtHelper.getEmail(currentToken) : null;
