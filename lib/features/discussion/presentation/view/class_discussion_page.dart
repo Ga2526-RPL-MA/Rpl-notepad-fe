@@ -7,6 +7,10 @@ import 'package:rpl_notepad_fe/features/discussion/presentation/view/chat_detail
 import 'package:rpl_notepad_fe/features/discussion/presentation/widgets/class_message_card.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/class_discussion_viewmodel.dart';
+import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 
 class ClassDiscussionPage extends StatefulWidget {
   final int classId;
@@ -92,12 +96,200 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isWeb = MediaQuery.of(context).size.width > 800;
+
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
-        drawer: MenuDrawer(currentPage: 'diskusi', onPageChanged: (page) {}),
+        drawer: !isWeb
+            ? MenuDrawer(currentPage: 'diskusi', onPageChanged: (page) {})
+            : null,
         body: Consumer<ClassDiscussionViewModel>(
           builder: (context, viewModel, child) {
+            if (isWeb) {
+              return Stack(
+                children: [
+                  GradientBackground(
+                    child: SafeArea(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Sidebar
+                          MenuDrawer(
+                            currentPage: 'diskusi',
+                            onPageChanged: (page) {},
+                          ),
+                          const SizedBox(width: 20),
+
+                          // Main content
+                          Expanded(
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20),
+                                // Header Card 
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: CustomCard(
+                                    color: Colors.white,
+                                    width: double.infinity,
+                                    height: 100,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        const Expanded(
+                                          child: CustomSearchBar(hintText: 'Cari diskusi...'),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Consumer<LoginViewModel>(
+                                          builder: (context, loginVM, _) {
+                                            return UserProfile(
+                                              name: AuthService.userName?.isNotEmpty == true
+                                                  ? AuthService.userName!
+                                                  : 'User',
+                                              email: AuthService.userEmail?.isNotEmpty == true
+                                                  ? AuthService.userEmail!
+                                                  : 'user@example.com',
+                                              avatarSize: 40,
+                                              avatarColor: Color(0xFFD4C5F9),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Fixed Title 
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          widget.className,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
+                                            fontFamily: 'Inter',
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      ElevatedButton.icon(
+                                        onPressed: _toggleAddForm,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.black,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(5),
+                                          ),
+                                        ),
+                                        icon: Icon(
+                                          viewModel.showAddForm ? Icons.close : Icons.add,
+                                          size: 20,
+                                        ),
+                                        label: Text(viewModel.showAddForm ? 'Batal' : 'Tambah'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Fixed Input Form 
+                                if (viewModel.showAddForm)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: DiscussionInputForm(
+                                      controller: _issueController,
+                                      onPostPressed: _handlePostIssue,
+                                      onCancelPressed: _toggleAddForm,
+                                      isVisible: viewModel.showAddForm,
+                                      maxLines: 6,
+                                      minHeight: 180,
+                                    ),
+                                  ),
+
+                                // Content Area (scrollable)
+                                Expanded(
+                                  child: ListView(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(16.0),
+                                        width: double.infinity,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 0),
+
+                                            // Issues
+                                            if (viewModel.issues.isEmpty && !viewModel.showAddForm)
+                                              const Padding(
+                                                padding: EdgeInsets.only(top: 32.0),
+                                                child: Center(
+                                                  child: Text(
+                                                    'Tidak ada diskusi',
+                                                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                                                  ),
+                                                ),
+                                              )
+                                            else
+                                              ...viewModel.issues
+                                                  .map(
+                                                    (issue) => Padding(
+                                                      padding: const EdgeInsets.only(bottom: 16.0),
+                                                      child: ClassMessageCard(
+                                                        key: ValueKey(issue.id),
+                                                        issue: issue,
+                                                        onTap: () {
+                                                          _showMessageDetail(
+                                                            context,
+                                                            issue.userName,
+                                                            issue.content,
+                                                            issue.id,
+                                                            false,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (viewModel.isLoading)
+                    Container(
+                      color: Colors.black54,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }
+
+            // Mobile
             return Stack(
               children: [
                 GradientBackground(

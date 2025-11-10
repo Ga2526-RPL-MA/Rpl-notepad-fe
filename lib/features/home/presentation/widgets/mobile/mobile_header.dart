@@ -28,7 +28,7 @@ class MobileHeader extends StatelessWidget {
                 name: AuthService.userName ?? 'User',
                 email: AuthService.userEmail ?? 'user@example.com',
                 avatarSize: 40,
-                avatarColor: Colors.blue,
+                avatarColor: Color(0xFFD4C5F9),
               );
             },
           ),

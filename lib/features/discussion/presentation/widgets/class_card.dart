@@ -33,53 +33,58 @@ class ClassCard extends StatelessWidget {
         elevation: 0,
         shadowColor: Colors.transparent,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Icon
               Image.asset(
                 iconPath,
-                width: 22,
-                height: 22,
+                width: 20,
+                height: 20,
                 color: cardOutlineColor,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
 
-              // Class Name
+              // Class Info
               Expanded(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Title
                     Text(
                       className,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Inter',
                       ),
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
 
                     // Time and Room
                     Text(
                       '$classTime, $classRoom',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0XFF6D717F),
                         fontFamily: 'Inter',
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 6),
 
                     // Button Lihat
                     Text(
                       'Lihat',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: cardOutlineColor,
                         fontFamily: 'Inter',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../../domain/entities/issue.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/widgets/profile_avatar.dart';
 
 class ClassMessageCard extends StatefulWidget {
   final Issue issue;
@@ -49,44 +50,12 @@ class _ClassMessageCardState extends State<ClassMessageCard> {
           children: [
             // Header
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: 45,
-                      height: 45,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFD4C5F9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          issue.userName.isNotEmpty
-                              ? issue.userName[0].toUpperCase()
-                              : '?',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Status online 
-                    Positioned(
-                      bottom: 1,
-                      left: 1,
-                      child: Container(
-                        width: 15,
-                        height: 15,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4ADE80),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                        ),
-                      ),
-                    ),
-                  ],
+                ProfileAvatar(
+                  size: 45,
+                  backgroundColor: const Color(0xFFD4C5F9),
+                  showOnlineIndicator: true,
                 ),
                 const SizedBox(width: 18),
                 Expanded(
@@ -98,6 +67,7 @@ class _ClassMessageCardState extends State<ClassMessageCard> {
                       color: Colors.black,
                       fontFamily: 'Inter',
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

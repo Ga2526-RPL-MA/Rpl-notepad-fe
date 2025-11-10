@@ -10,10 +10,7 @@ import '../../viewmodel/home_viewmodel.dart';
 class WebHeader extends StatelessWidget {
   final HomeViewModel viewModel;
 
-  const WebHeader({
-    super.key,
-    required this.viewModel,
-  });
+  const WebHeader({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +25,7 @@ class WebHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Search Bar
-            const Expanded(
-              child: CustomSearchBar(),
-            ),
+            const Expanded(child: CustomSearchBar()),
             const SizedBox(width: 20),
             // Profile Section
             Consumer<LoginViewModel>(
@@ -39,7 +34,7 @@ class WebHeader extends StatelessWidget {
                   name: AuthService.userName ?? 'User',
                   email: AuthService.userEmail ?? 'user@example.com',
                   avatarSize: 40,
-                  avatarColor: Colors.blue,
+                  avatarColor: Color(0xFFD4C5F9),
                 );
               },
             ),

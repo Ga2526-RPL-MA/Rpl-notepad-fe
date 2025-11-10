@@ -6,6 +6,8 @@ class DiscussionInputForm extends StatelessWidget {
   final VoidCallback onPostPressed;
   final VoidCallback onCancelPressed;
   final bool isVisible;
+  final int maxLines;
+  final double? minHeight;
 
   const DiscussionInputForm({
     Key? key,
@@ -13,13 +15,15 @@ class DiscussionInputForm extends StatelessWidget {
     required this.onPostPressed,
     required this.onCancelPressed,
     required this.isVisible,
+    this.maxLines = 3,
+    this.minHeight,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (!isVisible) return const SizedBox.shrink();
 
-    return Container(
+    final box = Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -53,7 +57,7 @@ class DiscussionInputForm extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: TextField(
                     controller: controller,
-                    maxLines: 3,
+                    maxLines: maxLines,
                     decoration: const InputDecoration(
                       hintText: 'Ada apa?',
                       hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
@@ -97,5 +101,14 @@ class DiscussionInputForm extends StatelessWidget {
         ],
       ),
     );
+
+    if ((minHeight ?? 0) > 0) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(minHeight: minHeight!),
+        child: box,
+      );
+    }
+
+    return box;
   }
 }

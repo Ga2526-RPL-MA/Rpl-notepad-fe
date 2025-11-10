@@ -77,6 +77,8 @@ class _DiscussionViewState extends State<_DiscussionView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<DiscussionViewModel>();
+    final isWeb = MediaQuery.of(context).size.width > 800;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     if (viewModel.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -91,6 +93,123 @@ class _DiscussionViewState extends State<_DiscussionView> {
       );
     }
 
+    if (isWeb) {
+      return Column(
+        children: [
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: CustomCard(
+                color: Colors.white,
+                width: double.infinity,
+                height: 100,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Expanded(child: CustomSearchBar()),
+                    const SizedBox(width: 20),
+                    Consumer<LoginViewModel>(
+                      builder: (context, loginVM, _) {
+                        return UserProfile(
+                          name: AuthService.userName?.isNotEmpty == true
+                              ? AuthService.userName!
+                              : 'User',
+                          email: AuthService.userEmail?.isNotEmpty == true
+                              ? AuthService.userEmail!
+                              : 'user@example.com',
+                          avatarSize: 40,
+                          avatarColor: Color(0xFFD4C5F9),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                CustomCard(
+                  color: Colors.white,
+                  width: double.infinity,
+                  flexible: true,
+                  minHeight: screenHeight * 0.81,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Pilih Kelas Diskusi',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            return GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: const EdgeInsets.all(16.0),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 16.0,
+                                    mainAxisSpacing: 16.0,
+                                    childAspectRatio: 3.0,
+                                  ),
+                              itemCount: viewModel.classes.length,
+                              itemBuilder: (context, index) {
+                                final classDto = viewModel.classes[index];
+                                final item = viewModel.getClassData(
+                                  classDto,
+                                  index,
+                                );
+                                return ClassCard(
+                                  iconPath: item['iconPath'],
+                                  className: item['className'],
+                                  classTime: item['classTime'],
+                                  classRoom: item['classRoom'],
+                                  cardBackgroundColor:
+                                      item['cardBackgroundColor'],
+                                  cardOutlineColor: item['cardOutlineColor'],
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ClassDiscussionPage(
+                                              classId: classDto.id,
+                                              className: classDto.name,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
     return GradientBackground(
       child: SafeArea(
         child: Padding(
@@ -99,93 +218,87 @@ class _DiscussionViewState extends State<_DiscussionView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Menu Button Mobile
-                      if (MediaQuery.of(context).size.width <= 800)
-                        IconButton(
-                          icon: const Icon(
-                            Icons.menu,
-                            size: 24,
-                            color: Colors.black,
-                          ),
-                          onPressed: () {
-                            showGeneralDialog(
-                              context: context,
-                              barrierDismissible: true,
-                              barrierLabel: '',
-                              barrierColor: Colors.black26,
-                              transitionDuration: const Duration(
-                                milliseconds: 250,
-                              ),
-                              pageBuilder: (_, __, ___) {
-                                return Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Container(
-                                    width:
-                                        MediaQuery.of(context).size.width *
-                                        0.75,
-                                    height: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color: Colors.transparent,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 8,
-                                          offset: const Offset(4, 0),
-                                        ),
-                                      ],
+                      IconButton(
+                        icon: const Icon(
+                          Icons.menu,
+                          size: 24,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          showGeneralDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            barrierLabel: '',
+                            barrierColor: Colors.black26,
+                            transitionDuration: const Duration(
+                              milliseconds: 250,
+                            ),
+                            pageBuilder: (_, __, ___) {
+                              return Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.75,
+                                  height: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 8,
+                                        offset: const Offset(4, 0),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(16),
+                                      bottomRight: Radius.circular(16),
                                     ),
-                                    child: ClipRRect(
-                                      borderRadius: const BorderRadius.only(
-                                        topRight: Radius.circular(16),
-                                        bottomRight: Radius.circular(16),
-                                      ),
-                                      child: MenuDrawer(
-                                        currentPage: 'diskusi',
-                                        onPageChanged: (page) async {
-                                          Navigator.pop(context);
-                                          await Future.delayed(
-                                            const Duration(milliseconds: 200),
-                                          );
+                                    child: MenuDrawer(
+                                      currentPage: 'diskusi',
+                                      onPageChanged: (page) async {
+                                        Navigator.pop(context);
+                                        await Future.delayed(
+                                          const Duration(milliseconds: 200),
+                                        );
 
-                                          if (page == 'beranda' ||
-                                              page == 'tugas_selesai') {
-                                            Navigator.pushNamedAndRemoveUntil(
-                                              context,
-                                              '/home',
-                                              (route) => false,
-                                              arguments: page == 'tugas_selesai'
-                                                  ? {'tab': 'completed'}
-                                                  : null,
-                                            );
-                                          }
-                                        },
-                                      ),
+                                        if (page == 'beranda' ||
+                                            page == 'tugas_selesai') {
+                                          Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            '/home',
+                                            (route) => false,
+                                            arguments: page == 'tugas_selesai'
+                                                ? {'tab': 'completed'}
+                                                : null,
+                                          );
+                                        }
+                                      },
                                     ),
                                   ),
-                                );
-                              },
-                              transitionBuilder: (_, anim, __, child) {
-                                return SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(-1, 0),
-                                    end: Offset.zero,
-                                  ).animate(anim),
-                                  child: child,
-                                );
-                              },
-                            );
-                          },
-                        ),
+                                ),
+                              );
+                            },
+                            transitionBuilder: (_, anim, __, child) {
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(-1, 0),
+                                  end: Offset.zero,
+                                ).animate(anim),
+                                child: child,
+                              );
+                            },
+                          );
+                        },
+                      ),
                       const Spacer(),
-
-                      // User Profile
                       Consumer<LoginViewModel>(
                         builder: (context, loginVM, _) {
                           return UserProfile(
@@ -195,7 +308,7 @@ class _DiscussionViewState extends State<_DiscussionView> {
                             email: AuthService.userEmail?.isNotEmpty == true
                                 ? AuthService.userEmail!
                                 : 'user@example.com',
-                            avatarColor: Colors.blue,
+                            avatarColor: Color(0xFFD4C5F9),
                           );
                         },
                       ),
@@ -203,7 +316,7 @@ class _DiscussionViewState extends State<_DiscussionView> {
                   ),
                 ),
 
-                // Main content
+                // Mobile
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -225,75 +338,36 @@ class _DiscussionViewState extends State<_DiscussionView> {
                         ),
                         const SizedBox(height: 16),
                         Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              final isWeb = constraints.maxWidth > 800;
-
-                              if (!isWeb) {
-                                return ListView.builder(
-                                  itemCount: viewModel.classes.length,
-                                  itemBuilder: (context, index) {
-                                    final classDto = viewModel.classes[index];
-                                    final item = viewModel.getClassData(
-                                      classDto,
-                                      index,
-                                    );
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 12.0,
-                                      ),
-                                      child: ClassCard(
-                                        iconPath: item['iconPath'],
-                                        className: item['className'],
-                                        classTime: item['classTime'],
-                                        classRoom: item['classRoom'],
-                                        cardBackgroundColor:
-                                            item['cardBackgroundColor'],
-                                        cardOutlineColor:
-                                            item['cardOutlineColor'],
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => ClassDiscussionPage(
-                                                classId: classDto.id,
-                                                className: classDto.name,
-                                              ),
+                          child: ListView.builder(
+                            itemCount: viewModel.classes.length,
+                            itemBuilder: (context, index) {
+                              final classDto = viewModel.classes[index];
+                              final item = viewModel.getClassData(
+                                classDto,
+                                index,
+                              );
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: ClassCard(
+                                  iconPath: item['iconPath'],
+                                  className: item['className'],
+                                  classTime: item['classTime'],
+                                  classRoom: item['classRoom'],
+                                  cardBackgroundColor:
+                                      item['cardBackgroundColor'],
+                                  cardOutlineColor: item['cardOutlineColor'],
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ClassDiscussionPage(
+                                              classId: classDto.id,
+                                              className: classDto.name,
                                             ),
-                                          );
-                                        },
                                       ),
                                     );
                                   },
-                                );
-                              }
-
-                              //  web view
-                              return GridView.builder(
-                                padding: const EdgeInsets.all(16.0),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      crossAxisSpacing: 16.0,
-                                      mainAxisSpacing: 16.0,
-                                      childAspectRatio: 3.0,
-                                    ),
-                                itemCount: viewModel.classes.length,
-                                itemBuilder: (context, index) {
-                                  final classDto = viewModel.classes[index];
-                                  final item = viewModel.getClassData(
-                                    classDto,
-                                    index,
-                                  );
-                                  return ClassCard(
-                                    iconPath: item['iconPath'],
-                                    className: item['className'],
-                                    classTime: item['classTime'],
-                                    classRoom: item['classRoom'],
-                                    cardBackgroundColor:
-                                        item['cardBackgroundColor'],
-                                    cardOutlineColor: item['cardOutlineColor'],
-                                  );
-                                },
+                                ),
                               );
                             },
                           ),
