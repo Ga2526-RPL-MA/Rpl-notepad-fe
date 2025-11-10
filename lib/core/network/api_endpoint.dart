@@ -10,6 +10,10 @@ enum APIEndpoint {
   postIssues,
   postAnswer,
   postSubAnswer,
+  getTask,
+  createTask,
+  updateTask,
+  deleteTask,
 }
 
 extension APIEndpointExtension on APIEndpoint {
@@ -33,6 +37,14 @@ extension APIEndpointExtension on APIEndpoint {
         return "/answers";
       case APIEndpoint.postSubAnswer:
         return "/subAnswers";
+      case APIEndpoint.getTask:
+        return "/tasks";  
+      case APIEndpoint.createTask:
+        return "/tasks";
+      case APIEndpoint.updateTask:
+        return "/tasks";
+      case APIEndpoint.deleteTask:
+        return "/tasks";
     }
   }
 

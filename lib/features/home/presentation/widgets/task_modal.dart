@@ -3,6 +3,10 @@ import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
+import 'package:rpl_notepad_fe/features/discussion/data/dtos/getclass_dto.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/repositories/class_repository.dart';
+import 'package:rpl_notepad_fe/features/discussion/data/repositories/class_repository_impl.dart';
+import 'package:rpl_notepad_fe/core/network/api_service.dart';
 
 String formatDate(DateTime date) {
   initializeDateFormatting('id_ID', null);
@@ -11,7 +15,7 @@ String formatDate(DateTime date) {
 
 class AddTaskModal extends StatefulWidget {
   final BuildContext parentContext;
-  final Function(String, String, DateTime, String) onSave;
+  final Function(String, String, DateTime, String, String) onSave;
   final VoidCallback? onDelete;
   final Map<String, dynamic>? initialData;
 
@@ -32,19 +36,35 @@ class _AddTaskModalState extends State<AddTaskModal> {
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
   late DateTime _deadline;
+  String? _selectedClassId;
+  late final ClassRepository _classRepository;
+  static List<GetClassDto> _cachedClasses = [];
+  List<GetClassDto> _classes = [];
+  bool _isLoading = true;
+  bool _isDropdownFocused = false;
 
   @override
   void initState() {
     super.initState();
+    _classRepository = ClassRepositoryImpl(api: ApiService());
+
     _titleController = TextEditingController(
       text: widget.initialData?['title'] ?? '',
     );
     _descriptionController = TextEditingController(
       text: widget.initialData?['description'] ?? '',
     );
+
+    if (widget.initialData?['classId'] != null) {
+      _selectedClassId = widget.initialData!['classId'].toString();
+    }
     _deadline =
         widget.initialData?['deadline'] ??
         DateTime.now().add(const Duration(days: 1));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchClasses();
+    });
   }
 
   Future<void> _selectDate() async {
@@ -58,6 +78,44 @@ class _AddTaskModalState extends State<AddTaskModal> {
       setState(() {
         _deadline = picked;
       });
+    }
+  }
+
+  Future<void> _fetchClasses() async {
+    if (_cachedClasses.isNotEmpty) {
+      if (mounted) {
+        setState(() {
+          _classes = _cachedClasses;
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
+    if (_classes.isEmpty) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
+    try {
+      final classes = await _classRepository.getClasses();
+      if (mounted) {
+        setState(() {
+          _cachedClasses = classes;
+          _classes = classes;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal memuat daftar kelas')),
+        );
+      }
     }
   }
 
@@ -117,7 +175,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                             fontFamily: 'Inter',
                           ),
                         ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
 
                       // Nama Tugas
                       Text(
@@ -134,9 +192,16 @@ class _AddTaskModalState extends State<AddTaskModal> {
                         decoration: InputDecoration(
                           hintText: 'Masukkan nama tugas',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(20),
                             borderSide: const BorderSide(
                               color: Color(0xFFE0E0E0),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6A766C),
+                              width: 2,
                             ),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
@@ -163,47 +228,126 @@ class _AddTaskModalState extends State<AddTaskModal> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      InkWell(
+                      TextFormField(
+                        readOnly: true,
                         onTap: _selectDate,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
+                        decoration: InputDecoration(
+                          hintText: 'Pilih tanggal',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFE0E0E0),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6A766C),
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 14,
                           ),
-                          decoration: ShapeDecoration(
-                            shape: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE0E0E0),
-                                width: 1.0,
-                              ),
-                            ),
+                          prefixIcon: const Icon(
+                            Icons.calendar_today,
+                            color: Color(0xFF131927),
+                            size: 20,
                           ),
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                'assets/icon/calendar-icon.png',
-                                width: 20,
-                                height: 20,
-                                color: Colors.black54,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                formatDate(_deadline),
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                              const Spacer(),
-                              const Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.black54,
-                              ),
-                            ],
+                          prefixIconConstraints: const BoxConstraints(
+                            minWidth: 40,
+                            maxWidth: 40,
                           ),
+                        ),
+                        controller: TextEditingController(
+                          text: formatDate(_deadline),
                         ),
                       ),
                       const SizedBox(height: 16),
 
+                      // Kelas
+                      Text(
+                        'Kelas',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                          fontFamily: 'Inter',
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: _isDropdownFocused
+                              ? Border.all(
+                                  color: const Color(0xFF6A766C),
+                                  width: 2,
+                                )
+                              : Border.all(
+                                  color: const Color(0xFFE0E0E0),
+                                  width: 1,
+                                ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: _isLoading
+                            ? const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : _classes.isEmpty
+                            ? const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12.0),
+                                child: Text('Tidak ada kelas tersedia'),
+                              )
+                            : Focus(
+                                onFocusChange: (hasFocus) {
+                                  setState(() {
+                                    _isDropdownFocused = hasFocus;
+                                  });
+                                },
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: _selectedClassId,
+                                    isExpanded: true,
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Color(0xFF131927),
+                                    ),
+                                    dropdownColor: Colors.white,
+                                    hint: const Text(
+                                      'Pilih kelas',
+                                      style: TextStyle(
+                                        color: Color(0xFF6B7280),
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    style: const TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 14,
+                                    ),
+                                    items: _classes.map((classItem) {
+                                      return DropdownMenuItem<String>(
+                                        value: classItem.id.toString(),
+                                        child: Text(classItem.name),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) => setState(
+                                      () => _selectedClassId = value,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ),
+                      const SizedBox(height: 16),
+
                       // Deskripsi
+                      const SizedBox(height: 16),
                       Text(
                         'Deskripsi',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -219,9 +363,16 @@ class _AddTaskModalState extends State<AddTaskModal> {
                         decoration: InputDecoration(
                           hintText: 'Masukkan deskripsi tugas',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(20),
                             borderSide: const BorderSide(
                               color: Color(0xFFE0E0E0),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6A766C),
+                              width: 2,
                             ),
                           ),
                           contentPadding: const EdgeInsets.all(16),
@@ -247,6 +398,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                                           'ongoing',
                                       _deadline,
                                       _descriptionController.text,
+                                      _selectedClassId ?? '',
                                     );
                                     Navigator.of(widget.parentContext).pop();
                                   }
@@ -254,7 +406,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Color(0XFF212936),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(11),
                                   ),
                                 ),
                                 child: const Text(
@@ -305,7 +457,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFEE443F),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(11),
                                     ),
                                   ),
                                   child: Row(

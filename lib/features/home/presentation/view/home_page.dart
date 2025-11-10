@@ -20,7 +20,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _viewModel = HomeViewModel();
-    // Handle route arguments when the page is first loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleRouteArguments();
     });
@@ -29,7 +28,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Handle route arguments when coming back from another screen
     _handleRouteArguments();
   }
 
@@ -58,16 +56,14 @@ class _HomePageState extends State<HomePage> {
           ? MenuDrawer(
               currentPage: _viewModel.currentPage,
               onPageChanged: (page) async {
-                // Close the drawer first
                 if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
                   Navigator.of(context).pop();
-                  // Wait for the drawer to close
                   await Future.delayed(const Duration(milliseconds: 200));
                 }
                 setState(() {
                   _viewModel.changePage(page);
                 });
-                // Navigate to discussion page if needed
+                // Navigate to discussion page 
                 if (page == 'diskusi') {
                   if (!mounted) return;
                   Navigator.pushReplacementNamed(context, '/discussion');
@@ -86,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       _viewModel.changePage(page);
                     });
-                    // Navigate to discussion page if needed
+                    // Navigate to discussion page 
                     if (page == 'diskusi') {
                       Navigator.pushNamed(context, '/discussion');
                     }

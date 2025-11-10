@@ -3,22 +3,32 @@ import 'package:provider/provider.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_modal.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_filter_dropdown.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_item_widget.dart';
-import '../../viewmodel/home_viewmodel.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/viewmodel/home_viewmodel.dart';
 
-class WebContentArea extends StatelessWidget {
+class WebContentArea extends StatefulWidget {
   final HomeViewModel viewModel;
   final bool isWeb;
 
-  const WebContentArea({
-    super.key,
-    required this.viewModel,
-    this.isWeb = true,
-  });
+  const WebContentArea({super.key, required this.viewModel, this.isWeb = true});
+
+  @override
+  State<WebContentArea> createState() => _WebContentAreaState();
+}
+
+class _WebContentAreaState extends State<WebContentArea> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch tasks when the widget is first created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.viewModel.fetchTasks();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: viewModel,
+      value: widget.viewModel,
       child: Consumer<HomeViewModel>(
         builder: (context, viewModel, child) {
           return Padding(
@@ -80,27 +90,67 @@ class WebContentArea extends StatelessWidget {
 
                 // Task List
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: viewModel.tugas.length,
-                    itemBuilder: (context, index) {
-                      final task = viewModel.tugas[index];
-                      return TaskItemWidget(
-                        title: task['title'] as String,
-                        status: task['status'] as String,
-                        onStatusChanged: (newStatus) {
-                          viewModel.updateTask(
-                            index,
-                            task['title'] as String,
-                            newStatus,
-                            task['deadline'] as DateTime,
-                            task['description'] as String,
-                          );
-                        },
-                        onTap: () {
-                          _showEditTaskModal(context, index, task);
-                        },
-                      );
-                    },
+                  child: Column(
+                    children: [
+                      if (viewModel.isLoading)
+                        const Center(child: CircularProgressIndicator())
+                      else if (viewModel.error != null)
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                viewModel.error!,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => viewModel.fetchTasks(),
+                                child: const Text('Coba Lagi'),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (viewModel.tasks.isEmpty)
+                        const Center(
+                          child: Text('Tidak ada tugas yang tersedia'),
+                        )
+                      else
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: viewModel.tasks.length,
+                            itemBuilder: (context, index) {
+                              final task = viewModel.tasks[index];
+                              return TaskItemWidget(
+                                task: task,
+                                onStatusChanged: (newStatus) {
+                                  viewModel.updateTask(
+                                    viewModel.tasks.indexOf(task),
+                                    task.title,
+                                    newStatus,
+                                    task.dueDate ?? DateTime.now(),
+                                    task.description ?? '',
+                                    classId: task.classId,
+                                  );
+                                },
+                                onTap: () {
+                                  _showEditTaskModal(
+                                    context,
+                                    viewModel.tasks.indexOf(task),
+                                    {
+                                      'title': task.title,
+                                      'status': task.status,
+                                      'deadline': task.dueDate,
+                                      'description': task.description,
+                                      'classId': task.classId,
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
@@ -112,6 +162,7 @@ class WebContentArea extends StatelessWidget {
   }
 
   void _showAddTaskModal(BuildContext context) {
+    final viewModel = Provider.of<HomeViewModel>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -119,12 +170,14 @@ class WebContentArea extends StatelessWidget {
       builder: (BuildContext context) {
         return AddTaskModal(
           parentContext: context,
-          onSave: (title, status, deadline, description) {
-            final viewModel = Provider.of<HomeViewModel>(
-              context,
-              listen: false,
+          onSave: (title, status, deadline, description, classId) {
+            viewModel.addTask(
+              title,
+              status,
+              deadline,
+              description,
+              classId: int.tryParse(classId),
             );
-            viewModel.addTask(title, status, deadline, description);
           },
         );
       },
@@ -136,6 +189,7 @@ class WebContentArea extends StatelessWidget {
     int index,
     Map<String, dynamic> task,
   ) {
+    final viewModel = Provider.of<HomeViewModel>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -143,18 +197,17 @@ class WebContentArea extends StatelessWidget {
       builder: (BuildContext context) {
         return AddTaskModal(
           parentContext: context,
-          onSave: (title, status, deadline, description) {
-            final viewModel = Provider.of<HomeViewModel>(
-              context,
-              listen: false,
+          onSave: (title, status, deadline, description, classId) {
+            viewModel.updateTask(
+              index,
+              title,
+              status,
+              deadline,
+              description,
+              classId: int.tryParse(classId) ?? task['classId'] ?? 1,
             );
-            viewModel.updateTask(index, title, status, deadline, description);
           },
           onDelete: () {
-            final viewModel = Provider.of<HomeViewModel>(
-              context,
-              listen: false,
-            );
             viewModel.deleteTask(index);
           },
           initialData: task,

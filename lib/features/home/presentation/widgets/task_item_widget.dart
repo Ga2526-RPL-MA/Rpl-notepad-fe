@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:rpl_notepad_fe/features/home/domain/entities/task.dart';
 
 class TaskItemWidget extends StatelessWidget {
-  final String title;
-  final String status;
+  final Task task;
   final VoidCallback? onTap;
   final ValueChanged<String>? onStatusChanged;
 
   const TaskItemWidget({
     Key? key,
-    required this.title,
-    required this.status,
+    required this.task,
     this.onTap,
     this.onStatusChanged,
   }) : super(key: key);
 
   Color getBackgroundColor() {
-    switch (status) {
+    switch (task.status) {
       case 'ongoing':
         return const Color(0xFFECF8EF);
       case 'completed':
@@ -26,69 +25,78 @@ class TaskItemWidget extends StatelessWidget {
   }
 
   Color getTextColor() {
-    return status == 'completed' ? Colors.white : Colors.black;
+    return task.status == 'completed' ? Colors.white : Colors.black;
   }
 
   IconData getIconData() {
-    switch (status) {
-      case 'ongoing':
-        return Icons.radio_button_unchecked;
-      case 'completed':
-        return Icons.check_circle_outline_rounded;
-      default:
-        return Icons.radio_button_unchecked;
-    }
+    return task.status == 'completed'
+        ? Icons.check_circle_outline_rounded
+        : Icons.radio_button_unchecked;
   }
 
   Color getIconColor() {
-    if (status == 'ongoing') return const Color(0xFF69C57D);
-    if (status == 'completed') return Colors.white;
-    return Color(0xFF6D717F);
+    if (task.status == 'ongoing') return const Color(0xFF69C57D);
+    if (task.status == 'completed') return Colors.white;
+    return const Color(0xFF6D717F);
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap ?? () {},
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: getBackgroundColor(),
-          borderRadius: BorderRadius.circular(12),
-          border: status != 'completed'
-              ? Border.all(
-                  color: status == 'ongoing'
-                      ? const Color(0xFF43B75D)
-                      : Colors.black,
-                )
-              : null,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: onStatusChanged != null ? () {
-                    final newStatus = status == 'ongoing' ? 'completed' : 'ongoing';
-                    onStatusChanged!(newStatus);
-                  } : null,
-                  child: Icon(getIconData(), color: getIconColor(), size: 24),
+    return Container(
+      height: 60,
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: getBackgroundColor(),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF43B75D), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                if (onStatusChanged != null)
+                  GestureDetector(
+                    onTap: () {
+                      final newStatus = task.status == 'completed'
+                          ? 'ongoing'
+                          : 'completed';
+                      onStatusChanged?.call(newStatus);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Icon(
+                        getIconData(),
+                        color: getIconColor(),
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                Expanded(
+                  child: Text(
+                    task.title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: getTextColor(),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Inter',
-                  color: getTextColor(),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

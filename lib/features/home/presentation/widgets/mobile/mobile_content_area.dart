@@ -4,7 +4,7 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_modal.dar
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_filter_dropdown.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/task_item_widget.dart';
-import '../../viewmodel/home_viewmodel.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/viewmodel/home_viewmodel.dart';
 
 class MobileContentArea extends StatefulWidget {
   final HomeViewModel viewModel;
@@ -21,6 +21,15 @@ class MobileContentArea extends StatefulWidget {
 }
 
 class _MobileContentAreaState extends State<MobileContentArea> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch tasks when the widget is first created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.viewModel.fetchTasks();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -49,26 +58,57 @@ class _MobileContentAreaState extends State<MobileContentArea> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: const [TaskFilterDropdown()],
                 ),
-                const SizedBox(height: 16),
-                // Task List
-                ...viewModel.tugas.asMap().entries.map(
-                  (entry) => TaskItemWidget(
-                    title: entry.value['title'] as String,
-                    status: entry.value['status'] as String,
-                    onStatusChanged: (newStatus) {
-                      viewModel.updateTask(
-                        entry.key,
-                        entry.value['title'] as String,
-                        newStatus,
-                        entry.value['deadline'] as DateTime,
-                        entry.value['description'] as String,
-                      );
-                    },
-                    onTap: () {
-                      _showEditTaskModal(context, entry.key, entry.value);
-                    },
+                const SizedBox(height: 24),
+                if (viewModel.isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else if (viewModel.error != null)
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          viewModel.error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => viewModel.fetchTasks(),
+                          child: const Text('Coba Lagi'),
+                        ),
+                      ],
+                    ),
+                  )
+                else if (viewModel.tasks.isEmpty)
+                  const Center(child: Text('Tidak ada tugas yang tersedia'))
+                else
+                  ...viewModel.tasks.map(
+                    (task) => TaskItemWidget(
+                      task: task,
+                      onStatusChanged: (newStatus) {
+                        viewModel.updateTask(
+                          viewModel.tasks.indexOf(task),
+                          task.title,
+                          newStatus,
+                          task.dueDate ?? DateTime.now(),
+                          task.description ?? '',
+                          classId: task.classId,
+                        );
+                      },
+                      onTap: () {
+                        _showEditTaskModal(
+                          context,
+                          viewModel.tasks.indexOf(task),
+                          {
+                            'title': task.title,
+                            'status': task.status,
+                            'deadline': task.dueDate,
+                            'description': task.description,
+                            'classId': task.classId,
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
                 // Add Task Button (Mobile)
                 const SizedBox(height: 24),
                 _buildAddButton(context),
@@ -123,8 +163,14 @@ class _MobileContentAreaState extends State<MobileContentArea> {
       builder: (BuildContext context) {
         return AddTaskModal(
           parentContext: context,
-          onSave: (title, status, deadline, description) {
-            viewModel.addTask(title, status, deadline, description);
+          onSave: (title, status, deadline, description, classId) {
+            viewModel.addTask(
+              title,
+              status,
+              deadline,
+              description,
+              classId: int.tryParse(classId),
+            );
           },
         );
       },
@@ -136,6 +182,7 @@ class _MobileContentAreaState extends State<MobileContentArea> {
     int index,
     Map<String, dynamic> task,
   ) {
+    final viewModel = Provider.of<HomeViewModel>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -143,17 +190,18 @@ class _MobileContentAreaState extends State<MobileContentArea> {
       builder: (BuildContext context) {
         return AddTaskModal(
           parentContext: context,
-          onSave: (title, status, deadline, description) {
-            widget.viewModel.updateTask(
+          onSave: (title, status, deadline, description, classId) {
+            viewModel.updateTask(
               index,
               title,
               status,
               deadline,
               description,
+              classId: int.tryParse(classId) ?? task['classId'] ?? 1,
             );
           },
           onDelete: () {
-            widget.viewModel.deleteTask(index);
+            viewModel.deleteTask(index);
           },
           initialData: task,
         );

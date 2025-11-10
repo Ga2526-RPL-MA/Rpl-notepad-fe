@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:rpl_notepad_fe/features/discussion/domain/usecases/add_sub_answer_usecase.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dart';
-import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/add_sub_answer_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/view/discussion_page.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
+import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
-import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
 
 //Cors
 void enableCorsForWeb() {
@@ -31,18 +31,18 @@ Future<void> main() async {
   try {
     // Initialize dependencies first
     await setupDependencyInjection();
-    
+
     // Verify critical dependencies
     final getIt = GetIt.instance;
     if (!getIt.isRegistered<AddSubAnswerUsecase>()) {
       throw Exception('AddSubAnswerUsecase not registered!');
     }
     await AuthService.init();
-    
-    //  Alice 
+
+    //  Alice
     final alice = getIt<ApiService>().alice;
     alice.setNavigatorKey(navigatorKey);
-    
+
     runApp(const MyApp());
   } catch (e, stackTrace) {
     print('Error during app initialization: $e');
@@ -101,13 +101,12 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
+        debugShowCheckedModeBanner: false,
         title: 'RPL Notepad',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
-          fontFamily: 'Inter',
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
           useMaterial3: true,
         ),
-        debugShowCheckedModeBanner: false,
         builder: (context, child) {
           return AppWithDebug(child: child!);
         },

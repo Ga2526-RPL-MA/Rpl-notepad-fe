@@ -37,13 +37,13 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Authorization header 
+          // Authorization header
           final token = await AuthService.token;
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          
-          // Delete header 
+
+          // Delete header
           options.headers.remove('access-control-allow-origin');
           options.headers.remove('access-control-allow-methods');
           options.headers.remove('access-control-allow-headers');

@@ -9,14 +9,12 @@ class TaskFilterDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<HomeViewModel>(context);
 
-    // Define filter options
     final filters = [
       {'value': 'all', 'label': 'Semua'},
       {'value': 'ongoing', 'label': 'Belum Selesai'},
       {'value': 'completed', 'label': 'Selesai'},
     ];
 
-    // Get current filter label
     String getCurrentLabel() {
       return filters.firstWhere(
         (f) => f['value'] == viewModel.currentFilter,
@@ -28,13 +26,24 @@ class TaskFilterDropdown extends StatelessWidget {
       onSelected: (value) {
         viewModel.setFilter(value);
       },
+      color: Colors.white,
+      surfaceTintColor: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
       itemBuilder: (BuildContext context) {
         return filters.map((filter) {
           return PopupMenuItem<String>(
             value: filter['value'],
             child: Text(
               filter['label']!,
-              style: const TextStyle(fontSize: 14, fontFamily: 'Inter'),
+              style: const TextStyle(
+                fontSize: 14,
+                fontFamily: 'Inter',
+                color: Colors.black87,
+              ),
             ),
           );
         }).toList();

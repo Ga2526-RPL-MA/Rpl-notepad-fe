@@ -108,4 +108,10 @@ class AuthService {
     final currentToken = token;
     return currentToken != null ? JwtHelper.getName(currentToken) : null;
   }
+
+  // Get userId from token
+  static int? get userId {
+    final currentToken = token;
+    return currentToken != null ? JwtHelper.getUserId(currentToken) : null;
+  }
 }

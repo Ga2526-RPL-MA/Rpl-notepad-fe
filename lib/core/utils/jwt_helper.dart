@@ -19,4 +19,18 @@ class JwtHelper {
     final payload = decodeToken(token);
     return payload?['name'] as String?;
   }
+
+  static int? getUserId(String token) {
+    final payload = decodeToken(token);
+    if (payload == null) return null;
+    final dynamic raw = payload['id'] ?? payload['userId'] ?? payload['sub'];
+    if (raw == null) return null;
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    if (raw is String) {
+      final parsed = int.tryParse(raw);
+      return parsed;
+    }
+    return null;
+  }
 }
