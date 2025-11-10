@@ -13,11 +13,11 @@ class ChatDetailViewModel extends ChangeNotifier {
   final String userName;
   final String message;
   final String className;
-  
+
   final GetAnswersUsecase _getAnswersUsecase;
   final AddAnswerUsecase _addAnswerUsecase;
   final AddSubAnswerUsecase _addSubAnswerUsecase;
-  
+
   bool _isLoading = true;
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -25,7 +25,7 @@ class ChatDetailViewModel extends ChangeNotifier {
   int? _replyingToAnswerId;
   int? _expandedAnswerId;
   List<GetAnswerDto> _answers = [];
-  
+
   // Getters
   bool get isLoading => _isLoading;
   bool get isSubmitting => _isSubmitting;
@@ -34,7 +34,7 @@ class ChatDetailViewModel extends ChangeNotifier {
   int? get replyingToAnswerId => _replyingToAnswerId;
   int? get expandedAnswerId => _expandedAnswerId;
   List<GetAnswerDto> get answers => _answers;
-  
+
   ChatDetailViewModel({
     required this.issueId,
     required this.userName,
@@ -45,29 +45,32 @@ class ChatDetailViewModel extends ChangeNotifier {
     AddSubAnswerUsecase? addSubAnswerUsecase,
   }) : _getAnswersUsecase = getAnswersUsecase ?? getIt<GetAnswersUsecase>(),
        _addAnswerUsecase = addAnswerUsecase ?? getIt<AddAnswerUsecase>(),
-       _addSubAnswerUsecase = addSubAnswerUsecase ?? getIt<AddSubAnswerUsecase>() {
+       _addSubAnswerUsecase =
+           addSubAnswerUsecase ?? getIt<AddSubAnswerUsecase>() {
     loadAnswers();
   }
-  
+
   // Load answers for the current issue
   Future<void> loadAnswers() async {
     _setLoading(true);
     _setError(null);
-    
+
     try {
       if (kDebugMode) {
         print('Fetching answers for issueId: $issueId');
       }
-      
+
       final answers = await _getAnswersUsecase(issueId);
-      
+
       if (kDebugMode) {
         print('Successfully loaded ${answers.length} answers');
         for (var a in answers) {
-          print('Answer ID: ${a.id} | Content: ${a.content} | Sub-answers: ${a.subAnswers.length}');
+          print(
+            'Answer ID: ${a.id} | Content: ${a.content} | Sub-answers: ${a.subAnswers.length}',
+          );
         }
       }
-      
+
       _setAnswers(answers);
     } catch (e) {
       print('Error loading answers: $e');
@@ -76,7 +79,7 @@ class ChatDetailViewModel extends ChangeNotifier {
       _setLoading(false);
     }
   }
-  
+
   // Handle reply button press
   void handleReplyPressed(String name, int answerId) {
     _replyingToName = name;
@@ -84,21 +87,20 @@ class ChatDetailViewModel extends ChangeNotifier {
     _expandedAnswerId = _expandedAnswerId == answerId ? null : answerId;
     notifyListeners();
   }
-  
+
   // Cancel reply
   void cancelReply() {
     _replyingToName = null;
     _replyingToAnswerId = null;
     notifyListeners();
   }
-  
-  // Send a new comment or reply
+
   Future<void> sendComment(String content) async {
     if (content.trim().isEmpty) return;
-    
+
     _setSubmitting(true);
     _setError(null);
-    
+
     try {
       if (_replyingToAnswerId != null) {
         await _addSubAnswerUsecase(
@@ -108,14 +110,11 @@ class ChatDetailViewModel extends ChangeNotifier {
       } else {
         await _addAnswerUsecase(issueId: issueId, content: content);
       }
-      
-      // Refresh answers after successful submission
+
       await loadAnswers();
-      
-      // Reset reply state
+
       _replyingToName = null;
       _replyingToAnswerId = null;
-      
     } catch (e) {
       print('Error sending comment: $e');
       _setError('Failed to post comment. Please try again.');
@@ -123,42 +122,39 @@ class ChatDetailViewModel extends ChangeNotifier {
       _setSubmitting(false);
     }
   }
-  
-  // Toggle answer expansion
+
   void toggleAnswerExpansion(int answerId) {
     _expandedAnswerId = _expandedAnswerId == answerId ? null : answerId;
     notifyListeners();
   }
-  
-  // Private setters that also notify listeners
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
-  
+
   void _setSubmitting(bool value) {
     _isSubmitting = value;
     notifyListeners();
   }
-  
+
   void _setError(String? message) {
     _errorMessage = message;
     notifyListeners();
   }
-  
+
   void _setAnswers(List<GetAnswerDto> answers) {
     _answers = answers;
     notifyListeners();
   }
-  
-  // Create an Issue object for the main message
+
   Issue getMainIssue() {
     return Issue(
       id: issueId,
       userName: userName,
       content: message,
       reportedAt: DateTime.now(),
-      classId: 1, // This seems to be a default value from the original code
+      classId: 1,
       answers: _answers
           .map(
             (dto) => Answer(
@@ -183,10 +179,9 @@ class ChatDetailViewModel extends ChangeNotifier {
           .toList(),
     );
   }
-  
+
   @override
   void dispose() {
-    // Clean up any resources if needed
     super.dispose();
   }
 }
