@@ -1,42 +1,33 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'comment_card.dart';
-import 'comment_text_field.dart';
+import '../../domain/entities/issue.dart';
 
-class ChatMessageCard extends StatefulWidget {
-  final String name;
-  final String message;
-  final int replyCount;
-  final bool isOnline;
+class ClassMessageCard extends StatefulWidget {
+  final Issue issue;
   final VoidCallback? onTap;
-  final bool showFullMessage;
-  final int maxPreviewLength = 100;
-  final List<Map<String, dynamic>> comments;
-  final TextEditingController? commentController;
-  final VoidCallback? onCommentSubmitted;
+  final bool showReplyCount;
+  final Widget? answersWidget;
 
-  const ChatMessageCard({
+  const ClassMessageCard({
     super.key,
-    required this.name,
-    required this.message,
-    this.replyCount = 0,
-    this.isOnline = false,
-    this.showFullMessage = false,
+    required this.issue,
     this.onTap,
-    this.comments = const [],
-    this.commentController,
-    this.onCommentSubmitted,
+    this.showReplyCount = true,
+    this.answersWidget,
   });
 
   @override
-  State<ChatMessageCard> createState() => _ChatMessageCardState();
+  State<ClassMessageCard> createState() => _ClassMessageCardState();
 }
 
-class _ChatMessageCardState extends State<ChatMessageCard> {
+class _ClassMessageCardState extends State<ClassMessageCard> {
   bool isExpanded = false;
+  final int maxPreviewLength = 100;
 
   @override
   Widget build(BuildContext context) {
+    final issue = widget.issue;
+
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
@@ -55,9 +46,8 @@ class _ChatMessageCardState extends State<ChatMessageCard> {
         padding: const EdgeInsets.all(32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            //  Header 
+            // Header
             Row(
               children: [
                 Stack(
@@ -69,27 +59,39 @@ class _ChatMessageCardState extends State<ChatMessageCard> {
                         color: Color(0xFFD4C5F9),
                         shape: BoxShape.circle,
                       ),
-                    ),
-                    if (widget.isOnline)
-                      Positioned(
-                        bottom: 1,
-                        left: 1,
-                        child: Container(
-                          width: 15,
-                          height: 15,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF4ADE80),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
+                      child: Center(
+                        child: Text(
+                          issue.userName.isNotEmpty
+                              ? issue.userName[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
+                    ),
+                    // Status online 
+                    Positioned(
+                      bottom: 1,
+                      left: 1,
+                      child: Container(
+                        width: 15,
+                        height: 15,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4ADE80),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(width: 18),
                 Expanded(
                   child: Text(
-                    widget.name,
+                    issue.userName,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -103,17 +105,15 @@ class _ChatMessageCardState extends State<ChatMessageCard> {
 
             const SizedBox(height: 24),
 
-            //  Message 
+            // Long Message
             StatefulBuilder(
               builder: (context, setState) {
                 final shouldShowFullText =
-                    widget.showFullMessage ||
-                    isExpanded ||
-                    widget.message.length <= widget.maxPreviewLength;
+                    isExpanded || issue.content.length <= maxPreviewLength;
 
                 final displayText = shouldShowFullText
-                    ? widget.message
-                    : '${widget.message.substring(0, min(widget.message.length, widget.maxPreviewLength))}...';
+                    ? issue.content
+                    : '${issue.content.substring(0, min(issue.content.length, maxPreviewLength))}...';
 
                 return RichText(
                   text: TextSpan(
@@ -125,40 +125,17 @@ class _ChatMessageCardState extends State<ChatMessageCard> {
                     ),
                     children: [
                       TextSpan(text: displayText),
-                      if (widget.message.length > widget.maxPreviewLength &&
-                          !widget.showFullMessage)
-                        const TextSpan(text: ' '),
-                      if (!shouldShowFullText &&
-                          widget.message.length > widget.maxPreviewLength)
+                      if (issue.content.length > maxPreviewLength)
                         WidgetSpan(
                           child: GestureDetector(
                             onTap: () {
                               setState(() {
-                                isExpanded = true;
+                                isExpanded = !isExpanded;
                               });
                             },
-                            child: const Text(
-                              'Selengkapnya',
-                              style: TextStyle(
-                                color: Color(0xFF43B75D),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        )
-                      else if (widget.message.length >
-                              widget.maxPreviewLength &&
-                          isExpanded)
-                        WidgetSpan(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isExpanded = false;
-                              });
-                            },
-                            child: const Text(
-                              'Lebih sedikit',
-                              style: TextStyle(
+                            child: Text(
+                              isExpanded ? ' Lebih sedikit' : ' Selengkapnya',
+                              style: const TextStyle(
                                 color: Color(0xFF43B75D),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -174,63 +151,35 @@ class _ChatMessageCardState extends State<ChatMessageCard> {
             const SizedBox(height: 12),
             const Divider(color: Color(0xFF9EA2AE), thickness: 1),
 
-            if (widget.replyCount > 0)
+            // Reply count
+            if (widget.showReplyCount)
               Padding(
                 padding: const EdgeInsets.only(top: 12, bottom: 8),
                 child: Row(
                   children: [
                     const Icon(
                       Icons.chat_bubble_outline,
-                      size: 16,
-                      color: Colors.black54,
+                      size: 18,
+                      color: Colors.black,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${widget.replyCount} Jawaban',
+                      '${issue.answers.fold<int>(0, (total, answer) => total + 1 + answer.subAnswers.length)} jawaban',
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.black54,
-                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontFamily: 'Inter',
                       ),
                     ),
                   ],
                 ),
               ),
 
-            //Comment
-            if (widget.comments.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              ...widget.comments.map(
-                (comment) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: CommentMessageCard(
-                    name: comment['name'] ?? 'User',
-                    message: comment['message'] ?? '',
-                    isOnline: comment['isOnline'] ?? false,
-                    avatarUrl: comment['avatarUrl'],
-                  ),
-                ),
-              ),
-            ],
-
-            //  Comment Input 
-            if (widget.commentController != null &&
-                widget.onCommentSubmitted != null) ...[
-              const SizedBox(height: 24),
-              const Spacer(), 
-              CommentTextField(
-                controller: widget.commentController!,
-                onSend: widget.onCommentSubmitted!,
-              ),
-            ],
+            // Answers widget
+            if (widget.answersWidget != null) widget.answersWidget!,
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

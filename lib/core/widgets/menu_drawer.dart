@@ -153,12 +153,6 @@ class MenuDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   menuItem(
-                    label: 'Tugas selesai',
-                    iconPath: 'assets/icon/task-icon.png',
-                    pageKey: 'tugas_selesai',
-                  ),
-                  const SizedBox(height: 16),
-                  menuItem(
                     label: 'Diskusi',
                     iconPath: 'assets/icon/discussion-icon.png',
                     pageKey: 'diskusi',
@@ -219,7 +213,8 @@ class MenuDrawer extends StatelessWidget {
                                       refreshToken: token,
                                     );
                                     final logoutUseCase = LogoutUseCase(
-                                        loginVM.loginUseCase.repository);
+                                      loginVM.loginUseCase.repository,
+                                    );
                                     await logoutUseCase.execute(logoutDto);
                                   } catch (e) {
                                     debugPrint(

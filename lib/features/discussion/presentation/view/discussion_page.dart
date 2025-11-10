@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_view_model.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/view/class_discussion_page.dart';
 import '../../../../core/widgets/custom_background.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../../core/widgets/menu_drawer.dart';
@@ -31,7 +32,9 @@ class DiscussionPage extends StatelessWidget {
                   context,
                   '/home',
                   (route) => false,
-                  arguments: page == 'tugas_selesai' ? {'tab': 'completed'} : null,
+                  arguments: page == 'tugas_selesai'
+                      ? {'tab': 'completed'}
+                      : null,
                 );
               }
             },
@@ -96,7 +99,7 @@ class _DiscussionViewState extends State<_DiscussionView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header 
+                // Header
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -248,13 +251,23 @@ class _DiscussionViewState extends State<_DiscussionView> {
                                             item['cardBackgroundColor'],
                                         cardOutlineColor:
                                             item['cardOutlineColor'],
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => ClassDiscussionPage(
+                                                classId: classDto.id,
+                                                className: classDto.name,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
                                     );
                                   },
                                 );
                               }
 
-                              //  web view 
+                              //  web view
                               return GridView.builder(
                                 padding: const EdgeInsets.all(16.0),
                                 gridDelegate:

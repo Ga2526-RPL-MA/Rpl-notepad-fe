@@ -7,9 +7,17 @@ import 'package:rpl_notepad_fe/features/auth/domain/usecases/register_usecase.da
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/repositories/class_repository_impl.dart';
+import 'package:rpl_notepad_fe/features/discussion/data/repositories/issue_repository_impl.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/repositories/class_repository.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/repositories/issue_repository.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/add_answer_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/add_sub_answer_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/create_issue_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_answers_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_subanswers_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/getclass_usecase.dart';
-import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_view_model.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/getissue_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
 
 final getIt = GetIt.instance;
 
@@ -49,9 +57,37 @@ Future<void> setupDependencyInjection() async {
     () => ClassRepositoryImpl(api: getIt<ApiService>()),
   );
 
+  getIt.registerLazySingleton<IssueRepository>(
+    () => IssueRepositoryImpl(api: getIt<ApiService>()),
+  );
+
   // Register use cases
+  getIt.registerLazySingleton<GetAnswersUsecase>(
+    () => GetAnswersUsecase(getIt<IssueRepository>()),
+  );
+
+  getIt.registerLazySingleton<AddAnswerUsecase>(
+    () => AddAnswerUsecase(getIt<IssueRepository>()),
+  );
+
+  getIt.registerLazySingleton<AddSubAnswerUsecase>(
+    () => AddSubAnswerUsecase(getIt<IssueRepository>()),
+  );
+
+  getIt.registerLazySingleton<CreateIssueUsecase>(
+    () => CreateIssueUsecase(getIt<IssueRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetSubAnswersUsecase>(
+    () => GetSubAnswersUsecase(getIt<IssueRepository>()),
+  );
+
   getIt.registerLazySingleton<GetclassUsecase>(
     () => GetclassUsecase(getIt<ClassRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetIssueUsecase>(
+    () => GetIssueUsecase(getIt<IssueRepository>()),
   );
 
   // Discussion Feature

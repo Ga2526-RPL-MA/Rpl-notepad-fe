@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/add_sub_answer_usecase.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
@@ -10,7 +12,7 @@ import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/view/discussion_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
-import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_view_model.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
 
 //Cors
 void enableCorsForWeb() {
@@ -20,14 +22,21 @@ void enableCorsForWeb() {
 // Global key for navigation
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Enable CORS for web
   enableCorsForWeb();
 
   try {
+    // Initialize dependencies first
     await setupDependencyInjection();
+    
+    // Verify critical dependencies
+    final getIt = GetIt.instance;
+    if (!getIt.isRegistered<AddSubAnswerUsecase>()) {
+      throw Exception('AddSubAnswerUsecase not registered!');
+    }
     await AuthService.init();
     
     //  Alice 

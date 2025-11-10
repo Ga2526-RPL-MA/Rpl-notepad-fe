@@ -4,7 +4,7 @@ class GetClassDto extends Equatable {
   final int id;
   final String name;
   final String lecturer;
-  final DateTime timetable;
+  final String timetable; 
   final String room;
   final List<dynamic> students;
   final List<dynamic> tasks;
@@ -25,7 +25,7 @@ class GetClassDto extends Equatable {
       id: json['id'] as int,
       name: json['name'] as String,
       lecturer: json['lecturer'] as String,
-      timetable: DateTime.parse(json['timetable'] as String),
+      timetable: json['timetable'] as String, 
       room: json['room'] as String,
       students: json['students'] ?? [],
       tasks: json['tasks'] ?? [],
@@ -34,21 +34,24 @@ class GetClassDto extends Equatable {
 
   // Convert DTO to JSON
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'lecturer': lecturer,
-        'timetable': timetable.toIso8601String(),
-        'room': room,
-        'students': students,
-        'tasks': tasks,
-      };
+    'id': id,
+    'name': name,
+    'lecturer': lecturer,
+    'timetable': timetable, 
+    'room': room,
+    'students': students,
+    'tasks': tasks,
+  };
 
-  // Copy DTO 
+  // Helper 
+  String get displayTimetable => timetable;
+
+  // Copy DTO
   GetClassDto copyWith({
     int? id,
     String? name,
     String? lecturer,
-    DateTime? timetable,
+    String? timetable,
     String? room,
     List<dynamic>? students,
     List<dynamic>? tasks,
@@ -66,12 +69,12 @@ class GetClassDto extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        lecturer,
-        timetable,
-        room,
-        students,
-        tasks,
-      ];
+    id,
+    name,
+    lecturer,
+    timetable,
+    room,
+    students,
+    tasks,
+  ];
 }

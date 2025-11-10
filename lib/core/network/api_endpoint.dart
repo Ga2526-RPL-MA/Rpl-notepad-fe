@@ -1,6 +1,16 @@
 import 'package:rpl_notepad_fe/core/network/api_config.dart';
 
-enum APIEndpoint { login, register, logout, getClasses, createClasses }
+enum APIEndpoint {
+  login,
+  register,
+  logout,
+  getClasses,
+  createClasses,
+  getIssues,
+  postIssues,
+  postAnswer,
+  postSubAnswer,
+}
 
 extension APIEndpointExtension on APIEndpoint {
   String get path {
@@ -15,6 +25,14 @@ extension APIEndpointExtension on APIEndpoint {
         return "/class";
       case APIEndpoint.createClasses:
         return "/class";
+      case APIEndpoint.getIssues:
+        return "/issues";
+      case APIEndpoint.postIssues:
+        return "/issues";
+      case APIEndpoint.postAnswer:
+        return "/answers";
+      case APIEndpoint.postSubAnswer:
+        return "/subAnswers";
     }
   }
 
