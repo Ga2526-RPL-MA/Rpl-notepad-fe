@@ -48,7 +48,9 @@ class TaskItemWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: getBackgroundColor(),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF43B75D), width: 1),
+        border: task.status != 'completed' 
+            ? Border.all(color: const Color(0xFF43B75D), width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
