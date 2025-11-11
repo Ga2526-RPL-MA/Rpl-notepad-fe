@@ -45,7 +45,7 @@ class _MobileContentAreaState extends State<MobileContentArea> {
                 const SizedBox(height: 24),
                 // Title
                 Text(
-                  'Tugas Kuliah',
+                  'Daftar Tugas',
                   style: TextStyle(
                     fontSize: widget.isWeb ? 26 : 20,
                     fontWeight: FontWeight.w700,

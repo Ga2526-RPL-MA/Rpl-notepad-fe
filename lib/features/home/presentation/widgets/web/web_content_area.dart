@@ -41,7 +41,7 @@ class _WebContentAreaState extends State<WebContentArea> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Tugas Kuliah',
+                      'Daftar Tugas',
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,

@@ -42,6 +42,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
   List<GetClassDto> _classes = [];
   bool _isLoading = true;
   bool _isDropdownFocused = false;
+  bool _classRequiredError = false;
 
   @override
   void initState() {
@@ -364,13 +365,26 @@ class _AddTaskModalState extends State<AddTaskModal> {
                                         child: Text(classItem.name),
                                       );
                                     }).toList(),
-                                    onChanged: (value) => setState(
-                                      () => _selectedClassId = value,
-                                    ),
+                                    onChanged: (value) => setState(() {
+                                      _selectedClassId = value;
+                                      _classRequiredError = false;
+                                    }),
                                   ),
                                 ),
                               ),
                       ),
+                      if (_classRequiredError)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 6, left: 4),
+                          child: Text(
+                            'Kelas wajib dipilih',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                              fontFamily: 'Inter',
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 16),
 
                       // Deskripsi
@@ -418,6 +432,15 @@ class _AddTaskModalState extends State<AddTaskModal> {
                               height: 48,
                               child: ElevatedButton(
                                 onPressed: () {
+                                  // Validate class selection first
+                                  if (_selectedClassId == null ||
+                                      _selectedClassId!.isEmpty) {
+                                    setState(() {
+                                      _classRequiredError = true;
+                                    });
+                                    return;
+                                  }
+
                                   if (_formKey.currentState!.validate()) {
                                     widget.onSave(
                                       _titleController.text,

@@ -15,7 +15,7 @@ class ApiService {
   ApiService._internal() {
     alice = Alice(
       configuration: AliceConfiguration(
-        showNotification: true,
+        showNotification: false,
         showInspectorOnShake: true,
       ),
     );
