@@ -22,8 +22,8 @@ class LoginPage extends StatelessWidget {
           child: isWeb
               ? Row(
                   children: [
-                    Expanded(child: Center(child: _buildLoginCard(context))),
                     Expanded(child: Container()),
+                    Expanded(child: Center(child: _buildLoginCard(context))),
                   ],
                 )
               : Center(child: _buildLoginCard(context)),
@@ -179,7 +179,9 @@ class LoginPage extends StatelessWidget {
                                         backgroundColor: Colors.green,
                                       ),
                                     );
-                                    final targetRoute = AuthService.isAdmin ? '/admin' : '/home';
+                                    final targetRoute = AuthService.isAdmin
+                                        ? '/admin'
+                                        : '/home';
                                     Navigator.pushReplacementNamed(
                                       context,
                                       targetRoute,
@@ -224,7 +226,7 @@ class LoginPage extends StatelessWidget {
                                 ),
                               ),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: isWeb ? 22 : 16),
 
                       // Button Daftar
                       isWeb
