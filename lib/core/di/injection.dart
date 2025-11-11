@@ -15,9 +15,10 @@ import 'package:rpl_notepad_fe/features/discussion/domain/usecases/add_sub_answe
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/create_issue_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_answers_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_subanswers_usecase.dart';
-import 'package:rpl_notepad_fe/features/discussion/domain/usecases/getclass_usecase.dart';
-import 'package:rpl_notepad_fe/features/discussion/domain/usecases/getissue_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_class_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_issue_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/add_class_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -94,5 +95,11 @@ Future<void> setupDependencyInjection() async {
   // View Model
   getIt.registerFactory<DiscussionViewModel>(
     () => DiscussionViewModel(usecase: getIt<GetclassUsecase>()),
+  );
+
+  // Admin Feature
+  // View Model
+  getIt.registerFactory<AddClassViewModel>(
+    () => AddClassViewModel(),
   );
 }

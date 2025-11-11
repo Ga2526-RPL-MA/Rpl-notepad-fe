@@ -95,12 +95,14 @@ flutter:
     - assets/icon/calendar-icon.png
     - assets/icon/trash-icon.png
     - assets/images/logo.png
+
+    - assets/icon/star_icon.png
+    - assets/icon/add-class-icon.png
   #   - images/a_dot_ham.jpeg
 
 
     # Images
     - assets/images/logo.png
-    - assets/icons/star_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

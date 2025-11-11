@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/entities/issue.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/create_issue_usecase.dart';
-import 'package:rpl_notepad_fe/features/discussion/domain/usecases/getissue_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_issue_usecase.dart';
 
 class ClassDiscussionViewModel extends ChangeNotifier {
   final GetIssueUsecase _getIssueUsecase = getIt<GetIssueUsecase>();

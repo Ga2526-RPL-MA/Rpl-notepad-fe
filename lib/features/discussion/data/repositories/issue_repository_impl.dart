@@ -3,7 +3,7 @@ import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/dtos/create_issue_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_answer_dto.dart';
 import '../dtos/get_subanswer_dto.dart';
-import 'package:rpl_notepad_fe/features/discussion/data/dtos/getissue_dto.dart';
+import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_issue_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/repositories/issue_repository.dart';
 
 class IssueRepositoryImpl implements IssueRepository {

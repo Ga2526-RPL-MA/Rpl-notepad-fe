@@ -15,6 +15,9 @@ import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discus
 import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/view/admin_dashboard_page.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/view/add_class_page.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/add_class_view_model.dart';
 
 // CORS
 void enableCorsForWeb() {
@@ -30,7 +33,7 @@ Future<void> main() async {
   // Enable CORS for web
   enableCorsForWeb();
 
-  // Use path-based URLs on the web (e.g., /login) instead of hash URLs
+  // Use path-based URLs
   if (kIsWeb) {
     usePathUrlStrategy();
   }
@@ -109,6 +112,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => getIt<LoginViewModel>()),
         ChangeNotifierProvider(create: (_) => getIt<RegisterViewModel>()),
         ChangeNotifierProvider(create: (_) => getIt<DiscussionViewModel>()),
+        ChangeNotifierProvider(create: (_) => getIt<AddClassViewModel>()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -123,11 +127,49 @@ class MyApp extends StatelessWidget {
           return AppWithDebug(child: content);
         },
         initialRoute: AuthService.isLoggedIn ? '/home' : '/login',
-        routes: {
-          '/login': (context) => const LoginPage(),
-          '/register': (context) => const RegisterPage(),
-          '/home': (context) => const HomePage(),
-          '/discussion': (context) => const DiscussionPage(),
+        onGenerateRoute: (settings) {
+          final name = settings.name ?? '/login';
+
+          if (!AuthService.isLoggedIn) {
+            switch (name) {
+              case '/register':
+                return MaterialPageRoute(builder: (_) => const RegisterPage(), settings: settings);
+              case '/login':
+                return MaterialPageRoute(builder: (_) => const LoginPage(), settings: settings);
+              default:
+                return MaterialPageRoute(builder: (_) => const LoginPage(), settings: const RouteSettings(name: '/login'));
+            }
+          }
+
+          final isAdmin = AuthService.isAdmin;
+
+          if (!isAdmin && (name == '/admin' || name.startsWith('/admin/'))) {
+            return MaterialPageRoute(builder: (_) => const HomePage(), settings: const RouteSettings(name: '/home'));
+          }
+
+          if (isAdmin && name == '/home') {
+            return MaterialPageRoute(builder: (_) => const AdminDashboardPage(), settings: const RouteSettings(name: '/admin'));
+          }
+
+          switch (name) {
+            case '/login':
+              return MaterialPageRoute(builder: (_) => const LoginPage(), settings: const RouteSettings(name: '/login'));
+            case '/register':
+              return MaterialPageRoute(builder: (_) => const RegisterPage(), settings: const RouteSettings(name: '/register'));
+            case '/home':
+              return MaterialPageRoute(builder: (_) => const HomePage(), settings: settings);
+            case '/discussion':
+              return MaterialPageRoute(builder: (_) => const DiscussionPage(), settings: settings);
+            case '/admin':
+              return MaterialPageRoute(builder: (_) => const AdminDashboardPage(), settings: settings);
+            case '/admin/add-class':
+              return MaterialPageRoute(builder: (_) => const AddClassPage(), settings: settings);
+            default:
+              return MaterialPageRoute(
+                builder: (_) => isAdmin ? const AdminDashboardPage() : const HomePage(),
+                settings: RouteSettings(name: isAdmin ? '/admin' : '/home'),
+              );
+          }
         },
       ),
     );

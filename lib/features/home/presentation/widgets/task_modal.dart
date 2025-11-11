@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
-import 'package:rpl_notepad_fe/features/discussion/data/dtos/getclass_dto.dart';
+import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_class_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/repositories/class_repository.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/repositories/class_repository_impl.dart';
 import 'package:rpl_notepad_fe/core/network/api_service.dart';

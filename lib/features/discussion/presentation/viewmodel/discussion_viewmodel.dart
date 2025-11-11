@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:rpl_notepad_fe/features/discussion/data/dtos/getclass_dto.dart';
-import 'package:rpl_notepad_fe/features/discussion/domain/usecases/getclass_usecase.dart';
+import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_class_dto.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_class_usecase.dart';
 
 class DiscussionViewModel extends ChangeNotifier {
   final GetclassUsecase _getClassesUsecase;
@@ -54,7 +54,7 @@ class DiscussionViewModel extends ChangeNotifier {
   Map<String, dynamic> getClassData(GetClassDto classDto, int index) {
     final isGreenTheme = index.isEven;
     return {
-      'iconPath': 'assets/icons/star_icon.png',
+      'iconPath': 'assets/icon/star_icon.png',
       'className': classDto.name,
       'classTime': classDto.timetable,
       'classRoom': classDto.room,

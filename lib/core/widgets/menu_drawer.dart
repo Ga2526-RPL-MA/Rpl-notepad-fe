@@ -10,11 +10,13 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view
 class MenuDrawer extends StatelessWidget {
   final String currentPage;
   final Function(String) onPageChanged;
+  final String mode; // 'user' or 'admin'
 
   const MenuDrawer({
     super.key,
     required this.currentPage,
     required this.onPageChanged,
+    this.mode = 'user',
   });
 
   @override
@@ -34,8 +36,16 @@ class MenuDrawer extends StatelessWidget {
           if (currentPage == pageKey) return;
 
           onPageChanged(pageKey);
-          if (pageKey == 'diskusi') {
-            Navigator.pushReplacementNamed(context, '/discussion');
+          if (mode == 'admin') {
+            if (pageKey == 'beranda') {
+              Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
+            } else if (pageKey == 'tambah_kelas') {
+              Navigator.pushNamed(context, '/admin/add-class');
+            }
+          } else {
+            if (pageKey == 'diskusi') {
+              Navigator.pushReplacementNamed(context, '/discussion');
+            }
           }
         },
         child: Container(
@@ -146,17 +156,34 @@ class MenuDrawer extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Menu Items
-                  menuItem(
-                    label: 'Beranda',
-                    iconPath: 'assets/icon/home-icon.png',
-                    pageKey: 'beranda',
-                  ),
-                  const SizedBox(height: 16),
-                  menuItem(
-                    label: 'Diskusi',
-                    iconPath: 'assets/icon/discussion-icon.png',
-                    pageKey: 'diskusi',
-                  ),
+                  if (mode == 'admin')
+                    ...[
+                      menuItem(
+                        label: 'Beranda',
+                        iconPath: 'assets/icon/home-icon.png',
+                        pageKey: 'beranda',
+                      ),
+                      const SizedBox(height: 16),
+                      menuItem(
+                        label: 'Tambah Kelas',
+                        iconPath: 'assets/icon/add-class-icon.png',
+                        pageKey: 'tambah_kelas',
+                      ),
+                    ]
+                  else
+                    ...[
+                      menuItem(
+                        label: 'Beranda',
+                        iconPath: 'assets/icon/home-icon.png',
+                        pageKey: 'beranda',
+                      ),
+                      const SizedBox(height: 16),
+                      menuItem(
+                        label: 'Diskusi',
+                        iconPath: 'assets/icon/discussion-icon.png',
+                        pageKey: 'diskusi',
+                      ),
+                    ],
                   const Spacer(),
 
                   // Button Keluar
@@ -198,15 +225,14 @@ class MenuDrawer extends StatelessWidget {
 
                                 // Navigate to login page
                                 if (!context.mounted) return;
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                    builder: (context) => const LoginPage(),
-                                  ),
+                                Navigator.of(context, rootNavigator: true)
+                                    .pushNamedAndRemoveUntil(
+                                  '/login',
                                   (route) => false,
                                 );
 
-                                // logout
-                                final token = AuthService.token;
+                                // Logout
+                                final token = await AuthService.token;
                                 if (token != null && token.isNotEmpty) {
                                   try {
                                     final logoutDto = LogoutDto(

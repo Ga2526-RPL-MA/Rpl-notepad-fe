@@ -114,4 +114,13 @@ class AuthService {
     final currentToken = token;
     return currentToken != null ? JwtHelper.getUserId(currentToken) : null;
   }
+
+  // Get role from token
+  static String? get userRole {
+    final currentToken = token;
+    return currentToken != null ? JwtHelper.getRole(currentToken) : null;
+  }
+
+  // Check admin role
+  static bool get isAdmin => (userRole ?? '').toLowerCase() == 'admin';
 }

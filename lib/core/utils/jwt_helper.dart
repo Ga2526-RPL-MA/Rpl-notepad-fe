@@ -33,4 +33,9 @@ class JwtHelper {
     }
     return null;
   }
+
+  static String? getRole(String token) {
+    final payload = decodeToken(token);
+    return payload?['role'] as String?;
+  }
 }

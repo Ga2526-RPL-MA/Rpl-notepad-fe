@@ -69,7 +69,7 @@ class CustomModal extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     return Dialog(
-      backgroundColor: backgroundColor ?? theme.dialogBackgroundColor,
+      backgroundColor: backgroundColor ?? Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -113,7 +113,7 @@ class CustomModal extends StatelessWidget {
                       backgroundColor: const Color(0xFFEE443F),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: Text(
@@ -135,7 +135,7 @@ class CustomModal extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         side: BorderSide(
                           color:

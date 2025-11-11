@@ -6,6 +6,8 @@ enum APIEndpoint {
   logout,
   getClasses,
   createClasses,
+  updateClasses,
+  deleteClasses,
   getIssues,
   postIssues,
   postAnswer,
@@ -28,6 +30,10 @@ extension APIEndpointExtension on APIEndpoint {
       case APIEndpoint.getClasses:
         return "/class";
       case APIEndpoint.createClasses:
+        return "/class";
+      case APIEndpoint.updateClasses:
+        return "/class";
+      case APIEndpoint.deleteClasses:
         return "/class";
       case APIEndpoint.getIssues:
         return "/issues";

@@ -7,6 +7,7 @@ import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
 import 'package:rpl_notepad_fe/core/widgets/error_modal.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -178,9 +179,10 @@ class LoginPage extends StatelessWidget {
                                         backgroundColor: Colors.green,
                                       ),
                                     );
+                                    final targetRoute = AuthService.isAdmin ? '/admin' : '/home';
                                     Navigator.pushReplacementNamed(
                                       context,
-                                      '/home',
+                                      targetRoute,
                                     );
                                   } else if (viewModel.error != null) {
                                     context.showErrorModal(
