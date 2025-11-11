@@ -8,9 +8,9 @@ import 'package:rpl_notepad_fe/features/discussion/domain/repositories/class_rep
 import 'package:rpl_notepad_fe/features/discussion/data/repositories/class_repository_impl.dart';
 import 'package:rpl_notepad_fe/core/network/api_service.dart';
 
-String formatDate(DateTime date) {
+String formatDateTime(DateTime dateTime) {
   initializeDateFormatting('id_ID', null);
-  return DateFormat('EEEE, d MMMM y', 'id_ID').format(date);
+  return DateFormat('EEEE, d MMMM y, HH:mm', 'id_ID').format(dateTime) + ' WIB';
 }
 
 class AddTaskModal extends StatefulWidget {
@@ -74,10 +74,35 @@ class _AddTaskModalState extends State<AddTaskModal> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _deadline) {
-      setState(() {
-        _deadline = picked;
-      });
+    if (picked != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_deadline),
+      );
+
+      if (pickedTime != null) {
+        final combined = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        setState(() {
+          _deadline = combined;
+        });
+      } else {
+        final combined = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          _deadline.hour,
+          _deadline.minute,
+        );
+        setState(() {
+          _deadline = combined;
+        });
+      }
     }
   }
 
@@ -231,8 +256,10 @@ class _AddTaskModalState extends State<AddTaskModal> {
                       TextFormField(
                         readOnly: true,
                         onTap: _selectDate,
+                        style: const TextStyle(fontSize: 12),
                         decoration: InputDecoration(
-                          hintText: 'Pilih tanggal',
+                          hintText: 'Pilih tanggal & jam',
+                          hintStyle: const TextStyle(fontSize: 12),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: const BorderSide(
@@ -261,7 +288,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                           ),
                         ),
                         controller: TextEditingController(
-                          text: formatDate(_deadline),
+                          text: formatDateTime(_deadline),
                         ),
                       ),
                       const SizedBox(height: 16),
