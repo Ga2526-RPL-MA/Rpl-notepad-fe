@@ -39,10 +39,11 @@ class RegisterPage extends StatelessWidget {
   }
 
   Widget _buildLoginCard(BuildContext context) {
-    final isWeb = MediaQuery.of(context).size.width > 600;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final cardWidth = isWeb ? MediaQuery.of(context).size.width / 2 : 370.0;
-    final cardHeight = isWeb ? screenHeight * 0.9 : screenHeight * 0.9;
+    final screenSize = MediaQuery.of(context).size;
+    final viewportHeight = MediaQuery.of(context).size.height;
+    final isWeb = screenSize.width > 600;
+    final cardWidth = isWeb ? screenSize.width * 0.5 : 370.0;
+    final cardHeight = viewportHeight;
 
     return Consumer<RegisterViewModel>(
       builder: (context, viewModel, _) {
@@ -53,13 +54,15 @@ class RegisterPage extends StatelessWidget {
               height: cardHeight,
               cornerRadius: 13.43,
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isWeb ? cardWidth * 0.1 : 20,
-                  vertical: 20,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
+                padding: EdgeInsets.zero,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isWeb ? cardWidth * 0.1 : 20,
+                    vertical: 20,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     // Logo
                     SizedBox(
@@ -339,6 +342,7 @@ class RegisterPage extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
                 ),
               ),
             ),

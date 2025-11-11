@@ -46,6 +46,8 @@ class _CustomInputFieldState extends State<CustomInputField>
 
     _focusNode.addListener(_handleFocusChange);
     _controller.addListener(_handleTextChange);
+
+    _setInitialAnimationState();
   }
 
   void _handleFocusChange() {
@@ -63,6 +65,28 @@ class _CustomInputFieldState extends State<CustomInputField>
     } else if (_controller.text.isEmpty && _focusNode.hasFocus == false) {
       _animationController.reverse();
     }
+  }
+
+  void _setInitialAnimationState() {
+    if (_controller.text.isNotEmpty || _focusNode.hasFocus) {
+      _animationController.value = 1.0;
+    } else {
+      _animationController.value = 0.0;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller && widget.controller != null) {
+      _controller.removeListener(_handleTextChange);
+      if (oldWidget.controller == null) {
+        _controller.dispose();
+      }
+      _controller = widget.controller!;
+      _controller.addListener(_handleTextChange);
+    }
+    _setInitialAnimationState();
   }
 
   @override
