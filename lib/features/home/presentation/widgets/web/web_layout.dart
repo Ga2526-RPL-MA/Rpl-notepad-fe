@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/widgets/custom_card.dart';
 import '../../../../../../core/widgets/menu_drawer.dart';
 import '../../viewmodel/home_viewmodel.dart';
 import 'web_header.dart';
@@ -45,19 +44,12 @@ class WebLayout extends StatelessWidget {
               
               // Content Area
               Expanded(
-                child: ListView(
+                child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    CustomCard(
-                      color: Colors.white,
-                      width: double.infinity,
-                      height: screenHeight * 0.81, 
-                      child: WebContentArea(viewModel: viewModel),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                  child: WebContentArea(viewModel: viewModel),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),

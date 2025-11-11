@@ -60,8 +60,14 @@ class NotificationService {
     debugPrint('[Notif] init completed. timezone=$localTz');
   }
 
-  // iOS Notification
+  // Request notification permissions
   Future<void> requestPermissions() async {
+    if (kIsWeb) {
+      // Web platform doesn't support local notifications
+      debugPrint('Notification permissions not supported on web');
+      return;
+    }
+    
     if (Platform.isIOS) {
       final ios = _flnp
           .resolvePlatformSpecificImplementation<

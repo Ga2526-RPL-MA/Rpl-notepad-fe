@@ -17,6 +17,7 @@ class HomeViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   final TaskRepository _taskRepository;
+  int? _selectedTaskIndex;
 
   late final UpdateTaskUseCase _updateTaskUseCase;
   late final DeleteTaskUseCase _deleteTaskUseCase;
@@ -39,6 +40,7 @@ class HomeViewModel extends ChangeNotifier {
   String get currentFilter => _filter;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  int? get selectedTaskIndex => _selectedTaskIndex;
 
   List<Task> get tasks {
     if (_filter == 'all') return List.from(_tasks);
@@ -87,6 +89,12 @@ class HomeViewModel extends ChangeNotifier {
       _filter = filter;
       notifyListeners();
     }
+  }
+
+  // Setter for selected task
+  void selectTask(int? index) {
+    _selectedTaskIndex = index;
+    notifyListeners();
   }
 
   // Methods
