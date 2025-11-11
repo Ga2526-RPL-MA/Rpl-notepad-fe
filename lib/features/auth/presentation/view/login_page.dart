@@ -4,10 +4,8 @@ import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
-import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
 import 'package:rpl_notepad_fe/core/widgets/error_modal.dart';
 
 class LoginPage extends StatelessWidget {
@@ -180,11 +178,9 @@ class LoginPage extends StatelessWidget {
                                         backgroundColor: Colors.green,
                                       ),
                                     );
-                                    Navigator.pushReplacement(
+                                    Navigator.pushReplacementNamed(
                                       context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const HomePage(),
-                                      ),
+                                      '/home',
                                     );
                                   } else if (viewModel.error != null) {
                                     context.showErrorModal(
@@ -242,13 +238,7 @@ class LoginPage extends StatelessWidget {
                                 ),
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const RegisterPage(),
-                                      ),
-                                    );
+                                    Navigator.pushNamed(context, '/register');
                                   },
                                   child: const Text(
                                     'Daftar disini',
@@ -264,12 +254,7 @@ class LoginPage extends StatelessWidget {
                             )
                           : OutlinedButton(
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const RegisterPage(),
-                                  ),
-                                );
+                                Navigator.pushNamed(context, '/register');
                               },
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(

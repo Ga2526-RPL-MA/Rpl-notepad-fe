@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
@@ -28,6 +29,11 @@ Future<void> main() async {
 
   // Enable CORS for web
   enableCorsForWeb();
+
+  // Use path-based URLs on the web (e.g., /login) instead of hash URLs
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
 
   try {
     // Initialize dependencies first
@@ -113,9 +119,10 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         builder: (context, child) {
-          return AppWithDebug(child: child!);
+          final content = child ?? const SizedBox.shrink();
+          return AppWithDebug(child: content);
         },
-        home: _getLandingPage(),
+        initialRoute: AuthService.isLoggedIn ? '/home' : '/login',
         routes: {
           '/login': (context) => const LoginPage(),
           '/register': (context) => const RegisterPage(),
@@ -126,23 +133,4 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Widget _getLandingPage() {
-    // Check if user is already authenticated
-    if (AuthService.isLoggedIn) {
-      return FutureBuilder(
-        future: Future.delayed(Duration.zero),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushReplacementNamed('/home');
-            });
-          }
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        },
-      );
-    }
-    return const LoginPage();
-  }
 }
