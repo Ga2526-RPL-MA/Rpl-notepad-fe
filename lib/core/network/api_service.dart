@@ -3,6 +3,7 @@ import 'package:alice/model/alice_configuration.dart';
 import 'package:alice_dio/alice_dio_adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:rpl_notepad_fe/core/network/api_config.dart';
+import 'package:rpl_notepad_fe/core/router/navigation_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 
 class ApiService {
@@ -50,11 +51,24 @@ class ApiService {
           return handler.next(options);
         },
         onResponse: (response, handler) => handler.next(response),
-        onError: (DioException e, handler) {
+        onError: (DioException e, handler) async {
           if (e.response != null) {
             print(
               'Error response: ${e.response?.statusCode} - ${e.response?.data}',
             );
+
+            // Global 401/403
+            if (e.response?.statusCode == 401 ||
+                e.response?.statusCode == 403) {
+              try {
+                await AuthService.clearToken();
+              } catch (_) {}
+
+              navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                '/login',
+                (route) => false,
+              );
+            }
           } else {
             print('Error: ${e.message}');
           }

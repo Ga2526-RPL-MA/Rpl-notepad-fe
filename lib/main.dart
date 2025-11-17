@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/network/api_service.dart';
+import 'package:rpl_notepad_fe/core/router/navigation_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/core/services/notification_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
@@ -23,9 +24,6 @@ import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/add_class_v
 void enableCorsForWeb() {
   if (kIsWeb) {}
 }
-
-// Global key for navigation
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -133,40 +131,77 @@ class MyApp extends StatelessWidget {
           if (!AuthService.isLoggedIn) {
             switch (name) {
               case '/register':
-                return MaterialPageRoute(builder: (_) => const RegisterPage(), settings: settings);
+                return MaterialPageRoute(
+                  builder: (_) => const RegisterPage(),
+                  settings: settings,
+                );
               case '/login':
-                return MaterialPageRoute(builder: (_) => const LoginPage(), settings: settings);
+                getIt<LoginViewModel>().reset();
+                return MaterialPageRoute(
+                  builder: (_) => const LoginPage(),
+                  settings: settings,
+                );
               default:
-                return MaterialPageRoute(builder: (_) => const LoginPage(), settings: const RouteSettings(name: '/login'));
+                getIt<LoginViewModel>().reset();
+                return MaterialPageRoute(
+                  builder: (_) => const LoginPage(),
+                  settings: const RouteSettings(name: '/login'),
+                );
             }
           }
 
           final isAdmin = AuthService.isAdmin;
 
           if (!isAdmin && (name == '/admin' || name.startsWith('/admin/'))) {
-            return MaterialPageRoute(builder: (_) => const HomePage(), settings: const RouteSettings(name: '/home'));
+            return MaterialPageRoute(
+              builder: (_) => const HomePage(),
+              settings: const RouteSettings(name: '/home'),
+            );
           }
 
           if (isAdmin && name == '/home') {
-            return MaterialPageRoute(builder: (_) => const AdminDashboardPage(), settings: const RouteSettings(name: '/admin'));
+            return MaterialPageRoute(
+              builder: (_) => const AdminDashboardPage(),
+              settings: const RouteSettings(name: '/admin'),
+            );
           }
 
           switch (name) {
             case '/login':
-              return MaterialPageRoute(builder: (_) => const LoginPage(), settings: const RouteSettings(name: '/login'));
+              getIt<LoginViewModel>().reset();
+              return MaterialPageRoute(
+                builder: (_) => const LoginPage(),
+                settings: const RouteSettings(name: '/login'),
+              );
             case '/register':
-              return MaterialPageRoute(builder: (_) => const RegisterPage(), settings: const RouteSettings(name: '/register'));
+              return MaterialPageRoute(
+                builder: (_) => const RegisterPage(),
+                settings: const RouteSettings(name: '/register'),
+              );
             case '/home':
-              return MaterialPageRoute(builder: (_) => const HomePage(), settings: settings);
+              return MaterialPageRoute(
+                builder: (_) => const HomePage(),
+                settings: settings,
+              );
             case '/discussion':
-              return MaterialPageRoute(builder: (_) => const DiscussionPage(), settings: settings);
+              return MaterialPageRoute(
+                builder: (_) => const DiscussionPage(),
+                settings: settings,
+              );
             case '/admin':
-              return MaterialPageRoute(builder: (_) => const AdminDashboardPage(), settings: settings);
+              return MaterialPageRoute(
+                builder: (_) => const AdminDashboardPage(),
+                settings: settings,
+              );
             case '/admin/add-class':
-              return MaterialPageRoute(builder: (_) => const AddClassPage(), settings: settings);
+              return MaterialPageRoute(
+                builder: (_) => const AddClassPage(),
+                settings: settings,
+              );
             default:
               return MaterialPageRoute(
-                builder: (_) => isAdmin ? const AdminDashboardPage() : const HomePage(),
+                builder: (_) =>
+                    isAdmin ? const AdminDashboardPage() : const HomePage(),
                 settings: RouteSettings(name: isAdmin ? '/admin' : '/home'),
               );
           }
@@ -174,5 +209,4 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-
 }

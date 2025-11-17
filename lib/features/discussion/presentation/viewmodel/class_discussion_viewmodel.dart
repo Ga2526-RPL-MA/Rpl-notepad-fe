@@ -55,7 +55,6 @@ class ClassDiscussionViewModel extends ChangeNotifier {
       _errorMessage = 'Failed to load discussions. Please try again.';
       _isLoading = false;
       notifyListeners();
-      rethrow;
     }
   }
 
