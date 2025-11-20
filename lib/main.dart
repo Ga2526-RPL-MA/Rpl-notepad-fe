@@ -224,6 +224,14 @@ class MyApp extends StatelessWidget {
             );
           }
 
+          if (!AuthService.isLoggedIn && (name == '/' || name.isEmpty)) {
+            getIt<LoginViewModel>().reset();
+            return MaterialPageRoute(
+              builder: (_) => const LoginPage(),
+              settings: const RouteSettings(name: '/login'),
+            );
+          }
+
           if (!AuthService.isLoggedIn) {
             switch (name) {
               case '/register':
@@ -256,6 +264,23 @@ class MyApp extends StatelessWidget {
           }
 
           final isAdmin = AuthService.isAdmin;
+
+          if (name == '/' || name.isEmpty) {
+            return MaterialPageRoute(
+              builder: (_) =>
+                  isAdmin ? const AdminDashboardPage() : const HomePage(),
+              settings: RouteSettings(name: isAdmin ? '/admin' : '/home'),
+            );
+          }
+
+          // Prevent authenticated users from accessing auth pages
+          if (name == '/login' || name == '/register') {
+            return MaterialPageRoute(
+              builder: (_) =>
+                  isAdmin ? const AdminDashboardPage() : const HomePage(),
+              settings: RouteSettings(name: isAdmin ? '/admin' : '/home'),
+            );
+          }
 
           if (!isAdmin && (name == '/admin' || name.startsWith('/admin/'))) {
             return MaterialPageRoute(

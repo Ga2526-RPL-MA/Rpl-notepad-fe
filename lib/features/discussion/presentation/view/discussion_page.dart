@@ -24,22 +24,33 @@ class DiscussionPage extends StatelessWidget {
     if (isWeb) {
       return Scaffold(
         body: GradientBackground(
-          child: DiscussionWebLayout(
-            screenHeight: screenHeight,
-            currentPage: 'diskusi',
-            onPageChanged: (page) {
-              if (page == 'beranda' || page == 'tugas_selesai') {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/home',
-                  (route) => false,
-                  arguments: page == 'tugas_selesai'
-                      ? {'tab': 'completed'}
-                      : null,
-                );
-              }
+          child: Consumer<DiscussionViewModel>(
+            builder: (context, viewModel, _) {
+              return Stack(
+                children: [
+                  DiscussionWebLayout(
+                    screenHeight: screenHeight,
+                    currentPage: 'diskusi',
+                    onPageChanged: (page) {
+                      if (page == 'beranda' || page == 'tugas_selesai') {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/home',
+                          (route) => false,
+                          arguments: page == 'tugas_selesai'
+                              ? {'tab': 'completed'}
+                              : null,
+                        );
+                      }
+                    },
+                    child: _DiscussionView(
+                      key: const ValueKey('discussion-view'),
+                    ),
+                  ),
+                  if (viewModel.isLoading) const LoadingOverlay(),
+                ],
+              );
             },
-            child: _DiscussionView(key: const ValueKey('discussion-view')),
           ),
         ),
       );
@@ -208,7 +219,6 @@ class _DiscussionViewState extends State<_DiscussionView> {
               ),
             ],
           ),
-          if (viewModel.isLoading) const LoadingOverlay(),
         ],
       );
     }
