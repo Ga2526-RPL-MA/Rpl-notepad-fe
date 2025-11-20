@@ -107,9 +107,7 @@ class _WebContentAreaState extends State<WebContentArea> {
                       Expanded(
                         child: Column(
                           children: [
-                            if (viewModel.isLoading)
-                              const SizedBox.shrink()
-                            else if (viewModel.error != null)
+                            if (viewModel.error != null)
                               Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,

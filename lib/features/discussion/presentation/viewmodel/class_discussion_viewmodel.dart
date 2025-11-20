@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/entities/issue.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/create_issue_usecase.dart';
@@ -45,9 +47,27 @@ class ClassDiscussionViewModel extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+     
+      if (_currentClassId != null) {
+        final cached = await _readCachedIssues(_currentClassId!);
+        if (cached.isNotEmpty) {
+          _issues = cached;
+          _issues.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
+          _filterIssues();
+        }
+      }
+
       _issues = await _getIssueUsecase.execute();
       _issues.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
       _filterIssues();
+
+      // Local Storage
+      if (_currentClassId != null) {
+        await _cacheIssues(
+          _currentClassId!,
+          _issues.where((i) => i.classId == _currentClassId).toList(),
+        );
+      }
 
       _isLoading = false;
       notifyListeners();
@@ -98,5 +118,45 @@ class ClassDiscussionViewModel extends ChangeNotifier {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  // ===== Local cache helpers =====
+  static String _issuesCacheKey(int classId) =>
+      'class_issues_cache_v1_$classId';
+
+  Future<void> _cacheIssues(int classId, List<Issue> issues) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = issues
+        .map(
+          (i) => {
+            'id': i.id,
+            'userName': i.userName,
+            'content': i.content,
+            'reportedAt': i.reportedAt.toIso8601String(),
+            'classId': i.classId,
+            'isAnswer': i.isAnswer,
+          },
+        )
+        .toList();
+    await prefs.setString(_issuesCacheKey(classId), jsonEncode(data));
+  }
+
+  Future<List<Issue>> _readCachedIssues(int classId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_issuesCacheKey(classId));
+    if (raw == null || raw.isEmpty) return [];
+    final list = jsonDecode(raw) as List<dynamic>;
+    return list.map((m) {
+      final mm = Map<String, dynamic>.from(m);
+      return Issue(
+        id: (mm['id'] as num).toInt(),
+        userName: mm['userName'] as String,
+        content: mm['content'] as String,
+        reportedAt: DateTime.parse(mm['reportedAt'] as String),
+        classId: (mm['classId'] as num).toInt(),
+        answers: const [],
+        isAnswer: (mm['isAnswer'] as bool?) ?? false,
+      );
+    }).toList();
   }
 }

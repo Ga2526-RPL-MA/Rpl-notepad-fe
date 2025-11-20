@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:rpl_notepad_fe/features/home/data/dtos/create_task_dto.dart';
 import 'package:rpl_notepad_fe/features/home/data/dtos/get_task_dto.dart';
@@ -53,8 +55,30 @@ class HomeViewModel extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
+    // Local Storage
     try {
-      // Get tasks from repository
+      final cached = await _readCachedTasks();
+      if (cached.isNotEmpty) {
+        _tasks = cached.map((taskData) {
+          final dto = GetTaskDto.fromJson(taskData);
+          return Task(
+            id: dto.id,
+            title: dto.title,
+            description: dto.description,
+            dueDate: dto.dueDate != null ? DateTime.parse(dto.dueDate!) : null,
+            status: dto.status,
+            userId: dto.userId,
+            classId: dto.classId,
+            class_: dto.class_,
+            user: dto.user,
+          );
+        }).toList();
+        _tasks.sort((a, b) => a.id.compareTo(b.id));
+        notifyListeners();
+      }
+    } catch (_) {}
+
+    try {
       final tasksData = await _taskRepository.getTasks();
 
       _tasks = tasksData.map((taskData) {
@@ -72,6 +96,10 @@ class HomeViewModel extends ChangeNotifier {
         );
       }).toList();
       _tasks.sort((a, b) => a.id.compareTo(b.id));
+
+      try {
+        await _cacheTasks(tasksData);
+      } catch (_) {}
 
       _error = null;
     } catch (e) {
@@ -233,7 +261,6 @@ class HomeViewModel extends ChangeNotifier {
 
       try {
         final updated = _tasks.firstWhere((t) => t.id == taskId);
-        // Reschedule only if deadline changed, not completed, and dueDate exists
         if (status != 'completed' &&
             isDeadlineChanged &&
             updated.dueDate != null) {
@@ -292,5 +319,21 @@ class HomeViewModel extends ChangeNotifier {
   void resetPage() {
     _currentPage = 'beranda';
     notifyListeners();
+  }
+
+  // ===== Local cache helpers =====
+  static const _tasksCacheKey = 'home_tasks_cache_v1';
+
+  Future<void> _cacheTasks(List<Map<String, dynamic>> tasksData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tasksCacheKey, jsonEncode(tasksData));
+  }
+
+  Future<List<Map<String, dynamic>>> _readCachedTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_tasksCacheKey);
+    if (raw == null || raw.isEmpty) return [];
+    final list = jsonDecode(raw) as List<dynamic>;
+    return list.map((e) => Map<String, dynamic>.from(e)).toList();
   }
 }

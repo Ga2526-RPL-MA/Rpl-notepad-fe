@@ -1,6 +1,8 @@
 import 'dart:developer';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_class_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_class_usecase.dart';
 
@@ -32,6 +34,21 @@ class DiscussionViewModel extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     log('loadClasses() - Setting loading to true', name: 'DiscussionViewModel');
+
+    // Try load cached classes first so UI is not empty
+    try {
+      final cached = await _readCachedClasses();
+      if (cached.isNotEmpty) {
+        _classes = cached;
+        _classes.sort((a, b) {
+          final ka = _timetableSortKey(a.timetable);
+          final kb = _timetableSortKey(b.timetable);
+          return ka.compareTo(kb);
+        });
+        notifyListeners();
+      }
+    } catch (_) {}
+
     notifyListeners();
 
     try {
@@ -54,6 +71,10 @@ class DiscussionViewModel extends ChangeNotifier {
         'loadClasses() - Successfully loaded ${_classes.length} classes in ${endTime.difference(startTime).inMilliseconds}ms',
         name: 'DiscussionViewModel',
       );
+      // Local Storage
+      try {
+        await _cacheClasses(_classes);
+      } catch (_) {}
     } catch (e, stackTrace) {
       log(
         'loadClasses() - Error: $e',
@@ -75,6 +96,37 @@ class DiscussionViewModel extends ChangeNotifier {
       );
       notifyListeners();
     }
+  }
+
+  // Cache helpers
+  static const _classesCacheKey = 'discussion_classes_cache_v1';
+
+  Future<void> _cacheClasses(List<GetClassDto> classes) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = classes
+        .map(
+          (c) => {
+            'id': c.id,
+            'name': c.name,
+            'lecturer': c.lecturer,
+            'timetable': c.timetable,
+            'room': c.room,
+            'students': c.students,
+            'tasks': c.tasks,
+          },
+        )
+        .toList();
+    await prefs.setString(_classesCacheKey, jsonEncode(data));
+  }
+
+  Future<List<GetClassDto>> _readCachedClasses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_classesCacheKey);
+    if (raw == null || raw.isEmpty) return [];
+    final list = jsonDecode(raw) as List<dynamic>;
+    return list
+        .map((m) => GetClassDto.fromJson(Map<String, dynamic>.from(m)))
+        .toList();
   }
 
   bool _isNetworkIssue(Object e) {

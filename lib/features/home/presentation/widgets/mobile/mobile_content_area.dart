@@ -59,9 +59,7 @@ class _MobileContentAreaState extends State<MobileContentArea> {
                   children: const [TaskFilterDropdown()],
                 ),
                 const SizedBox(height: 24),
-                if (viewModel.isLoading)
-                  const SizedBox.shrink()
-                else if (viewModel.error != null)
+                if (viewModel.error != null)
                   Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

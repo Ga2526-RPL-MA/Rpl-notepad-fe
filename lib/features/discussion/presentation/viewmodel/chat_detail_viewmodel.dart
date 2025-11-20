@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_answer_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/entities/answer.dart';
@@ -25,6 +27,7 @@ class ChatDetailViewModel extends ChangeNotifier {
   int? _replyingToAnswerId;
   int? _expandedAnswerId;
   List<GetAnswerDto> _answers = [];
+  bool _disposed = false;
 
   // Getters
   bool get isLoading => _isLoading;
@@ -56,6 +59,11 @@ class ChatDetailViewModel extends ChangeNotifier {
     _setError(null);
 
     try {
+      final cached = await _readCachedAnswers(issueId);
+      if (cached.isNotEmpty) {
+        _setAnswers(cached);
+      }
+
       if (kDebugMode) {
         print('Fetching answers for issueId: $issueId');
       }
@@ -72,6 +80,10 @@ class ChatDetailViewModel extends ChangeNotifier {
       }
 
       _setAnswers(answers);
+      // Locak Storage
+      try {
+        await _cacheAnswers(issueId, answers);
+      } catch (_) {}
     } catch (e) {
       print('Error loading answers: $e');
       _setError('Failed to load answers. Please try again.');
@@ -129,23 +141,27 @@ class ChatDetailViewModel extends ChangeNotifier {
   }
 
   void _setLoading(bool value) {
+    if (_disposed) return;
     _isLoading = value;
-    notifyListeners();
+    _safeNotify();
   }
 
   void _setSubmitting(bool value) {
+    if (_disposed) return;
     _isSubmitting = value;
-    notifyListeners();
+    _safeNotify();
   }
 
   void _setError(String? message) {
+    if (_disposed) return;
     _errorMessage = message;
-    notifyListeners();
+    _safeNotify();
   }
 
   void _setAnswers(List<GetAnswerDto> answers) {
+    if (_disposed) return;
     _answers = answers;
-    notifyListeners();
+    _safeNotify();
   }
 
   Issue getMainIssue() {
@@ -182,6 +198,39 @@ class ChatDetailViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     super.dispose();
+  }
+
+  void _safeNotify() {
+    if (_disposed) return;
+    try {
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  // ===== Local cache helpers =====
+  static String _answersCacheKey(int issueId) =>
+      'issue_answers_cache_v1_$issueId';
+
+  Future<void> _cacheAnswers(int issueId, List<GetAnswerDto> answers) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = answers.map((a) => a.toJson()).toList();
+    await prefs.setString(_answersCacheKey(issueId), jsonEncode(data));
+  }
+
+  Future<List<GetAnswerDto>> _readCachedAnswers(int issueId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_answersCacheKey(issueId));
+    if (raw == null || raw.isEmpty) return [];
+    final list = jsonDecode(raw) as List<dynamic>;
+    return list
+        .map(
+          (m) => GetAnswerDto.fromJson(
+            Map<String, dynamic>.from(m),
+            currentIssueId: issueId,
+          ),
+        )
+        .toList();
   }
 }
