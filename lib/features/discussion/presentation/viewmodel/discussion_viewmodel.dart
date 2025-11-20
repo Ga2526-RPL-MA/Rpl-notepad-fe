@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_class_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_class_usecase.dart';
@@ -60,7 +61,12 @@ class DiscussionViewModel extends ChangeNotifier {
         error: e,
         stackTrace: stackTrace,
       );
-      _error = 'Gagal memuat data kelas: $e';
+
+      if (_isNetworkIssue(e)) {
+        _error = null;
+      } else {
+        _error = 'Gagal memuat data kelas: $e';
+      }
     } finally {
       _isLoading = false;
       log(
@@ -69,6 +75,17 @@ class DiscussionViewModel extends ChangeNotifier {
       );
       notifyListeners();
     }
+  }
+
+  bool _isNetworkIssue(Object e) {
+    if (e is DioException) {
+      return e.type == DioExceptionType.connectionError ||
+          e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          (e.error?.toString().contains('SocketException') ?? false);
+    }
+    // Also honor the sentinel from ApiService
+    return e.toString().contains('no_internet');
   }
 
   Map<String, dynamic> getClassData(GetClassDto classDto, int index) {

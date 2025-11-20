@@ -1,6 +1,9 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:rpl_notepad_fe/core/widgets/no_connection_page.dart';
 import 'firebase_options.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, PlatformDispatcher;
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -46,7 +49,6 @@ Future<void> main() async {
 
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
 
-
   // Enable CORS for web
   enableCorsForWeb();
 
@@ -71,7 +73,44 @@ Future<void> main() async {
     final alice = getIt<ApiService>().alice;
     alice.setNavigatorKey(navigatorKey);
 
-    runApp(const MyApp());
+    // Get initial connectivity state
+    final connectivityResult = await Connectivity().checkConnectivity();
+
+    runApp(
+      StreamBuilder<List<ConnectivityResult>>(
+        stream: Connectivity().onConnectivityChanged,
+        initialData: connectivityResult,
+        builder: (context, snapshot) {
+          final isDisconnectedByType =
+              snapshot.data?.contains(ConnectivityResult.none) ?? true;
+
+          if (isDisconnectedByType) {
+            return const MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: NoConnectionPage(),
+            );
+          }
+
+          return FutureBuilder<bool>(
+            future: _hasInternet(),
+            builder: (context, internetSnap) {
+              final reachabilityChecked =
+                  internetSnap.connectionState == ConnectionState.done;
+              final reachable = internetSnap.data == true;
+
+              if (reachabilityChecked && !reachable) {
+                return const MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  home: NoConnectionPage(),
+                );
+              }
+
+              return const MyApp();
+            },
+          );
+        },
+      ),
+    );
   } catch (e, s) {
     await FirebaseCrashlytics.instance.recordError(e, s, fatal: true);
     runApp(
@@ -85,6 +124,21 @@ Future<void> main() async {
         ),
       ),
     );
+  }
+}
+
+Future<bool> _hasInternet() async {
+  try {
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 3),
+        receiveTimeout: const Duration(seconds: 3),
+      ),
+    );
+    final res = await dio.get('https://www.gstatic.com/generate_204');
+    return res.statusCode == 204 || res.statusCode == 200;
+  } catch (_) {
+    return false;
   }
 }
 

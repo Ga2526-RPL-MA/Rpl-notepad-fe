@@ -2,9 +2,11 @@ import 'package:alice/alice.dart';
 import 'package:alice/model/alice_configuration.dart';
 import 'package:alice_dio/alice_dio_adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/core/network/api_config.dart';
 import 'package:rpl_notepad_fe/core/router/navigation_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
+import 'package:rpl_notepad_fe/core/widgets/no_connection_page.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -52,6 +54,19 @@ class ApiService {
         },
         onResponse: (response, handler) => handler.next(response),
         onError: (DioException e, handler) async {
+          // Handle no-internet / network errors globally
+          if (_isNetworkIssue(e)) {
+            // Schedule navigation to avoid conflicts if error happens during build
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final nav = navigatorKey.currentState;
+              if (nav != null) {
+                nav.pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const NoConnectionPage()),
+                  (route) => false,
+                );
+              }
+            });
+          }
           if (e.response != null) {
             print(
               'Error response: ${e.response?.statusCode} - ${e.response?.data}',
@@ -85,6 +100,13 @@ class ApiService {
 
   Dio get client => _dio;
 
+  bool _isNetworkIssue(DioException e) {
+    return e.type == DioExceptionType.connectionError ||
+        e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
+        e.error?.toString().contains('SocketException') == true;
+  }
+
   // HTTP METHODS
 
   Future<T> get<T>(
@@ -104,7 +126,19 @@ class ApiService {
       }
 
       return response.data as T;
-    } on DioException {
+    } on DioException catch (e) {
+      if (_isNetworkIssue(e)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final nav = navigatorKey.currentState;
+          if (nav != null) {
+            nav.pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const NoConnectionPage()),
+              (route) => false,
+            );
+          }
+        });
+        throw Exception('no_internet');
+      }
       rethrow;
     }
   }
@@ -113,7 +147,19 @@ class ApiService {
     try {
       final response = await _dio.post(path, data: data, options: options);
       return response.data as T;
-    } on DioException {
+    } on DioException catch (e) {
+      if (_isNetworkIssue(e)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final nav = navigatorKey.currentState;
+          if (nav != null) {
+            nav.pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const NoConnectionPage()),
+              (route) => false,
+            );
+          }
+        });
+        throw Exception('no_internet');
+      }
       rethrow;
     }
   }

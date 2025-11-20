@@ -102,6 +102,9 @@ flutter:
 
     - assets/icon/star_icon.png
     - assets/icon/add-class-icon.png
+
+    #Icons No Connection
+    - assets/icon/no-connection-icon.png
   #   - images/a_dot_ham.jpeg
 
 
