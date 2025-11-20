@@ -14,6 +14,7 @@ import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/core/router/navigation_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/core/services/notification_service.dart';
+import 'package:rpl_notepad_fe/core/widgets/splash_screen.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/view/discussion_page.dart';
@@ -193,9 +194,16 @@ class MyApp extends StatelessWidget {
           final content = child ?? const SizedBox.shrink();
           return AppWithDebug(child: content);
         },
-        initialRoute: AuthService.isLoggedIn ? '/home' : '/login',
+        initialRoute: '/splash',
         onGenerateRoute: (settings) {
           final name = settings.name ?? '/login';
+
+          if (name == '/splash') {
+            return MaterialPageRoute(
+              builder: (_) => const SplashScreen(),
+              settings: const RouteSettings(name: '/splash'),
+            );
+          }
 
           if (!AuthService.isLoggedIn) {
             switch (name) {
