@@ -1,11 +1,11 @@
 {
-    "name": "rpl_notepad_fe",
-    "short_name": "rpl_notepad_fe",
+    "name": "RPL Notepad",
+    "short_name": "RPL Notepad",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Eksplorasi catatan dan ide dari sesama mahasiswa RPL.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
