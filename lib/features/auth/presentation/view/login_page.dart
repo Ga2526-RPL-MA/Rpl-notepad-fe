@@ -8,6 +8,8 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view
 import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
 import 'package:rpl_notepad_fe/core/widgets/error_modal.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -225,6 +227,11 @@ class LoginPage extends StatelessWidget {
                                   fontSize: isWeb ? 16 : null,
                                 ),
                               ),
+                      ),
+
+                      ElevatedButton(
+                        onPressed: () => FirebaseCrashlytics.instance.crash(),
+                        child: Text("Test Crash"),
                       ),
                       SizedBox(height: isWeb ? 22 : 16),
 

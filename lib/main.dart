@@ -1,5 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'firebase_options.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, PlatformDispatcher;
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +13,6 @@ import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/core/services/notification_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dart';
-import 'package:rpl_notepad_fe/features/discussion/domain/usecases/add_sub_answer_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/view/discussion_page.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
@@ -28,6 +30,23 @@ void enableCorsForWeb() {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize Crashlytics
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+  };
+
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+
+
   // Enable CORS for web
   enableCorsForWeb();
 
@@ -42,9 +61,6 @@ Future<void> main() async {
 
     // Verify critical dependencies
     final getIt = GetIt.instance;
-    if (!getIt.isRegistered<AddSubAnswerUsecase>()) {
-      throw Exception('AddSubAnswerUsecase not registered!');
-    }
     await AuthService.init();
 
     // Initialize notifications
@@ -56,9 +72,8 @@ Future<void> main() async {
     alice.setNavigatorKey(navigatorKey);
 
     runApp(const MyApp());
-  } catch (e, stackTrace) {
-    print('Error during app initialization: $e');
-    print('Stack trace: $stackTrace');
+  } catch (e, s) {
+    await FirebaseCrashlytics.instance.recordError(e, s, fatal: true);
     runApp(
       const MaterialApp(
         home: Scaffold(
