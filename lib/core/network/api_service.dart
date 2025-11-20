@@ -3,6 +3,7 @@ import 'package:alice/model/alice_configuration.dart';
 import 'package:alice_dio/alice_dio_adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:rpl_notepad_fe/core/network/api_config.dart';
 import 'package:rpl_notepad_fe/core/router/navigation_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
@@ -54,18 +55,19 @@ class ApiService {
         },
         onResponse: (response, handler) => handler.next(response),
         onError: (DioException e, handler) async {
-          // Handle no-internet / network errors globally
+          // Handle network errors globally
           if (_isNetworkIssue(e)) {
-            // Schedule navigation to avoid conflicts if error happens during build
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final nav = navigatorKey.currentState;
-              if (nav != null) {
-                nav.pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const NoConnectionPage()),
-                  (route) => false,
-                );
-              }
-            });
+            if (!kIsWeb) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final nav = navigatorKey.currentState;
+                if (nav != null) {
+                  nav.pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const NoConnectionPage()),
+                    (route) => false,
+                  );
+                }
+              });
+            }
           }
           if (e.response != null) {
             print(
@@ -128,15 +130,17 @@ class ApiService {
       return response.data as T;
     } on DioException catch (e) {
       if (_isNetworkIssue(e)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final nav = navigatorKey.currentState;
-          if (nav != null) {
-            nav.pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const NoConnectionPage()),
-              (route) => false,
-            );
-          }
-        });
+        if (!kIsWeb) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final nav = navigatorKey.currentState;
+            if (nav != null) {
+              nav.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const NoConnectionPage()),
+                (route) => false,
+              );
+            }
+          });
+        }
         throw Exception('no_internet');
       }
       rethrow;
@@ -149,15 +153,17 @@ class ApiService {
       return response.data as T;
     } on DioException catch (e) {
       if (_isNetworkIssue(e)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final nav = navigatorKey.currentState;
-          if (nav != null) {
-            nav.pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const NoConnectionPage()),
-              (route) => false,
-            );
-          }
-        });
+        if (!kIsWeb) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final nav = navigatorKey.currentState;
+            if (nav != null) {
+              nav.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const NoConnectionPage()),
+                (route) => false,
+              );
+            }
+          });
+        }
         throw Exception('no_internet');
       }
       rethrow;

@@ -175,7 +175,7 @@ class _CustomInputFieldState extends State<CustomInputField>
         // Animated Hint Text
         Positioned(
           left: isWeb ? 70 : 50,
-          top: isWeb ? 14 : 15,
+          top: isWeb ? 21 : 15,
           child: AnimatedBuilder(
             animation: _offsetAnimation,
             builder: (context, child) {

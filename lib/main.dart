@@ -5,7 +5,8 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/core/widgets/no_connection_page.dart';
 import 'firebase_options.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, PlatformDispatcher;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, PlatformDispatcher, kDebugMode;
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ import 'package:rpl_notepad_fe/core/router/navigation_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/core/services/notification_service.dart';
 import 'package:rpl_notepad_fe/core/widgets/splash_screen.dart';
+import 'package:rpl_notepad_fe/core/widgets/not_found_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/view/discussion_page.dart';
@@ -38,17 +40,21 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize Crashlytics
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-  };
+  if (!kIsWeb) {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    };
 
-  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+    PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
 
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+      !kDebugMode,
+    );
+  }
 
   // Enable CORS for web
   enableCorsForWeb();
@@ -67,8 +73,15 @@ Future<void> main() async {
     await AuthService.init();
 
     // Initialize notifications
-    await NotificationService.instance.init();
-    await NotificationService.instance.requestPermissions();
+    if (!kIsWeb) {
+      await NotificationService.instance.init();
+      await NotificationService.instance.requestPermissions();
+    }
+
+    if (kIsWeb) {
+      runApp(const MyApp());
+      return;
+    }
 
     // Alice (HTTP Inspector)
     final alice = getIt<ApiService>().alice;
@@ -113,7 +126,9 @@ Future<void> main() async {
       ),
     );
   } catch (e, s) {
-    await FirebaseCrashlytics.instance.recordError(e, s, fatal: true);
+    if (!kIsWeb) {
+      await FirebaseCrashlytics.instance.recordError(e, s, fatal: true);
+    }
     runApp(
       const MaterialApp(
         home: Scaffold(
@@ -194,7 +209,11 @@ class MyApp extends StatelessWidget {
           final content = child ?? const SizedBox.shrink();
           return AppWithDebug(child: content);
         },
-        initialRoute: '/splash',
+        onUnknownRoute: (settings) => MaterialPageRoute(
+          builder: (_) => const NotFoundPage(),
+          settings: settings,
+        ),
+        initialRoute: kIsWeb ? null : '/splash',
         onGenerateRoute: (settings) {
           final name = settings.name ?? '/login';
 
@@ -219,11 +238,20 @@ class MyApp extends StatelessWidget {
                   settings: settings,
                 );
               default:
-                getIt<LoginViewModel>().reset();
-                return MaterialPageRoute(
-                  builder: (_) => const LoginPage(),
-                  settings: const RouteSettings(name: '/login'),
-                );
+                const protected = <String>{
+                  '/home',
+                  '/discussion',
+                  '/admin',
+                  '/admin/add-class',
+                };
+                if (protected.contains(name)) {
+                  getIt<LoginViewModel>().reset();
+                  return MaterialPageRoute(
+                    builder: (_) => const LoginPage(),
+                    settings: const RouteSettings(name: '/login'),
+                  );
+                }
+                return null;
             }
           }
 
@@ -276,11 +304,7 @@ class MyApp extends StatelessWidget {
                 settings: settings,
               );
             default:
-              return MaterialPageRoute(
-                builder: (_) =>
-                    isAdmin ? const AdminDashboardPage() : const HomePage(),
-                settings: RouteSettings(name: isAdmin ? '/admin' : '/home'),
-              );
+              return null;
           }
         },
       ),
