@@ -150,7 +150,7 @@ class _WebTaskDetailPanelState extends State<WebTaskDetailPanel> {
 
     return Column(
       children: [
-        // Header 
+        // Header
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -285,12 +285,7 @@ class _WebTaskDetailPanelState extends State<WebTaskDetailPanel> {
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: _isLoading
-                        ? const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Center(
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          )
+                        ? const SizedBox.shrink()
                         : _classes.isEmpty
                         ? const Padding(
                             padding: EdgeInsets.symmetric(vertical: 12.0),

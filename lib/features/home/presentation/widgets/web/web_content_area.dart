@@ -108,7 +108,7 @@ class _WebContentAreaState extends State<WebContentArea> {
                         child: Column(
                           children: [
                             if (viewModel.isLoading)
-                              const Center(child: CircularProgressIndicator())
+                              const SizedBox.shrink()
                             else if (viewModel.error != null)
                               Center(
                                 child: Column(

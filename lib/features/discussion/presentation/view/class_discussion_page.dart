@@ -11,6 +11,7 @@ import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 
 class ClassDiscussionPage extends StatefulWidget {
   final int classId;
@@ -126,28 +127,42 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                             child: Column(
                               children: [
                                 const SizedBox(height: 20),
-                                // Header Card 
+                                // Header Card
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
                                   child: CustomCard(
                                     color: Colors.white,
                                     width: double.infinity,
                                     height: 100,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         const Expanded(
-                                          child: CustomSearchBar(hintText: 'Cari diskusi...'),
+                                          child: CustomSearchBar(
+                                            hintText: 'Cari diskusi...',
+                                          ),
                                         ),
                                         const SizedBox(width: 20),
                                         Consumer<LoginViewModel>(
                                           builder: (context, loginVM, _) {
                                             return UserProfile(
-                                              name: AuthService.userName?.isNotEmpty == true
+                                              name:
+                                                  AuthService
+                                                          .userName
+                                                          ?.isNotEmpty ==
+                                                      true
                                                   ? AuthService.userName!
                                                   : 'User',
-                                              email: AuthService.userEmail?.isNotEmpty == true
+                                              email:
+                                                  AuthService
+                                                          .userEmail
+                                                          ?.isNotEmpty ==
+                                                      true
                                                   ? AuthService.userEmail!
                                                   : 'user@example.com',
                                               avatarSize: 40,
@@ -161,11 +176,14 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                 ),
                                 const SizedBox(height: 20),
 
-                                // Fixed Title 
+                                // Fixed Title
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
@@ -189,24 +207,34 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                             vertical: 8,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(5),
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
                                           ),
                                         ),
                                         icon: Icon(
-                                          viewModel.showAddForm ? Icons.close : Icons.add,
+                                          viewModel.showAddForm
+                                              ? Icons.close
+                                              : Icons.add,
                                           size: 20,
                                         ),
-                                        label: Text(viewModel.showAddForm ? 'Batal' : 'Tambah'),
+                                        label: Text(
+                                          viewModel.showAddForm
+                                              ? 'Batal'
+                                              : 'Tambah',
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 const SizedBox(height: 16),
 
-                                // Fixed Input Form 
+                                // Fixed Input Form
                                 if (viewModel.showAddForm)
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                     child: DiscussionInputForm(
                                       controller: _issueController,
                                       onPostPressed: _handlePostIssue,
@@ -220,24 +248,33 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                 // Content Area (scrollable)
                                 Expanded(
                                   child: ListView(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                     children: [
                                       Container(
                                         padding: const EdgeInsets.all(16.0),
                                         width: double.infinity,
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             const SizedBox(height: 0),
 
                                             // Issues
-                                            if (viewModel.issues.isEmpty && !viewModel.showAddForm)
+                                            if (viewModel.issues.isEmpty &&
+                                                !viewModel.showAddForm)
                                               const Padding(
-                                                padding: EdgeInsets.only(top: 32.0),
+                                                padding: EdgeInsets.only(
+                                                  top: 32.0,
+                                                ),
                                                 child: Center(
                                                   child: Text(
                                                     'Tidak ada diskusi',
-                                                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.grey,
+                                                    ),
                                                   ),
                                                 ),
                                               )
@@ -245,7 +282,10 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                               ...viewModel.issues
                                                   .map(
                                                     (issue) => Padding(
-                                                      padding: const EdgeInsets.only(bottom: 16.0),
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            bottom: 16.0,
+                                                          ),
                                                       child: ClassMessageCard(
                                                         key: ValueKey(issue.id),
                                                         issue: issue,
@@ -276,15 +316,7 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                       ),
                     ),
                   ),
-                  if (viewModel.isLoading)
-                    Container(
-                      color: Colors.black54,
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      ),
-                    ),
+                  if (viewModel.isLoading) const LoadingOverlay(),
                 ],
               );
             }
@@ -299,15 +331,7 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                         : _buildContent(viewModel),
                   ),
                 ),
-                if (viewModel.isLoading)
-                  Container(
-                    color: Colors.black54,
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    ),
-                  ),
+                if (viewModel.isLoading) const LoadingOverlay(),
               ],
             );
           },

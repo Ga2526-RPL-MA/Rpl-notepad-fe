@@ -7,7 +7,7 @@ class CommentInputField extends StatelessWidget {
   final String hintText;
   final String? replyingTo;
   final VoidCallback? onCancelReply;
-  final int? answerId; 
+  final int? answerId;
   const CommentInputField({
     super.key,
     required this.controller,
@@ -67,30 +67,16 @@ class CommentInputField extends StatelessWidget {
                     isDense: true,
                     filled: true,
                     fillColor: Colors.white,
-                    suffixIcon: isSubmitting
-                        ? const Padding(
-                            padding: EdgeInsets.only(right: 12.0),
-                            child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.blue,
-                                ),
-                              ),
-                            ),
-                          )
-                        : IconButton(
-                            icon: const Icon(
-                              Icons.send,
-                              color: Colors.black,
-                              size: 22,
-                            ),
-                            onPressed: onSendPressed,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
+                    suffixIcon: IconButton(
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.black,
+                        size: 22,
+                      ),
+                      onPressed: isSubmitting ? null : onSendPressed,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                   ),
                   maxLines: 1,
                 ),
@@ -115,9 +101,9 @@ class CommentInputField extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              replyingTo != null 
-                                ? 'Menjawab $replyingTo'
-                                : 'Membalas komentar...',
+                              replyingTo != null
+                                  ? 'Menjawab $replyingTo'
+                                  : 'Membalas komentar...',
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFF6B7280),

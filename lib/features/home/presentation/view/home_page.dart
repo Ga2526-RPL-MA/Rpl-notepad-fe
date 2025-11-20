@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
+import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/mobile/mobile_layout.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/web/web_layout.dart';
 import '../../../../core/widgets/menu_drawer.dart';
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                 setState(() {
                   _viewModel.changePage(page);
                 });
-                // Navigate to discussion page 
+                // Navigate to discussion page
                 if (page == 'diskusi') {
                   if (!mounted) return;
                   Navigator.pushReplacementNamed(context, '/discussion');
@@ -72,29 +73,45 @@ class _HomePageState extends State<HomePage> {
             )
           : null,
       body: GradientBackground(
-        child: SafeArea(
-          child: isWeb
-              ? WebLayout(
-                  screenHeight: screenHeight,
-                  viewModel: _viewModel,
-                  currentPage: _viewModel.currentPage,
-                  onPageChanged: (page) {
-                    setState(() {
-                      _viewModel.changePage(page);
-                    });
-                    // Navigate to discussion page 
-                    if (page == 'diskusi') {
-                      Navigator.pushNamed(context, '/discussion');
-                    }
-                  },
-                )
-              : MobileLayout(
-                  screenHeight: screenHeight,
-                  viewModel: _viewModel,
-                  onMenuPressed: () {
-                    _scaffoldKey.currentState?.openDrawer();
-                  },
-                ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            SafeArea(
+              child: AnimatedBuilder(
+                animation: _viewModel,
+                builder: (context, _) {
+                  return isWeb
+                      ? WebLayout(
+                          screenHeight: screenHeight,
+                          viewModel: _viewModel,
+                          currentPage: _viewModel.currentPage,
+                          onPageChanged: (page) {
+                            setState(() {
+                              _viewModel.changePage(page);
+                            });
+                            // Navigate to discussion page
+                            if (page == 'diskusi') {
+                              Navigator.pushNamed(context, '/discussion');
+                            }
+                          },
+                        )
+                      : MobileLayout(
+                          screenHeight: screenHeight,
+                          viewModel: _viewModel,
+                          onMenuPressed: () {
+                            _scaffoldKey.currentState?.openDrawer();
+                          },
+                        );
+                },
+              ),
+            ),
+            AnimatedBuilder(
+              animation: _viewModel,
+              builder: (context, _) => _viewModel.isLoading
+                  ? const LoadingOverlay()
+                  : const SizedBox.shrink(),
+            ),
+          ],
         ),
       ),
     );

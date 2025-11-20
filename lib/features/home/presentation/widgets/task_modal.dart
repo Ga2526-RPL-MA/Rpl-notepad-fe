@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
+import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_class_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/repositories/class_repository.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/repositories/class_repository_impl.dart';
@@ -320,14 +321,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: _isLoading
-                            ? const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )
+                            ? const SizedBox.shrink()
                             : _classes.isEmpty
                             ? const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 12.0),
@@ -545,6 +539,7 @@ class _AddTaskModalState extends State<AddTaskModal> {
             ),
           ),
         ),
+        if (_isLoading) const LoadingOverlay(),
       ],
     );
   }

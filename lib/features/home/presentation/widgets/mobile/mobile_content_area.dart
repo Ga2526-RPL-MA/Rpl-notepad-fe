@@ -60,7 +60,7 @@ class _MobileContentAreaState extends State<MobileContentArea> {
                 ),
                 const SizedBox(height: 24),
                 if (viewModel.isLoading)
-                  const Center(child: CircularProgressIndicator())
+                  const SizedBox.shrink()
                 else if (viewModel.error != null)
                   Center(
                     child: Column(
