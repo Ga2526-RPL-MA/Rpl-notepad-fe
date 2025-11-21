@@ -16,6 +16,7 @@ class ClassDiscussionViewModel extends ChangeNotifier {
   bool _isLoading = true;
   String? _errorMessage;
   bool _showAddForm = false;
+  final Map<int, int> _cachedReplyCounts = {};
 
   // Getters
   List<Issue> get issues => _filteredIssues;
@@ -23,6 +24,7 @@ class ClassDiscussionViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get showAddForm => _showAddForm;
   bool get hasIssues => _filteredIssues.isNotEmpty;
+  int? getReplyCount(int issueId) => _cachedReplyCounts[issueId];
 
   // Set current class ID and filter issues
   void setClassId(int classId) {
@@ -47,7 +49,6 @@ class ClassDiscussionViewModel extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-     
       if (_currentClassId != null) {
         final cached = await _readCachedIssues(_currentClassId!);
         if (cached.isNotEmpty) {
@@ -61,7 +62,7 @@ class ClassDiscussionViewModel extends ChangeNotifier {
       _issues.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
       _filterIssues();
 
-      // Local Storage
+      // Local Storage (also persist replyCount)
       if (_currentClassId != null) {
         await _cacheIssues(
           _currentClassId!,
@@ -135,6 +136,11 @@ class ClassDiscussionViewModel extends ChangeNotifier {
             'reportedAt': i.reportedAt.toIso8601String(),
             'classId': i.classId,
             'isAnswer': i.isAnswer,
+            // Persist reply count so it survives app restart
+            'replyCount': i.answers.fold<int>(
+              0,
+              (total, a) => total + 1 + a.subAnswers.length,
+            ),
           },
         )
         .toList();
@@ -148,8 +154,13 @@ class ClassDiscussionViewModel extends ChangeNotifier {
     final list = jsonDecode(raw) as List<dynamic>;
     return list.map((m) {
       final mm = Map<String, dynamic>.from(m);
+      final id = (mm['id'] as num).toInt();
+      final rc = (mm['replyCount'] as num?)?.toInt();
+      if (rc != null) {
+        _cachedReplyCounts[id] = rc;
+      }
       return Issue(
-        id: (mm['id'] as num).toInt(),
+        id: id,
         userName: mm['userName'] as String,
         content: mm['content'] as String,
         reportedAt: DateTime.parse(mm['reportedAt'] as String),

@@ -8,6 +8,7 @@ class ClassMessageCard extends StatefulWidget {
   final VoidCallback? onTap;
   final bool showReplyCount;
   final Widget? answersWidget;
+  final int? replyCount;
 
   const ClassMessageCard({
     super.key,
@@ -15,6 +16,7 @@ class ClassMessageCard extends StatefulWidget {
     this.onTap,
     this.showReplyCount = true,
     this.answersWidget,
+    this.replyCount,
   });
 
   @override
@@ -134,7 +136,7 @@ class _ClassMessageCardState extends State<ClassMessageCard> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${issue.answers.fold<int>(0, (total, answer) => total + 1 + answer.subAnswers.length)} jawaban',
+                      '${(widget.replyCount ?? issue.answers.fold<int>(0, (total, answer) => total + 1 + answer.subAnswers.length))} jawaban',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,

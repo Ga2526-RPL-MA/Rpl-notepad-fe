@@ -325,6 +325,10 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                                       child: ClassMessageCard(
                                                         key: ValueKey(issue.id),
                                                         issue: issue,
+                                                        replyCount: viewModel
+                                                            .getReplyCount(
+                                                              issue.id,
+                                                            ),
                                                         onTap: () {
                                                           _showMessageDetail(
                                                             context,
@@ -532,6 +536,7 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                           child: ClassMessageCard(
                             key: ValueKey(issue.id),
                             issue: issue,
+                            replyCount: viewModel.getReplyCount(issue.id),
                             onTap: () {
                               _showMessageDetail(
                                 context,
