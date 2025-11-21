@@ -289,7 +289,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                                                       .issueId,
                                                             )
                                                             .toList()
-                                                            .reversed
                                                             .map(
                                                               (
                                                                 answer,
@@ -529,7 +528,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                                         widget.issueId,
                                                   )
                                                   .toList()
-                                                  .reversed
                                                   .map(
                                                     (answer) => Padding(
                                                       padding:

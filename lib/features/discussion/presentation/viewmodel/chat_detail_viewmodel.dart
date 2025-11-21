@@ -160,6 +160,8 @@ class ChatDetailViewModel extends ChangeNotifier {
 
   void _setAnswers(List<GetAnswerDto> answers) {
     if (_disposed) return;
+    // Ensure ascending chronological order (oldest first, newest last)
+    answers.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     _answers = answers;
     _safeNotify();
   }
