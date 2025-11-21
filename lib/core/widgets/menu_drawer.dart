@@ -10,7 +10,7 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view
 class MenuDrawer extends StatelessWidget {
   final String currentPage;
   final Function(String) onPageChanged;
-  final String mode; // 'user' or 'admin'
+  final String mode;
 
   const MenuDrawer({
     super.key,
@@ -38,7 +38,11 @@ class MenuDrawer extends StatelessWidget {
           onPageChanged(pageKey);
           if (mode == 'admin') {
             if (pageKey == 'beranda') {
-              Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/admin',
+                (route) => false,
+              );
             } else if (pageKey == 'tambah_kelas') {
               Navigator.pushNamed(context, '/admin/add-class');
             }
@@ -88,7 +92,7 @@ class MenuDrawer extends StatelessWidget {
 
     return Drawer(
       width: width,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       elevation: 0,
       child: ClipRRect(
         borderRadius: isWeb ? BorderRadius.circular(20) : BorderRadius.zero,
@@ -156,34 +160,31 @@ class MenuDrawer extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Menu Items
-                  if (mode == 'admin')
-                    ...[
-                      menuItem(
-                        label: 'Beranda',
-                        iconPath: 'assets/icon/home-icon.png',
-                        pageKey: 'beranda',
-                      ),
-                      const SizedBox(height: 16),
-                      menuItem(
-                        label: 'Tambah Kelas',
-                        iconPath: 'assets/icon/add-class-icon.png',
-                        pageKey: 'tambah_kelas',
-                      ),
-                    ]
-                  else
-                    ...[
-                      menuItem(
-                        label: 'Beranda',
-                        iconPath: 'assets/icon/home-icon.png',
-                        pageKey: 'beranda',
-                      ),
-                      const SizedBox(height: 16),
-                      menuItem(
-                        label: 'Diskusi',
-                        iconPath: 'assets/icon/discussion-icon.png',
-                        pageKey: 'diskusi',
-                      ),
-                    ],
+                  if (mode == 'admin') ...[
+                    menuItem(
+                      label: 'Beranda',
+                      iconPath: 'assets/icon/home-icon.png',
+                      pageKey: 'beranda',
+                    ),
+                    const SizedBox(height: 16),
+                    menuItem(
+                      label: 'Tambah Kelas',
+                      iconPath: 'assets/icon/add-class-icon.png',
+                      pageKey: 'tambah_kelas',
+                    ),
+                  ] else ...[
+                    menuItem(
+                      label: 'Beranda',
+                      iconPath: 'assets/icon/home-icon.png',
+                      pageKey: 'beranda',
+                    ),
+                    const SizedBox(height: 16),
+                    menuItem(
+                      label: 'Diskusi',
+                      iconPath: 'assets/icon/discussion-icon.png',
+                      pageKey: 'diskusi',
+                    ),
+                  ],
                   const Spacer(),
 
                   // Button Keluar
@@ -225,8 +226,10 @@ class MenuDrawer extends StatelessWidget {
 
                                 // Navigate to login page
                                 if (!context.mounted) return;
-                                Navigator.of(context, rootNavigator: true)
-                                    .pushNamedAndRemoveUntil(
+                                Navigator.of(
+                                  context,
+                                  rootNavigator: true,
+                                ).pushNamedAndRemoveUntil(
                                   '/login',
                                   (route) => false,
                                 );

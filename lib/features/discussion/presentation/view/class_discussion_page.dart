@@ -12,6 +12,7 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.d
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
+import 'package:rpl_notepad_fe/features/note/presentation/view/note_page.dart';
 
 class ClassDiscussionPage extends StatefulWidget {
   final int classId;
@@ -197,32 +198,67 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 16),
-                                      ElevatedButton.icon(
-                                        onPressed: _toggleAddForm,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.black,
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 8,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              5,
+                                      Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      const NotePage(),
+                                                ),
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(
+                                                0xFF256533,
+                                              ),
+                                              foregroundColor: Colors.white,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 6,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
+                                              minimumSize: const Size(0, 36),
+                                            ),
+                                            child: const Text(
+                                              'Catatan',
+                                              style: TextStyle(fontSize: 12),
                                             ),
                                           ),
-                                        ),
-                                        icon: Icon(
-                                          viewModel.showAddForm
-                                              ? Icons.close
-                                              : Icons.add,
-                                          size: 20,
-                                        ),
-                                        label: Text(
-                                          viewModel.showAddForm
-                                              ? 'Batal'
-                                              : 'Tambah',
-                                        ),
+                                          const SizedBox(width: 8),
+                                          ElevatedButton.icon(
+                                            onPressed: _toggleAddForm,
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.black,
+                                              foregroundColor: Colors.white,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 8,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
+                                            ),
+                                            icon: Icon(
+                                              viewModel.showAddForm
+                                                  ? Icons.close
+                                                  : Icons.add,
+                                              size: 20,
+                                            ),
+                                            label: Text(
+                                              viewModel.showAddForm
+                                                  ? 'Batal'
+                                                  : 'Tambah',
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -245,7 +281,7 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                     ),
                                   ),
 
-                                // Content Area (scrollable)
+                                // Content Area
                                 Expanded(
                                   child: ListView(
                                     padding: const EdgeInsets.symmetric(
@@ -403,25 +439,59 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // Tambah button
-                  ElevatedButton.icon(
-                    onPressed: _toggleAddForm,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                  // Catatan and Tambah buttons
+                  Row(
+                    children: [
+                      // Catatan button
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const NotePage()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF256533),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          minimumSize: const Size(0, 36),
+                        ),
+                        child: const Text(
+                          'Catatan',
+                          style: TextStyle(fontSize: 12),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
+                      const SizedBox(width: 8),
+                      // Tambah button
+                      ElevatedButton.icon(
+                        onPressed: _toggleAddForm,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          minimumSize: const Size(0, 36),
+                        ),
+                        icon: Icon(
+                          viewModel.showAddForm ? Icons.close : Icons.add,
+                          size: 16,
+                        ),
+                        label: Text(
+                          viewModel.showAddForm ? 'Batal' : 'Tambah',
+                          style: const TextStyle(fontSize: 12),
+                        ),
                       ),
-                    ),
-                    icon: Icon(
-                      viewModel.showAddForm ? Icons.close : Icons.add,
-                      size: 20,
-                    ),
-                    label: Text(viewModel.showAddForm ? 'Batal' : 'Tambah'),
+                    ],
                   ),
                 ],
               ),
