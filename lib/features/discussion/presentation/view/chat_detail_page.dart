@@ -9,6 +9,7 @@ import 'package:rpl_notepad_fe/features/discussion/domain/entities/sub_answer.da
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/chat_detail_viewmodel.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
+import 'package:rpl_notepad_fe/core/widgets/mobile_header.dart';
 import '../widgets/class_message_card.dart';
 import '../widgets/comment_card.dart';
 import '../widgets/comment_input_field.dart';
@@ -389,55 +390,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
                     child: Column(
                       children: [
-                        // Header row
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(7),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                            vertical: 8.0,
-                          ),
-                          child: Row(
-                            children: [
-                              // Back button
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_back,
-                                  color: Colors.black,
-                                ),
-                                onPressed: () => Navigator.of(context).pop(),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                              // Search bar
-                              const Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 12.0,
-                                  ),
-                                  child: CustomSearchBar(
-                                    hintText: 'Cari diskusi...',
-                                  ),
-                                ),
-                              ),
-                              // Menu button
-                              Builder(
-                                builder: (context) => IconButton(
-                                  icon: const Icon(
-                                    Icons.menu,
-                                    color: Colors.black,
-                                  ),
-                                  onPressed: () =>
-                                      Scaffold.of(context).openDrawer(),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        const MobileHeader(hintText: 'Cari diskusi...'),
                         const SizedBox(height: 16),
                         // Class name
                         Padding(

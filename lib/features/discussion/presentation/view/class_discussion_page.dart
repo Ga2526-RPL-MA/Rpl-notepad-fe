@@ -13,6 +13,7 @@ import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/features/note/presentation/view/note_page.dart';
+import 'package:rpl_notepad_fe/core/widgets/mobile_header.dart';
 
 class ClassDiscussionPage extends StatefulWidget {
   final int classId;
@@ -388,43 +389,7 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
           child: Column(
             children: [
               // Header row
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(7),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 8.0,
-                ),
-                child: Row(
-                  children: [
-                    // Back button
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Navigator.of(context).pop(),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    // Search bar
-                    const Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12.0),
-                        child: CustomSearchBar(hintText: 'Cari diskusi...'),
-                      ),
-                    ),
-                    // Menu button
-                    Builder(
-                      builder: (context) => IconButton(
-                        icon: const Icon(Icons.menu, color: Colors.black),
-                        onPressed: () => Scaffold.of(context).openDrawer(),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const MobileHeader(hintText: 'Cari diskusi...'),
               const SizedBox(height: 16),
               // Second row
               Row(
