@@ -219,6 +219,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                       ClassMessageCard(
                                         issue: mainIssue,
                                         showReplyCount: false,
+                                        forceFullContent: true,
                                         answersWidget: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.stretch,
@@ -475,6 +476,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                             ClassMessageCard(
                               issue: mainIssue,
                               showReplyCount: false,
+                              forceFullContent: true,
                               answersWidget: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [

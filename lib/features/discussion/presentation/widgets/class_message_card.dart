@@ -9,6 +9,7 @@ class ClassMessageCard extends StatefulWidget {
   final bool showReplyCount;
   final Widget? answersWidget;
   final int? replyCount;
+  final bool forceFullContent;
 
   const ClassMessageCard({
     super.key,
@@ -17,6 +18,7 @@ class ClassMessageCard extends StatefulWidget {
     this.showReplyCount = true,
     this.answersWidget,
     this.replyCount,
+    this.forceFullContent = false,
   });
 
   @override
@@ -81,7 +83,9 @@ class _ClassMessageCardState extends State<ClassMessageCard> {
             StatefulBuilder(
               builder: (context, setState) {
                 final shouldShowFullText =
-                    isExpanded || issue.content.length <= maxPreviewLength;
+                    widget.forceFullContent ||
+                    isExpanded ||
+                    issue.content.length <= maxPreviewLength;
 
                 final displayText = shouldShowFullText
                     ? issue.content
@@ -97,7 +101,8 @@ class _ClassMessageCardState extends State<ClassMessageCard> {
                     ),
                     children: [
                       TextSpan(text: displayText),
-                      if (issue.content.length > maxPreviewLength)
+                      if (!widget.forceFullContent &&
+                          issue.content.length > maxPreviewLength)
                         WidgetSpan(
                           child: GestureDetector(
                             onTap: () {
