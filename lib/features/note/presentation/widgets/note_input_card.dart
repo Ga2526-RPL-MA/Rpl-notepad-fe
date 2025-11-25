@@ -1,8 +1,10 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rpl_notepad_fe/core/utils/pdf_handler.dart';
 import 'package:rpl_notepad_fe/features/note/presentation/view/pdf_viewer_screen.dart';
 import 'package:rpl_notepad_fe/features/note/presentation/viewmodel/week_viewmodel.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class NoteInputCard extends StatelessWidget {
   final String inputWeekLabel;
@@ -86,7 +88,6 @@ class NoteInputCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-
           Container(
             height: 300,
             padding: const EdgeInsets.all(16),
@@ -111,47 +112,54 @@ class NoteInputCard extends StatelessWidget {
                         itemCount: selectedPdfs.length,
                         itemBuilder: (context, index) {
                           final file = selectedPdfs[index];
-                          return GestureDetector(
-                            onTap: () {
-                              if (file.path == null) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PdfViewerScreen(
-                                    filePath: file.path!,
-                                    fileName: file.name,
-                                  ),
+                          return Stack(
+                            children: [
+                              ListTile(
+                                onTap: () async {
+                                  if (kIsWeb) {
+                                    if (file.bytes != null) {
+                                      openPdfBytes(file.bytes!);
+                                    }
+                                    return;
+                                  }
+
+                                  if (file.path != null) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PdfViewerScreen(
+                                          filePath: file.path!,
+                                          fileName: file.name,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+
+                                contentPadding: const EdgeInsets.only(
+                                  right: 40,
                                 ),
-                              );
-                            },
-                            child: Stack(
-                              children: [
-                                ListTile(
-                                  contentPadding: const EdgeInsets.only(
-                                    right: 40,
-                                  ),
-                                  leading: const Icon(
-                                    Icons.picture_as_pdf,
-                                    color: Colors.red,
-                                  ),
-                                  title: Text(
-                                    file.name,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
+                                leading: const Icon(
+                                  Icons.picture_as_pdf,
+                                  color: Colors.red,
                                 ),
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: IconButton(
-                                    padding: const EdgeInsets.all(8),
-                                    constraints: const BoxConstraints(),
-                                    icon: const Icon(Icons.close, size: 16),
-                                    onPressed: () => onRemovePdf(index),
-                                  ),
+                                title: Text(
+                                  file.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 14),
                                 ),
-                              ],
-                            ),
+                              ),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: IconButton(
+                                  padding: const EdgeInsets.all(8),
+                                  constraints: const BoxConstraints(),
+                                  icon: const Icon(Icons.close, size: 16),
+                                  onPressed: () => onRemovePdf(index),
+                                ),
+                              ),
+                            ],
                           );
                         },
                       ),

@@ -1,8 +1,9 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
+import 'package:rpl_notepad_fe/core/utils/pdf_handler.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/features/note/domain/entities/note.dart';
 import 'package:rpl_notepad_fe/features/note/presentation/view/pdf_viewer_screen.dart';
@@ -50,67 +51,210 @@ class NoteDetailBottomSheet extends StatelessWidget {
       );
 
       final file = File(path);
-      final exists = await file.exists();
-      final length = exists ? await file.length() : 0;
-
-      if (!exists || length == 0) {
+      if (!(await file.exists()) || (await file.length()) == 0) {
         throw Exception('Gagal mengunduh file PDF');
       }
 
-      if (ctx.mounted) {
-        overlay?.remove();
-        overlay = null;
-      }
+      overlay?.remove();
 
       await Future.delayed(const Duration(milliseconds: 100));
 
       if (!ctx.mounted) return;
+
       await Navigator.of(ctx).push(
         MaterialPageRoute(
           builder: (_) => PdfViewerScreen(filePath: path, fileName: safeName),
         ),
       );
-    } on DioException catch (e) {
-      if (ctx.mounted) {
-        overlay?.remove();
-        overlay = null;
-      }
-
-      String errorMsg = 'Gagal mengunduh PDF';
-      if (e.response?.statusCode != null) {
-        errorMsg += ' (HTTP ${e.response!.statusCode})';
-      }
-
-      if (ctx.mounted) {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(
-            content: Text(errorMsg),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
     } catch (e) {
-      if (ctx.mounted) {
-        overlay?.remove();
-        overlay = null;
-      }
-
-      if (ctx.mounted) {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(
-            content: Text('Gagal membuka PDF: ${e.toString()}'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } finally {
       overlay?.remove();
-      overlay = null;
+      if (ctx.mounted) {
+        ScaffoldMessenger.of(
+          ctx,
+        ).showSnackBar(SnackBar(content: Text('Gagal membuka PDF: $e')));
+      }
     }
+  }
+
+  void _openPdfInNewTab(String url) {
+    openPdfUrl(url);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      final size = MediaQuery.of(context).size;
+      final panelWidth = size.width * 0.5;
+
+      Widget content = Material(
+        color: Colors.transparent,
+        child: Container(
+          height: size.height,
+          width: panelWidth,
+          decoration: const BoxDecoration(
+            color: Color(0xFFE7F0FF),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x33000000),
+                blurRadius: 16,
+                offset: Offset(-2, 0),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          'Catatan : ${note.userName ?? 'Anonymous'}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (note.noteFiles.isNotEmpty) ...[
+                                ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: note.noteFiles.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: 8),
+                                  itemBuilder: (ctx2, i) {
+                                    final f = note.noteFiles[i];
+                                    final path = (f.filePath ?? '').trim();
+
+                                    final segments = path
+                                        .split(RegExp(r'[\\/]+'))
+                                        .where((s) => s.isNotEmpty)
+                                        .toList();
+
+                                    final name = segments.isEmpty
+                                        ? 'Lampiran ${i + 1}'
+                                        : segments.last;
+
+                                    final fullUrl = path.startsWith("http")
+                                        ? path
+                                        : "https://qpmbyhqiflwnosxlgzfe.supabase.co/storage/v1/object/public/notes/$path";
+
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          ListTile(
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                  right: 40,
+                                                ),
+                                            leading: const Icon(
+                                              Icons.picture_as_pdf,
+                                              color: Colors.red,
+                                            ),
+                                            title: Text(
+                                              name,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            onTap: () async {
+                                              if (path.isEmpty) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      "Path kosong",
+                                                    ),
+                                                  ),
+                                                );
+                                                return;
+                                              }
+
+                                              _openPdfInNewTab(fullUrl);
+                                            },
+                                          ),
+                                          Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: IconButton(
+                                              padding: const EdgeInsets.all(8),
+                                              constraints:
+                                                  const BoxConstraints(),
+                                              icon: const Icon(
+                                                Icons.open_in_new,
+                                                size: 16,
+                                              ),
+                                              onPressed: () async {
+                                                _openPdfInNewTab(fullUrl);
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                              if ((note.content?.trim().isNotEmpty ?? false))
+                                Text(
+                                  note.content!,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF131927),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      return Align(alignment: Alignment.centerRight, child: content);
+    }
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -166,13 +310,20 @@ class NoteDetailBottomSheet extends StatelessWidget {
                           itemBuilder: (ctx2, i) {
                             final f = note.noteFiles[i];
                             final path = (f.filePath ?? '').trim();
+
                             final segments = path
                                 .split(RegExp(r'[\\/]+'))
                                 .where((s) => s.isNotEmpty)
                                 .toList();
+
                             final name = segments.isEmpty
                                 ? 'Lampiran ${i + 1}'
                                 : segments.last;
+
+                            final fullUrl = path.startsWith("http")
+                                ? path
+                                : "https://qpmbyhqiflwnosxlgzfe.supabase.co/storage/v1/object/public/notes/$path";
+
                             return Container(
                               decoration: BoxDecoration(
                                 color: Colors.grey[100],
@@ -199,37 +350,22 @@ class NoteDetailBottomSheet extends StatelessWidget {
                                           context,
                                         ).showSnackBar(
                                           const SnackBar(
-                                            content: Text('Path kosong'),
+                                            content: Text("Path kosong"),
                                           ),
                                         );
                                         return;
                                       }
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Membuka lampiran...'),
-                                          duration: Duration(milliseconds: 800),
-                                        ),
-                                      );
-                                      if (path.startsWith('http')) {
-                                        await _openPdfFromUrl(
-                                          context,
-                                          path,
-                                          name,
-                                        );
-                                      } else {
-                                        const supabaseBase =
-                                            'https://qpmbyhqiflwnosxlgzfe.supabase.co/storage/v1/object/public';
-                                        const bucket = 'notes';
-                                        final url =
-                                            '$supabaseBase/$bucket/$path';
-                                        await _openPdfFromUrl(
-                                          context,
-                                          url,
-                                          name,
-                                        );
+
+                                      if (kIsWeb) {
+                                        _openPdfInNewTab(fullUrl);
+                                        return;
                                       }
+
+                                      await _openPdfFromUrl(
+                                        context,
+                                        fullUrl,
+                                        name,
+                                      );
                                     },
                                   ),
                                   Positioned(
@@ -243,46 +379,16 @@ class NoteDetailBottomSheet extends StatelessWidget {
                                         size: 16,
                                       ),
                                       onPressed: () async {
-                                        if (path.isEmpty) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text('Path kosong'),
-                                            ),
-                                          );
+                                        if (kIsWeb) {
+                                          _openPdfInNewTab(fullUrl);
                                           return;
                                         }
-                                        ScaffoldMessenger.of(
+
+                                        await _openPdfFromUrl(
                                           context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Membuka lampiran...',
-                                            ),
-                                            duration: Duration(
-                                              milliseconds: 800,
-                                            ),
-                                          ),
+                                          fullUrl,
+                                          name,
                                         );
-                                        if (path.startsWith('http')) {
-                                          await _openPdfFromUrl(
-                                            context,
-                                            path,
-                                            name,
-                                          );
-                                        } else {
-                                          const supabaseBase =
-                                              'https://qpmbyhqiflwnosxlgzfe.supabase.co/storage/v1/object/public';
-                                          const bucket = 'notes';
-                                          final url =
-                                              '$supabaseBase/$bucket/$path';
-                                          await _openPdfFromUrl(
-                                            context,
-                                            url,
-                                            name,
-                                          );
-                                        }
                                       },
                                     ),
                                   ),

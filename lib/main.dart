@@ -27,6 +27,7 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_v
 import 'package:rpl_notepad_fe/features/admin/presentation/view/admin_dashboard_page.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/view/add_class_page.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/add_class_view_model.dart';
+import 'package:rpl_notepad_fe/features/note/presentation/view/note_page.dart';
 
 // CORS
 void enableCorsForWeb() {
@@ -329,6 +330,23 @@ class MyApp extends StatelessWidget {
                 settings: settings,
               );
             default:
+              if (name.startsWith('/note/')) {
+                final parts = name.split('/');
+                if (parts.length >= 3) {
+                  final encodedName = parts.sublist(2).join('/');
+                  final className = Uri.decodeComponent(encodedName);
+                  final classId = settings.arguments is int
+                      ? settings.arguments as int
+                      : null;
+                  if (classId != null) {
+                    return MaterialPageRoute(
+                      builder: (_) =>
+                          NotePage(classId: classId, className: className),
+                      settings: settings,
+                    );
+                  }
+                }
+              }
               return null;
           }
         },

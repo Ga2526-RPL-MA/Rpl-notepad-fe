@@ -12,7 +12,6 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.d
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
-import 'package:rpl_notepad_fe/features/note/presentation/view/note_page.dart';
 import 'package:rpl_notepad_fe/core/widgets/mobile_header.dart';
 
 class ClassDiscussionPage extends StatefulWidget {
@@ -203,13 +202,9 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                         children: [
                                           ElevatedButton(
                                             onPressed: () {
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: (_) => NotePage(
-                                                    classId: widget.classId,
-                                                    className: widget.className,
-                                                  ),
-                                                ),
+                                              Navigator.of(context).pushNamed(
+                                                '/note/${Uri.encodeComponent(widget.className)}',
+                                                arguments: widget.classId,
                                               );
                                             },
                                             style: ElevatedButton.styleFrom(
@@ -416,13 +411,9 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                       // Catatan button
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => NotePage(
-                                classId: widget.classId,
-                                className: widget.className,
-                              ),
-                            ),
+                          Navigator.of(context).pushNamed(
+                            '/note/${Uri.encodeComponent(widget.className)}',
+                            arguments: widget.classId,
                           );
                         },
                         style: ElevatedButton.styleFrom(

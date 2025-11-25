@@ -5,6 +5,7 @@ import 'package:rpl_notepad_fe/features/note/data/dtos/get_note_dto.dart';
 import 'package:rpl_notepad_fe/features/note/data/dtos/get_note_file_dto.dart';
 import 'package:rpl_notepad_fe/features/note/domain/repositories/note_repository.dart';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 
 class NoteRepositoryImpl implements NoteRepository {
   final ApiService _api;
@@ -61,15 +62,27 @@ class NoteRepositoryImpl implements NoteRepository {
   @override
   Future<void> createNoteFiles({
     required int noteId,
-    required List<String> files,
+    required List<PlatformFile> files,
   }) async {
     try {
       final formData = FormData();
       formData.fields.add(MapEntry('noteId', noteId.toString()));
-      for (final path in files) {
-        formData.files.add(
-          MapEntry('pdfs', await MultipartFile.fromFile(path)),
-        );
+      for (final pf in files) {
+        if (pf.bytes != null) {
+          formData.files.add(
+            MapEntry(
+              'pdfs',
+              MultipartFile.fromBytes(pf.bytes!, filename: pf.name),
+            ),
+          );
+        } else if (pf.path != null) {
+          formData.files.add(
+            MapEntry(
+              'pdfs',
+              await MultipartFile.fromFile(pf.path!, filename: pf.name),
+            ),
+          );
+        }
       }
 
       await _api.post(

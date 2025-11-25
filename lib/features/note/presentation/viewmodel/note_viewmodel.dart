@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rpl_notepad_fe/features/note/domain/entities/note.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/create_note_usecase.dart';
@@ -133,10 +134,11 @@ class NoteViewModel extends ChangeNotifier {
   Future<bool> createNote({
     required int weekId,
     String? content,
-    List<String> filePaths = const [],
+    List<PlatformFile> selectedFiles = const [],
   }) async {
     // Allow: text only OR file only; block only when both are empty
-    if ((content?.trim().isEmpty ?? true) && filePaths.isEmpty) return false;
+    if ((content?.trim().isEmpty ?? true) && selectedFiles.isEmpty)
+      return false;
 
     try {
       _isLoading = true;
@@ -147,11 +149,11 @@ class NoteViewModel extends ChangeNotifier {
         content: content?.trim(),
       );
 
-      if (filePaths.isNotEmpty) {
+      if (selectedFiles.isNotEmpty) {
         try {
           await _createNoteFilesUsecase.execute(
             noteId: created.id,
-            files: filePaths,
+            files: selectedFiles,
           );
         } catch (e) {
           log(
