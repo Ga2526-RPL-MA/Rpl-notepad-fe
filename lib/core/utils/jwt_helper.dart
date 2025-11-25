@@ -10,6 +10,15 @@ class JwtHelper {
     }
   }
 
+  static bool isExpired(String token) {
+    try {
+      if (token.isEmpty) return true;
+      return JwtDecoder.isExpired(token);
+    } catch (e) {
+      return true;
+    }
+  }
+
   static String? getEmail(String token) {
     final payload = decodeToken(token);
     return payload?['email'] as String?;

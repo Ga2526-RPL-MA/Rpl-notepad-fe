@@ -47,6 +47,25 @@ class _NotePageState extends State<NotePage> {
   @override
   void initState() {
     super.initState();
+
+    if (AuthService.isTokenExpired) {
+      Future.microtask(() async {
+        try {
+          await AuthService.clearToken();
+        } catch (_) {}
+        if (!mounted) return;
+        final loginVM = Provider.of<LoginViewModel>(context, listen: false);
+        loginVM.reset();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).pushNamedAndRemoveUntil('/login', (route) => false);
+        });
+      });
+      return;
+    }
     _noteViewModel = getIt<NoteViewModel>();
     _weekViewModel = getIt<WeekViewModel>();
 

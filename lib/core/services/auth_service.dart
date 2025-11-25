@@ -13,9 +13,9 @@ class AuthService {
   // Init
   static Future<void> init() async {
     if (isInitialized) return;
-    
+
     _initCompleter = Completer<void>();
-    
+
     try {
       WidgetsFlutterBinding.ensureInitialized();
       try {
@@ -24,14 +24,14 @@ class AuthService {
         debugPrint('Error getting SharedPreferences: $error');
         _prefs = null;
       }
-      
+
       if (_prefs != null) {
         _token = _prefs!.getString(_tokenKey);
         debugPrint('AuthService initialized. Token exists: ${_token != null}');
       } else {
         debugPrint('Warning: SharedPreferences is null');
       }
-      
+
       _initCompleter!.complete();
     } catch (e, stackTrace) {
       debugPrint('Error initializing AuthService: $e');
@@ -52,7 +52,7 @@ class AuthService {
     try {
       await _ensureInitialized();
       _token = token;
-      
+
       if (_prefs != null) {
         await _prefs!.setString(_tokenKey, token);
         debugPrint('Token saved successfully');
@@ -71,7 +71,7 @@ class AuthService {
     try {
       await _ensureInitialized();
       _token = null;
-      
+
       if (_prefs != null) {
         await _prefs!.remove(_tokenKey);
         debugPrint('Token cleared successfully');
@@ -94,8 +94,19 @@ class AuthService {
     return _token;
   }
 
-  // Check user logged in
-  static bool get isLoggedIn => token != null;
+  // Check user logged in 
+  static bool get isLoggedIn {
+    final t = token;
+    if (t == null) return false;
+    return !JwtHelper.isExpired(t);
+  }
+
+  // Check token expired
+  static bool get isTokenExpired {
+    final t = token;
+    if (t == null) return true;
+    return JwtHelper.isExpired(t);
+  }
 
   // Get email from token
   static String? get userEmail {
