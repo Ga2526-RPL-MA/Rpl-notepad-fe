@@ -13,6 +13,7 @@ import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discus
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/add_class_view_model.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/widgets/class_form_fields.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/widgets/class_actions.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 
 class AddClassPage extends StatefulWidget {
   final GetClassDto? initialClass;
@@ -26,7 +27,6 @@ class AddClassPage extends StatefulWidget {
 
 class _AddClassPageState extends State<AddClassPage> {
   final _formKey = GlobalKey<FormState>();
-  
 
   @override
   void initState() {
@@ -52,26 +52,24 @@ class _AddClassPageState extends State<AddClassPage> {
       final vm = context.read<AddClassViewModel>();
       if (widget.initialClass != null && !vm.hasChanges) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tidak ada perubahan untuk disimpan'),
-            backgroundColor: Colors.orange,
-          ),
+        showAppToast(
+          context,
+          message: 'Tidak ada perubahan untuk disimpan',
+          type: AppToastType.warning,
+          duration: const Duration(seconds: 2),
         );
         return;
       }
       final ok = await vm.submit(existingClassId: widget.initialClass?.id);
       if (!mounted) return;
       if (ok) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.initialClass != null
-                  ? 'Kelas berhasil diperbarui'
-                  : 'Kelas berhasil ditambahkan',
-            ),
-            backgroundColor: Colors.green,
-          ),
+        showAppToast(
+          context,
+          message: widget.initialClass != null
+              ? 'Kelas berhasil diperbarui'
+              : 'Kelas berhasil ditambahkan',
+          type: AppToastType.success,
+          duration: const Duration(seconds: 2),
         );
         try {
           final dvm = context.read<DiscussionViewModel>();
@@ -94,15 +92,13 @@ class _AddClassPageState extends State<AddClassPage> {
           );
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.initialClass != null
-                  ? 'Gagal memperbarui kelas: ${vm.error ?? ''}'
-                  : 'Gagal menambahkan kelas: ${vm.error ?? ''}',
-            ),
-            backgroundColor: Colors.red,
-          ),
+        showAppToast(
+          context,
+          message: widget.initialClass != null
+              ? 'Gagal memperbarui kelas${vm.error != null && vm.error!.isNotEmpty ? ': ${vm.error}' : ''}'
+              : 'Gagal menambahkan kelas${vm.error != null && vm.error!.isNotEmpty ? ': ${vm.error}' : ''}',
+          type: AppToastType.error,
+          duration: const Duration(seconds: 3),
         );
       }
     }
@@ -603,37 +599,63 @@ class _AddClassPageState extends State<AddClassPage> {
                                                                 false,
                                                           );
                                                           if (confirm == true) {
-                                                            final ok = await vm.delete(widget.initialClass!.id);
-                                                            if (!mounted) return;
+                                                            final ok = await vm
+                                                                .delete(
+                                                                  widget
+                                                                      .initialClass!
+                                                                      .id,
+                                                                );
+                                                            if (!mounted)
+                                                              return;
                                                             if (ok) {
-                                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                                const SnackBar(
-                                                                  content: Text(
+                                                              showAppToast(
+                                                                context,
+                                                                message:
                                                                     'Kelas berhasil dihapus',
-                                                                  ),
-                                                                  backgroundColor: Colors.green,
-                                                                ),
+                                                                type:
+                                                                    AppToastType
+                                                                        .success,
+                                                                duration:
+                                                                    const Duration(
+                                                                      seconds:
+                                                                          2,
+                                                                    ),
                                                               );
                                                               try {
-                                                                final dvm = context.read<DiscussionViewModel>();
-                                                                await dvm.loadClasses();
+                                                                final dvm = context
+                                                                    .read<
+                                                                      DiscussionViewModel
+                                                                    >();
+                                                                await dvm
+                                                                    .loadClasses();
                                                               } catch (_) {}
-                                                              final popped = await Navigator.maybePop(context, true);
-                                                              if (!popped && mounted) {
+                                                              final popped =
+                                                                  await Navigator.maybePop(
+                                                                    context,
+                                                                    true,
+                                                                  );
+                                                              if (!popped &&
+                                                                  mounted) {
                                                                 Navigator.pushNamedAndRemoveUntil(
                                                                   context,
                                                                   '/admin',
-                                                                  (route) => false,
+                                                                  (route) =>
+                                                                      false,
                                                                 );
                                                               }
                                                             } else {
-                                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                                SnackBar(
-                                                                  content: Text(
-                                                                    'Gagal menghapus kelas: ${vm.error ?? ''}',
-                                                                  ),
-                                                                  backgroundColor: Colors.red,
-                                                                ),
+                                                              showAppToast(
+                                                                context,
+                                                                message:
+                                                                    'Gagal menghapus kelas${vm.error != null && vm.error!.isNotEmpty ? ': ${vm.error}' : ''}',
+                                                                type:
+                                                                    AppToastType
+                                                                        .error,
+                                                                duration:
+                                                                    const Duration(
+                                                                      seconds:
+                                                                          3,
+                                                                    ),
                                                               );
                                                             }
                                                           }

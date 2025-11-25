@@ -13,6 +13,7 @@ import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/core/widgets/mobile_header.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 
 class ClassDiscussionPage extends StatefulWidget {
   final int classId;
@@ -74,23 +75,22 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
       );
 
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Diskusi berhasil dibuat'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
+        showAppToast(
+          context,
+          message: 'Diskusi berhasil dibuat',
+          type: AppToastType.success,
+          duration: const Duration(seconds: 2),
         );
         _issueController.clear();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal membuat diskusi: ${e.toString()}'),
-            duration: const Duration(seconds: 3),
-            backgroundColor: Colors.red,
-          ),
+        showAppToast(
+          context,
+          message:
+              'Gagal membuat diskusi${e.toString().isNotEmpty ? ': ${e.toString()}' : ''}',
+          type: AppToastType.error,
+          duration: const Duration(seconds: 3),
         );
       }
     }

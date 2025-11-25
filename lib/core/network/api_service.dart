@@ -8,6 +8,7 @@ import 'package:rpl_notepad_fe/core/network/api_config.dart';
 import 'package:rpl_notepad_fe/core/router/navigation_service.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/core/widgets/no_connection_page.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -77,6 +78,20 @@ class ApiService {
             // Global 401/403
             if (e.response?.statusCode == 401 ||
                 e.response?.statusCode == 403) {
+              try {
+                final ctx = navigatorKey.currentContext;
+                if (ctx != null) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showAppToast(
+                      ctx,
+                      message: 'Sesi login telah berakhir. Silakan login lagi.',
+                      type: AppToastType.info,
+                      duration: const Duration(seconds: 3),
+                    );
+                  });
+                }
+              } catch (_) {}
+
               try {
                 await AuthService.clearToken();
               } catch (_) {}

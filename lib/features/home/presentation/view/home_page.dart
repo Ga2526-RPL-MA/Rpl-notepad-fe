@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/mobile/mobile_layout.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/web/web_layout.dart';
 import '../../../../core/widgets/menu_drawer.dart';
@@ -21,6 +22,14 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _viewModel = HomeViewModel();
+
+    // Setup toast callback
+    _viewModel.onShowToast = (title, message, type) {
+      if (mounted) {
+        showAppToast(context, title: title, message: message, type: type);
+      }
+    };
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleRouteArguments();
     });
@@ -64,7 +73,6 @@ class _HomePageState extends State<HomePage> {
                 setState(() {
                   _viewModel.changePage(page);
                 });
-                // Navigate to discussion page
                 if (page == 'diskusi') {
                   if (!mounted) return;
                   Navigator.pushReplacementNamed(context, '/discussion');
@@ -89,7 +97,6 @@ class _HomePageState extends State<HomePage> {
                             setState(() {
                               _viewModel.changePage(page);
                             });
-                            // Navigate to discussion page
                             if (page == 'diskusi') {
                               Navigator.pushNamed(context, '/discussion');
                             }

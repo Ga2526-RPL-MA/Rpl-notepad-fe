@@ -16,6 +16,7 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 
 class NotePage extends StatefulWidget {
   final int classId;
@@ -130,15 +131,21 @@ class _NotePageState extends State<NotePage> {
 
   Future<void> _saveNote() async {
     if (_textController.text.trim().isEmpty && _selectedPdfs.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Catatan tidak boleh kosong')),
+      showAppToast(
+        context,
+        message: 'Catatan tidak boleh kosong',
+        type: AppToastType.warning,
+        duration: const Duration(seconds: 2),
       );
       return;
     }
 
     if (_inputWeekId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih minggu terlebih dahulu')),
+      showAppToast(
+        context,
+        message: 'Pilih minggu terlebih dahulu',
+        type: AppToastType.warning,
+        duration: const Duration(seconds: 2),
       );
       return;
     }
@@ -158,17 +165,19 @@ class _NotePageState extends State<NotePage> {
         _inputWeekId = null;
         _inputWeekLabel = 'Pilih Minggu';
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Catatan berhasil disimpan')),
+      showAppToast(
+        context,
+        message: 'Catatan berhasil disimpan',
+        type: AppToastType.success,
+        duration: const Duration(seconds: 2),
       );
       _noteViewModel.fetchNotes();
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _noteViewModel.errorMessage ?? 'Gagal menyimpan catatan',
-          ),
-        ),
+      showAppToast(
+        context,
+        message: _noteViewModel.errorMessage ?? 'Gagal menyimpan catatan',
+        type: AppToastType.error,
+        duration: const Duration(seconds: 3),
       );
     }
   }
@@ -186,14 +195,20 @@ class _NotePageState extends State<NotePage> {
         .where((f) => (f.extension?.toLowerCase() == 'pdf'))
         .toList();
     if (picked.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak ada PDF yang dipilih')),
+      showAppToast(
+        context,
+        message: 'Tidak ada PDF yang dipilih',
+        type: AppToastType.info,
+        duration: const Duration(seconds: 2),
       );
       return;
     }
     if (picked.length > 5) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maksimal 5 PDF. Diambil 5 pertama.')),
+      showAppToast(
+        context,
+        message: 'Maksimal 5 PDF. Diambil 5 pertama.',
+        type: AppToastType.warning,
+        duration: const Duration(seconds: 3),
       );
       setState(() {
         _selectedPdfs = picked.take(5).toList();
@@ -203,8 +218,11 @@ class _NotePageState extends State<NotePage> {
         _selectedPdfs = List.from(picked);
       });
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${_selectedPdfs.length} PDF dipilih')),
+    showAppToast(
+      context,
+      message: '${_selectedPdfs.length} PDF dipilih',
+      type: AppToastType.info,
+      duration: const Duration(seconds: 2),
     );
   }
 

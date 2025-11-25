@@ -53,13 +53,13 @@ class ClassDiscussionViewModel extends ChangeNotifier {
         final cached = await _readCachedIssues(_currentClassId!);
         if (cached.isNotEmpty) {
           _issues = cached;
-          _issues.sort((a, b) => a.reportedAt.compareTo(b.reportedAt));
+          _issues.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
           _filterIssues();
         }
       }
 
       _issues = await _getIssueUsecase.execute();
-      _issues.sort((a, b) => a.reportedAt.compareTo(b.reportedAt));
+      _issues.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
       _filterIssues();
 
       // Local Storage (also persist replyCount)
@@ -121,7 +121,6 @@ class ClassDiscussionViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  // ===== Local cache helpers =====
   static String _issuesCacheKey(int classId) =>
       'class_issues_cache_v1_$classId';
 

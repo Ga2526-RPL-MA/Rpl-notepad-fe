@@ -173,12 +173,7 @@ class LoginPage extends StatelessWidget {
                                 final success = await viewModel.login();
                                 if (context.mounted) {
                                   if (success) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Login berhasil!'),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
+                                    if (!context.mounted) return;
                                     final targetRoute = AuthService.isAdmin
                                         ? '/admin'
                                         : '/home';

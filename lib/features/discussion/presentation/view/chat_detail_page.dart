@@ -14,6 +14,7 @@ import '../widgets/class_message_card.dart';
 import '../widgets/comment_card.dart';
 import '../widgets/comment_input_field.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final int issueId;
@@ -89,10 +90,36 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   Future<void> _handleSendComment() async {
     final content = _commentController.text.trim();
-    if (content.isEmpty) return;
+    if (content.isEmpty) {
+      showAppToast(
+        context,
+        message: 'Isi komentar tidak boleh kosong',
+        type: AppToastType.warning,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
 
     await _viewModel.sendComment(content);
-    _commentController.clear();
+
+    if (_viewModel.errorMessage == null) {
+      // Success
+      _commentController.clear();
+      showAppToast(
+        context,
+        message: 'Komentar terkirim',
+        type: AppToastType.success,
+        duration: const Duration(seconds: 2),
+      );
+    } else {
+      // Error
+      showAppToast(
+        context,
+        message: _viewModel.errorMessage ?? 'Gagal mengirim komentar',
+        type: AppToastType.error,
+        duration: const Duration(seconds: 3),
+      );
+    }
   }
 
   @override

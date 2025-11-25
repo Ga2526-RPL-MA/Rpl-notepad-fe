@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -15,7 +16,7 @@ import 'package:rpl_notepad_fe/core/services/notification_service.dart';
 
 class HomeViewModel extends ChangeNotifier {
   String _currentPage = 'beranda';
-  String _filter = 'all'; // 'all', 'ongoing', 'completed'
+  String _filter = 'all';
   bool _isLoading = false;
   String? _error;
   final TaskRepository _taskRepository;
@@ -23,6 +24,9 @@ class HomeViewModel extends ChangeNotifier {
 
   late final UpdateTaskUseCase _updateTaskUseCase;
   late final DeleteTaskUseCase _deleteTaskUseCase;
+
+  // Callback Toast
+  Function(String title, String? message, AppToastType type)? onShowToast;
 
   HomeViewModel({
     TaskRepository? taskRepository,
@@ -55,7 +59,6 @@ class HomeViewModel extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    // Local Storage
     try {
       final cached = await _readCachedTasks();
       if (cached.isNotEmpty) {
@@ -111,7 +114,6 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  // Setter for filter
   void setFilter(String filter) {
     if (['all', 'ongoing', 'completed'].contains(filter)) {
       _filter = filter;
@@ -119,13 +121,11 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  // Setter for selected task
   void selectTask(int? index) {
     _selectedTaskIndex = index;
     notifyListeners();
   }
 
-  // Methods
   void changePage(String page) {
     _currentPage = page;
     notifyListeners();
@@ -147,16 +147,30 @@ class HomeViewModel extends ChangeNotifier {
         _error = 'Pengguna tidak terautentikasi.';
         _isLoading = false;
         notifyListeners();
+        
+        // Tampilkan toast error
+        onShowToast?.call(
+          'Gagal',
+          'Pengguna tidak terautentikasi',
+          AppToastType.error,
+        );
         return;
       }
+      
       if (classId == null) {
         _error = 'Kelas wajib dipilih.';
         _isLoading = false;
         notifyListeners();
+        
+        // Tampilkan toast error
+        onShowToast?.call(
+          'Gagal',
+          'Kelas wajib dipilih',
+          AppToastType.error,
+        );
         return;
       }
 
-      // Create task DTO
       final taskDto = CreateTaskDto(
         title: title,
         description: description.isNotEmpty ? description : null,
@@ -166,10 +180,7 @@ class HomeViewModel extends ChangeNotifier {
         userId: userId,
       );
 
-      // Repository to create task
       await _taskRepository.createTask(taskDto);
-
-      // Refresh tasks
       await fetchTasks();
 
       try {
@@ -202,9 +213,26 @@ class HomeViewModel extends ChangeNotifier {
           );
         }
       } catch (_) {}
+
+      // Tampilkan toast sukses
+      onShowToast?.call(
+        'Berhasil',
+        'Tugas "$title" berhasil ditambahkan',
+        AppToastType.success,
+      );
+      
+      _error = null;
     } catch (e) {
       _error = 'Gagal menambahkan tugas. Silakan coba lagi.';
       debugPrint('Error adding task: $e');
+      
+      // Tampilkan toast error
+      onShowToast?.call(
+        'Gagal',
+        'Gagal menambahkan tugas',
+        AppToastType.error,
+      );
+      
       rethrow;
     } finally {
       _isLoading = false;
@@ -236,10 +264,16 @@ class HomeViewModel extends ChangeNotifier {
         _error = 'Pengguna tidak terautentikasi.';
         _isLoading = false;
         notifyListeners();
+        
+        // Tampilkan toast error
+        onShowToast?.call(
+          'Gagal',
+          'Pengguna tidak terautentikasi',
+          AppToastType.error,
+        );
         return;
       }
 
-      // Create task DTO
       final taskDto = CreateTaskDto(
         title: title,
         description: description.isNotEmpty ? description : null,
@@ -248,16 +282,14 @@ class HomeViewModel extends ChangeNotifier {
         classId: classId ?? _tasks[index].classId,
         userId: userId,
       );
+      
       if (status == 'completed' ||
           (isDeadlineChanged && previousDeadline != null)) {
         await NotificationService.instance.cancel(taskId);
       }
 
-      // Use case update task
       await _updateTaskUseCase(taskId, taskDto);
-
       await fetchTasks();
-      _error = null;
 
       try {
         final updated = _tasks.firstWhere((t) => t.id == taskId);
@@ -274,9 +306,26 @@ class HomeViewModel extends ChangeNotifier {
           );
         }
       } catch (_) {}
+
+      // Tampilkan toast sukses
+      onShowToast?.call(
+        'Berhasil',
+        'Tugas "$title" berhasil diperbarui',
+        AppToastType.success,
+      );
+      
+      _error = null;
     } catch (e) {
       _error = 'Gagal memperbarui tugas. Silakan coba lagi.';
       debugPrint('Error updating task: $e');
+      
+      // Tampilkan toast error
+      onShowToast?.call(
+        'Gagal',
+        'Gagal memperbarui tugas',
+        AppToastType.error,
+      );
+      
       rethrow;
     } finally {
       _isLoading = false;
@@ -288,23 +337,38 @@ class HomeViewModel extends ChangeNotifier {
     if (index < 0 || index >= _tasks.length) return;
 
     final taskId = _tasks[index].id;
+    final taskTitle = _tasks[index].title; // Simpan title untuk toast
     _isLoading = true;
     notifyListeners();
 
     try {
       await NotificationService.instance.cancel(taskId);
-      // Use case delete task
       await _deleteTaskUseCase(taskId);
 
-      // Remove task
       if (index < _tasks.length && _tasks[index].id == taskId) {
         _tasks.removeAt(index);
       }
+
+      // Tampilkan toast sukses
+      onShowToast?.call(
+        'Berhasil',
+        'Tugas "$taskTitle" berhasil dihapus',
+        AppToastType.success,
+      );
+      
       _error = null;
     } catch (e) {
       if (e is! DioException || e.response?.statusCode != 404) {
         _error = 'Gagal menghapus tugas. Silakan coba lagi.';
         debugPrint('Error deleting task: $e');
+        
+        // Tampilkan toast error
+        onShowToast?.call(
+          'Gagal',
+          'Gagal menghapus tugas',
+          AppToastType.error,
+        );
+        
         rethrow;
       }
       if (index < _tasks.length && _tasks[index].id == taskId) {
@@ -321,7 +385,6 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ===== Local cache helpers =====
   static const _tasksCacheKey = 'home_tasks_cache_v1';
 
   Future<void> _cacheTasks(List<Map<String, dynamic>> tasksData) async {
