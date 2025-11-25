@@ -163,6 +163,26 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Row(
                               children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.arrow_back_ios_new,
+                                    size: 18,
+                                  ),
+                                  onPressed: () {
+                                    if (Navigator.of(context).canPop()) {
+                                      Navigator.of(context).pop();
+                                    } else {
+                                      Navigator.of(
+                                        context,
+                                        rootNavigator: true,
+                                      ).pushNamedAndRemoveUntil(
+                                        '/discussion',
+                                        (route) => false,
+                                      );
+                                    }
+                                  },
+                                ),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     widget.className,
@@ -171,32 +191,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                       fontWeight: FontWeight.w500,
                                       fontFamily: 'Inter',
                                       color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 127,
-                                  height: 39.15,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF9EA2AE),
-                                      foregroundColor: Colors.white,
-                                      elevation: 0,
-                                      padding: EdgeInsets.zero,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(9),
-                                      ),
-                                    ),
-                                    icon: const Icon(
-                                      Icons.arrow_back,
-                                      size: 18,
-                                      color: Colors.white,
-                                    ),
-                                    label: const Text(
-                                      'Kembali',
-                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ),
