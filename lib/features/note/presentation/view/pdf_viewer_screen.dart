@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 
 class PdfViewerScreen extends StatefulWidget {
@@ -32,6 +35,80 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     _loadPdf();
   }
 
+  Future<void> _shareFile() async {
+    try {
+      if (kIsWeb) return;
+      final sourcePath = _localPath ?? widget.filePath;
+      final srcFile = File(sourcePath);
+      if (!await srcFile.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('File tidak ditemukan untuk dibagikan'),
+            ),
+          );
+        }
+        return;
+      }
+
+      final name = widget.fileName.toLowerCase().endsWith('.pdf')
+          ? widget.fileName
+          : '${widget.fileName}.pdf';
+
+      await Share.shareXFiles([
+        XFile(sourcePath, name: name, mimeType: 'application/pdf'),
+      ]);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal membagikan: $e')));
+      }
+    }
+  }
+
+  Future<void> _saveToDevice() async {
+    try {
+      if (kIsWeb) return;
+      final sourcePath = _localPath ?? widget.filePath;
+      final srcFile = File(sourcePath);
+      if (!await srcFile.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('File sumber tidak ditemukan')),
+          );
+        }
+        return;
+      }
+
+      Directory? dir;
+      if (Platform.isAndroid) {
+        dir = await getExternalStorageDirectory();
+      } else if (Platform.isIOS) {
+        dir = await getApplicationDocumentsDirectory();
+      }
+      dir ??= await getApplicationDocumentsDirectory();
+
+      final name = widget.fileName.toLowerCase().endsWith('.pdf')
+          ? widget.fileName
+          : '${widget.fileName}.pdf';
+      final dstPath = '${dir.path}/$name';
+      await srcFile.copy(dstPath);
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Tersimpan di: $dstPath')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal menyimpan: $e')));
+      }
+    }
+  }
+
   Future<void> _loadPdf() async {
     try {
       print('[PdfViewer] Loading PDF from: ${widget.filePath}');
@@ -50,7 +127,6 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         return;
       }
 
-      // Check file size
       final length = await file.length();
       print('[PdfViewer] File size: $length bytes');
 
@@ -62,7 +138,6 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         return;
       }
 
-      // Verify it's a PDF by checking magic bytes
       final bytes = await file.readAsBytes();
       if (bytes.length < 5) {
         setState(() {
@@ -72,7 +147,6 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         return;
       }
 
-      // Check PDF signature (%PDF)
       if (!(bytes[0] == 0x25 &&
           bytes[1] == 0x50 &&
           bytes[2] == 0x44 &&
@@ -80,7 +154,6 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         print(
           '[PdfViewer] Warning: Invalid PDF signature. First bytes: ${bytes.take(10).toList()}',
         );
-        // Continue anyway, PDFView might still handle it
       }
 
       setState(() {
@@ -116,6 +189,18 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
+          if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+            IconButton(
+              icon: const Icon(Icons.share),
+              tooltip: 'Share / Save to Files',
+              onPressed: _shareFile,
+            ),
+          if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+            IconButton(
+              icon: const Icon(Icons.download),
+              tooltip: 'Download',
+              onPressed: _saveToDevice,
+            ),
           if (_totalPages != null)
             Center(
               child: Padding(
