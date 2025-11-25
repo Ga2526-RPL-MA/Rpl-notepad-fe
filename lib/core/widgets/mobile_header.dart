@@ -35,21 +35,6 @@ class MobileHeader extends StatelessWidget {
               child: CustomSearchBar(hintText: hintText),
             ),
           ),
-          Builder(
-            builder: (ctx) => IconButton(
-              icon: const Icon(Icons.menu, color: Colors.black),
-              onPressed:
-                  onMenuPressed ??
-                  () {
-                    final scaffoldState = Scaffold.maybeOf(ctx);
-                    if (scaffoldState?.hasDrawer == true) {
-                      scaffoldState!.openDrawer();
-                    }
-                  },
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ),
         ],
       ),
     );
