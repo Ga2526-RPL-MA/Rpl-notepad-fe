@@ -56,39 +56,48 @@ class NoteFilterSection extends StatelessWidget {
                           child: Consumer<WeekViewModel>(
                             builder: (context, weekVM, child) {
                               final weeks = weekVM.weeks;
-                              return DropdownButton<String>(
-                                value: filterWeekLabel,
-                                isExpanded: true,
-                                underline: const SizedBox(),
-                                dropdownColor: Colors.white,
-                                items: [
-                                  const DropdownMenuItem(
-                                    value: 'Semua',
-                                    child: Text('Semua'),
-                                  ),
-                                  ...weeks.map((week) {
-                                    return DropdownMenuItem(
-                                      value: 'Minggu ${week.week}',
-                                      child: Text('Minggu ${week.week}'),
-                                    );
-                                  }),
-                                ],
-                                onChanged: (newValue) {
-                                  if (newValue == 'Semua') {
-                                    onFilterWeekSelected(null, 'Semua');
-                                  } else {
-                                    final weekNum = int.tryParse(
-                                      newValue?.replaceAll('Minggu ', '') ?? '',
-                                    );
-                                    final selectedWeek = weeks.firstWhere(
-                                      (w) => w.week == weekNum,
-                                    );
-                                    onFilterWeekSelected(
-                                      selectedWeek.id,
-                                      'Minggu ${selectedWeek.week}',
-                                    );
-                                  }
-                                },
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                ),
+                                child: DropdownButton<String>(
+                                  value: filterWeekLabel,
+                                  isExpanded: true,
+                                  underline: const SizedBox(),
+                                  dropdownColor: Colors.white,
+                                  items: [
+                                    const DropdownMenuItem(
+                                      value: 'Semua',
+                                      child: Text('Semua'),
+                                    ),
+                                    ...weeks.map((week) {
+                                      return DropdownMenuItem(
+                                        value: 'Minggu ${week.week}',
+                                        child: Text('Minggu ${week.week}'),
+                                      );
+                                    }),
+                                  ],
+                                  onChanged: (newValue) {
+                                    if (newValue == 'Semua') {
+                                      onFilterWeekSelected(null, 'Semua');
+                                    } else {
+                                      final weekNum = int.tryParse(
+                                        newValue?.replaceAll('Minggu ', '') ??
+                                            '',
+                                      );
+                                      final selectedWeek = weeks.firstWhere(
+                                        (w) => w.week == weekNum,
+                                      );
+                                      onFilterWeekSelected(
+                                        selectedWeek.id,
+                                        'Minggu ${selectedWeek.week}',
+                                      );
+                                    }
+                                  },
+                                ),
                               );
                             },
                           ),

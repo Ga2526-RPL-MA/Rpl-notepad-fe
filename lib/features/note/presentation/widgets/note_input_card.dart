@@ -55,33 +55,42 @@ class NoteInputCard extends StatelessWidget {
                     border: Border.all(color: const Color(0xFF131927)),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: DropdownButton<String>(
-                    value: inputWeekLabel == 'Pilih Minggu'
-                        ? null
-                        : inputWeekLabel,
-                    hint: const Text('Pilih Minggu'),
-                    isExpanded: true,
-                    underline: const SizedBox(),
-                    items: weeks.map((week) {
-                      return DropdownMenuItem(
-                        value: 'Minggu ${week.week}',
-                        child: Text('Minggu ${week.week}'),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      if (newValue != null) {
-                        final weekNum = int.tryParse(
-                          newValue.replaceAll('Minggu ', ''),
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                    ),
+                    child: DropdownButton<String>(
+                      value: inputWeekLabel == 'Pilih Minggu'
+                          ? null
+                          : inputWeekLabel,
+                      hint: const Text('Pilih Minggu'),
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                      dropdownColor: Colors.white,
+                      items: weeks.map((week) {
+                        return DropdownMenuItem(
+                          value: 'Minggu ${week.week}',
+                          child: Text('Minggu ${week.week}'),
                         );
-                        final selectedWeek = weeks.firstWhere(
-                          (w) => w.week == weekNum,
-                        );
-                        onWeekSelected(
-                          selectedWeek.id,
-                          'Minggu ${selectedWeek.week}',
-                        );
-                      }
-                    },
+                      }).toList(),
+                      onChanged: (newValue) {
+                        if (newValue != null) {
+                          final weekNum = int.tryParse(
+                            newValue.replaceAll('Minggu ', ''),
+                          );
+                          final selectedWeek = weeks.firstWhere(
+                            (w) => w.week == weekNum,
+                          );
+                          onWeekSelected(
+                            selectedWeek.id,
+                            'Minggu ${selectedWeek.week}',
+                          );
+                        }
+                      },
+                    ),
                   ),
                 );
               },
