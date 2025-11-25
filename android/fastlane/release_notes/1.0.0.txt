@@ -1,0 +1,11 @@
+Sprint 3 Delivery
+
+Features:
+• Implemented Note page slicing
+• API integration for Note
+• Added Splash Screen
+• Added Loading State & Toast UI
+• Added No Connection page
+• Added Page Not Found (404)
+• Added Application Logo
+• Fixed various UI bugs

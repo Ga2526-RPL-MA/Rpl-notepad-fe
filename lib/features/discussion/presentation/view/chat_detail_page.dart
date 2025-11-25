@@ -507,7 +507,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                             ),
                           ),
                         ),
-                        // Input field without background
                         Container(
                           color: Colors.transparent,
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
