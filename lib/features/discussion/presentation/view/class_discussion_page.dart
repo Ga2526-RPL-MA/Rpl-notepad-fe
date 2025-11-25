@@ -186,6 +186,26 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.arrow_back_ios_new,
+                                          size: 18,
+                                        ),
+                                        onPressed: () {
+                                          if (Navigator.of(context).canPop()) {
+                                            Navigator.of(context).pop();
+                                          } else {
+                                            Navigator.of(
+                                              context,
+                                              rootNavigator: true,
+                                            ).pushNamedAndRemoveUntil(
+                                              '/discussion',
+                                              (route) => false,
+                                            );
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
                                           widget.className,
@@ -214,18 +234,18 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                               foregroundColor: Colors.white,
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 6,
+                                                    horizontal: 16,
+                                                    vertical: 10,
                                                   ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(5),
                                               ),
-                                              minimumSize: const Size(0, 36),
+                                              minimumSize: const Size(0, 40),
                                             ),
                                             child: const Text(
                                               'Catatan',
-                                              style: TextStyle(fontSize: 12),
+                                              style: TextStyle(fontSize: 14),
                                             ),
                                           ),
                                           const SizedBox(width: 8),
@@ -237,12 +257,13 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                               padding:
                                                   const EdgeInsets.symmetric(
                                                     horizontal: 16,
-                                                    vertical: 8,
+                                                    vertical: 10,
                                                   ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(5),
                                               ),
+                                              minimumSize: const Size(0, 40),
                                             ),
                                             icon: Icon(
                                               viewModel.showAddForm
@@ -254,6 +275,9 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                               viewModel.showAddForm
                                                   ? 'Batal'
                                                   : 'Tambah',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -291,7 +315,7 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                         width: double.infinity,
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.stretch,
                                           children: [
                                             const SizedBox(height: 0),
 
@@ -320,22 +344,27 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                                           const EdgeInsets.only(
                                                             bottom: 16.0,
                                                           ),
-                                                      child: ClassMessageCard(
-                                                        key: ValueKey(issue.id),
-                                                        issue: issue,
-                                                        replyCount: viewModel
-                                                            .getReplyCount(
-                                                              issue.id,
-                                                            ),
-                                                        onTap: () {
-                                                          _showMessageDetail(
-                                                            context,
-                                                            issue.userName,
-                                                            issue.content,
+                                                      child: SizedBox(
+                                                        width: double.infinity,
+                                                        child: ClassMessageCard(
+                                                          key: ValueKey(
                                                             issue.id,
-                                                            false,
-                                                          );
-                                                        },
+                                                          ),
+                                                          issue: issue,
+                                                          replyCount: viewModel
+                                                              .getReplyCount(
+                                                                issue.id,
+                                                              ),
+                                                          onTap: () {
+                                                            _showMessageDetail(
+                                                              context,
+                                                              issue.userName,
+                                                              issue.content,
+                                                              issue.id,
+                                                              false,
+                                                            );
+                                                          },
+                                                        ),
                                                       ),
                                                     ),
                                                   )
