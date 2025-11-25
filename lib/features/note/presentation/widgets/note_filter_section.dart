@@ -60,6 +60,7 @@ class NoteFilterSection extends StatelessWidget {
                                 value: filterWeekLabel,
                                 isExpanded: true,
                                 underline: const SizedBox(),
+                                dropdownColor: Colors.white,
                                 items: [
                                   const DropdownMenuItem(
                                     value: 'Semua',
