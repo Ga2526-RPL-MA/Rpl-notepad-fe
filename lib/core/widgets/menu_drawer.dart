@@ -92,7 +92,7 @@ class MenuDrawer extends StatelessWidget {
 
     return Drawer(
       width: width,
-      backgroundColor: Colors.white,
+      backgroundColor: isWeb ? Colors.transparent : Colors.white,
       elevation: 0,
       child: ClipRRect(
         borderRadius: isWeb ? BorderRadius.circular(20) : BorderRadius.zero,
@@ -101,7 +101,7 @@ class MenuDrawer extends StatelessWidget {
               ? const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20)
               : null,
           decoration: BoxDecoration(
-            color: const Color(0x8AFFFFFF),
+            color: isWeb ? const Color(0x8AFFFFFF) : Colors.white,
             borderRadius: isWeb ? BorderRadius.circular(20) : null,
           ),
           child: SafeArea(
