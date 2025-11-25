@@ -19,6 +19,23 @@ import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_class_use
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_issue_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/add_class_view_model.dart';
+import 'package:rpl_notepad_fe/features/note/data/repositories/note_repository_impl.dart';
+import 'package:rpl_notepad_fe/features/note/data/repositories/week_repository_impl.dart';
+import 'package:rpl_notepad_fe/features/note/domain/repositories/note_repository.dart';
+import 'package:rpl_notepad_fe/features/note/domain/repositories/week_repository.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/create_note_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/create_note_files_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/get_note_by_id_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/get_notes_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/update_note_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/create_week_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_week_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/get_week_by_id_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/get_weeks_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/update_week_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/presentation/viewmodel/note_viewmodel.dart';
+import 'package:rpl_notepad_fe/features/note/presentation/viewmodel/week_viewmodel.dart';
 
 final getIt = GetIt.instance;
 
@@ -99,7 +116,82 @@ Future<void> setupDependencyInjection() async {
 
   // Admin Feature
   // View Model
-  getIt.registerFactory<AddClassViewModel>(
-    () => AddClassViewModel(),
+  getIt.registerFactory<AddClassViewModel>(() => AddClassViewModel());
+
+  // Note Feature
+  // Repositories
+  getIt.registerLazySingleton<NoteRepository>(
+    () => NoteRepositoryImpl(api: getIt<ApiService>()),
+  );
+
+  getIt.registerLazySingleton<WeekRepository>(
+    () => WeekRepositoryImpl(api: getIt<ApiService>()),
+  );
+
+  // Note Use Cases
+  getIt.registerLazySingleton<GetNotesUsecase>(
+    () => GetNotesUsecase(getIt<NoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetNoteByIdUsecase>(
+    () => GetNoteByIdUsecase(getIt<NoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<CreateNoteUsecase>(
+    () => CreateNoteUsecase(getIt<NoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<CreateNoteFilesUsecase>(
+    () => CreateNoteFilesUsecase(getIt<NoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<UpdateNoteUsecase>(
+    () => UpdateNoteUsecase(getIt<NoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<DeleteNoteUsecase>(
+    () => DeleteNoteUsecase(getIt<NoteRepository>()),
+  );
+
+  // Week Use Cases
+  getIt.registerLazySingleton<GetWeeksUsecase>(
+    () => GetWeeksUsecase(getIt<WeekRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetWeekByIdUsecase>(
+    () => GetWeekByIdUsecase(getIt<WeekRepository>()),
+  );
+
+  getIt.registerLazySingleton<CreateWeekUsecase>(
+    () => CreateWeekUsecase(getIt<WeekRepository>()),
+  );
+
+  getIt.registerLazySingleton<UpdateWeekUsecase>(
+    () => UpdateWeekUsecase(getIt<WeekRepository>()),
+  );
+
+  getIt.registerLazySingleton<DeleteWeekUsecase>(
+    () => DeleteWeekUsecase(getIt<WeekRepository>()),
+  );
+
+  // View Models
+  getIt.registerFactory<NoteViewModel>(
+    () => NoteViewModel(
+      getNotesUsecase: getIt<GetNotesUsecase>(),
+      createNoteUsecase: getIt<CreateNoteUsecase>(),
+      updateNoteUsecase: getIt<UpdateNoteUsecase>(),
+      deleteNoteUsecase: getIt<DeleteNoteUsecase>(),
+      createNoteFilesUsecase: getIt<CreateNoteFilesUsecase>(),
+    ),
+  );
+
+  getIt.registerFactory<WeekViewModel>(
+    () => WeekViewModel(
+      getWeeksUsecase: getIt<GetWeeksUsecase>(),
+      getWeekByIdUsecase: getIt<GetWeekByIdUsecase>(),
+      createWeekUsecase: getIt<CreateWeekUsecase>(),
+      updateWeekUsecase: getIt<UpdateWeekUsecase>(),
+      deleteWeekUsecase: getIt<DeleteWeekUsecase>(),
+    ),
   );
 }

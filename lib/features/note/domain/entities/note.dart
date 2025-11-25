@@ -1,25 +1,21 @@
 import 'package:equatable/equatable.dart';
-import 'package:rpl_notepad_fe/features/discussion/domain/entities/class.dart';
 import 'package:rpl_notepad_fe/features/note/domain/entities/note_file.dart';
 
 class Note extends Equatable {
   final int id;
+  final String? userName;
   final String? content;
-  final int week;
-  final int classId;
-  final ClassModel classRef;
+  final int weekId;
   final List<NoteFile> noteFiles;
 
   const Note({
     required this.id,
+    this.userName,
     this.content,
-    required this.week,
-    required this.classId,
-    required this.classRef,
-    required this.noteFiles,
+    required this.weekId,
+    this.noteFiles = const [],
   });
 
   @override
-  List<Object?> get props => [id, content, week, classId, classRef, noteFiles];
+  List<Object?> get props => [id, userName, content, weekId, noteFiles];
 }
-

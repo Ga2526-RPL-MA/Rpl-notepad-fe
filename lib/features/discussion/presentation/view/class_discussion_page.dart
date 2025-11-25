@@ -205,8 +205,10 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                             onPressed: () {
                                               Navigator.of(context).push(
                                                 MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      const NotePage(),
+                                                  builder: (_) => NotePage(
+                                                    classId: widget.classId,
+                                                    className: widget.className,
+                                                  ),
                                                 ),
                                               );
                                             },
@@ -415,7 +417,12 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const NotePage()),
+                            MaterialPageRoute(
+                              builder: (_) => NotePage(
+                                classId: widget.classId,
+                                className: widget.className,
+                              ),
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(

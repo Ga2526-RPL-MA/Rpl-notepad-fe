@@ -104,6 +104,8 @@ PODS:
   - Flutter (1.0.0)
   - flutter_local_notifications (0.0.1):
     - Flutter
+  - flutter_pdfview (1.0.2):
+    - Flutter
   - flutter_timezone (0.0.1):
     - Flutter
   - GoogleAdsOnDeviceConversion (3.1.0):
@@ -204,6 +206,7 @@ DEPENDENCIES:
   - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - flutter_pdfview (from `.symlinks/plugins/flutter_pdfview/ios`)
   - flutter_timezone (from `.symlinks/plugins/flutter_timezone/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - open_filex (from `.symlinks/plugins/open_filex/ios`)
@@ -253,6 +256,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  flutter_pdfview:
+    :path: ".symlinks/plugins/flutter_pdfview/ios"
   flutter_timezone:
     :path: ".symlinks/plugins/flutter_timezone/ios"
   integration_test:
@@ -293,6 +298,7 @@ SPEC CHECKSUMS:
   FirebaseSessions: ba7c7a7ca8696a8d540eb3fe3800fbe98c79786d
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
+  flutter_pdfview: 32bf27bda6fd85b9dd2c09628a824df5081246cf
   flutter_timezone: 7c838e17ffd4645d261e87037e5bebf6d38fe544
   GoogleAdsOnDeviceConversion: e03a386840803ea7eef3fd22a061930142c039c1
   GoogleAppMeasurement: 1e718274b7e015cefd846ac1fcf7820c70dc017d

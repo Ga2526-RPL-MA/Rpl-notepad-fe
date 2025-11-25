@@ -16,6 +16,19 @@ enum APIEndpoint {
   createTask,
   updateTask,
   deleteTask,
+  getNotes,
+  createNote,
+  updateNote,
+  deleteNote,
+  getNoteFiles,
+  createNoteFile,
+  updateNoteFile,
+  deleteNoteFile,
+  getWeeks,
+  getWeekById,
+  createWeek,
+  updateWeek,
+  deleteWeek,
 }
 
 extension APIEndpointExtension on APIEndpoint {
@@ -44,13 +57,39 @@ extension APIEndpointExtension on APIEndpoint {
       case APIEndpoint.postSubAnswer:
         return "/subAnswers";
       case APIEndpoint.getTask:
-        return "/tasks";  
+        return "/tasks";
       case APIEndpoint.createTask:
         return "/tasks";
       case APIEndpoint.updateTask:
         return "/tasks";
       case APIEndpoint.deleteTask:
         return "/tasks";
+      case APIEndpoint.getNotes:
+        return "/notes";
+      case APIEndpoint.createNote:
+        return "/notes";
+      case APIEndpoint.updateNote:
+        return "/notes";
+      case APIEndpoint.deleteNote:
+        return "/notes";
+      case APIEndpoint.getNoteFiles:
+        return "/noteFiles";
+      case APIEndpoint.createNoteFile:
+        return "/noteFiles";
+      case APIEndpoint.updateNoteFile:
+        return "/noteFiles";
+      case APIEndpoint.deleteNoteFile:
+        return "/noteFiles";
+      case APIEndpoint.getWeeks:
+        return "/weeks";
+      case APIEndpoint.getWeekById:
+        return "/weeks";
+      case APIEndpoint.createWeek:
+        return "/week";
+      case APIEndpoint.updateWeek:
+        return "/week";
+      case APIEndpoint.deleteWeek:
+        return "/week";
     }
   }
 
