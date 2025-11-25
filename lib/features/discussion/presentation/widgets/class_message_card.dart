@@ -10,6 +10,7 @@ class ClassMessageCard extends StatefulWidget {
   final Widget? answersWidget;
   final int? replyCount;
   final bool forceFullContent;
+  final EdgeInsets? contentPadding;
 
   const ClassMessageCard({
     super.key,
@@ -19,6 +20,7 @@ class ClassMessageCard extends StatefulWidget {
     this.answersWidget,
     this.replyCount,
     this.forceFullContent = false,
+    this.contentPadding,
   });
 
   @override
@@ -36,7 +38,6 @@ class _ClassMessageCardState extends State<ClassMessageCard> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 800),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -48,7 +49,7 @@ class _ClassMessageCardState extends State<ClassMessageCard> {
             ),
           ],
         ),
-        padding: const EdgeInsets.all(32),
+        padding: widget.contentPadding ?? const EdgeInsets.all(32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

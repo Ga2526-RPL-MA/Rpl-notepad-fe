@@ -225,162 +225,117 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Content scroll area
+                          // Content area
                           Expanded(
-                            child: ListView(
+                            child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      ClassMessageCard(
-                                        issue: mainIssue,
-                                        showReplyCount: false,
-                                        forceFullContent: true,
-                                        answersWidget: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: [
-                                            ConstrainedBox(
-                                              constraints: BoxConstraints(
-                                                minHeight:
-                                                    MediaQuery.of(
-                                                      context,
-                                                    ).size.height *
-                                                    0.5,
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.stretch,
-                                                children: [
-                                                  if (_viewModel.errorMessage !=
-                                                      null)
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            16.0,
-                                                          ),
-                                                      child: Text(
-                                                        _viewModel
-                                                            .errorMessage!,
-                                                        style: const TextStyle(
-                                                          color: Colors.red,
-                                                        ),
-                                                      ),
-                                                    )
-                                                  else if (_viewModel
-                                                      .answers
-                                                      .isEmpty)
-                                                    const Padding(
-                                                      padding: EdgeInsets.all(
-                                                        16.0,
-                                                      ),
-                                                      child: Text(
-                                                        'Belum ada jawaban untuk diskusi ini',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: TextStyle(
-                                                          color: Colors.grey,
-                                                          fontStyle:
-                                                              FontStyle.italic,
-                                                          fontFamily: 'Inter',
-                                                        ),
-                                                      ),
-                                                    )
-                                                  else
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.fromLTRB(
-                                                            0,
-                                                            8.0,
-                                                            8.0,
-                                                            16.0,
-                                                          ),
-                                                      child: Column(
-                                                        children: _viewModel
-                                                            .answers
-                                                            .where(
-                                                              (a) =>
-                                                                  a.issueId ==
-                                                                  widget
-                                                                      .issueId,
-                                                            )
-                                                            .toList()
-                                                            .map(
-                                                              (
-                                                                answer,
-                                                              ) => Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                      bottom:
-                                                                          12.0,
-                                                                    ),
-                                                                child: CommentMessageCard(
-                                                                  name: answer
-                                                                      .userName,
-                                                                  message: answer
-                                                                      .content,
-                                                                  answerId:
-                                                                      answer.id,
-                                                                  isOnline:
-                                                                      false,
-                                                                  onReplyPressed:
-                                                                      _handleReplyPressed,
-                                                                  initialSubAnswers: answer
-                                                                      .subAnswers
-                                                                      .map(
-                                                                        (
-                                                                          sub,
-                                                                        ) => SubAnswer(
-                                                                          id: sub
-                                                                              .id,
-                                                                          userName:
-                                                                              sub.userName,
-                                                                          content:
-                                                                              sub.content,
-                                                                          answeredAt:
-                                                                              sub.answeredAt,
-                                                                          answerId:
-                                                                              sub.answerId,
-                                                                        ),
-                                                                      )
-                                                                      .toList(),
-                                                                  isExpanded:
-                                                                      _viewModel
-                                                                          .expandedAnswerId ==
-                                                                      answer.id,
-                                                                ),
-                                                              ),
-                                                            )
-                                                            .toList(),
-                                                      ),
-                                                    ),
-                                                ],
+                              child: ClassMessageCard(
+                                issue: mainIssue,
+                                showReplyCount: false,
+                                forceFullContent: true,
+                                contentPadding: const EdgeInsets.fromLTRB(
+                                  32,
+                                  32,
+                                  32,
+                                  12,
+                                ),
+                                answersWidget: Expanded(
+                                  child: Builder(
+                                    builder: (context) {
+                                      if (_viewModel.errorMessage != null) {
+                                        return Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Text(
+                                              _viewModel.errorMessage!,
+                                              style: const TextStyle(
+                                                color: Colors.red,
                                               ),
                                             ),
-                                            // Input field
-                                            CommentInputField(
-                                              controller: _commentController,
-                                              isSubmitting:
-                                                  _viewModel.isSubmitting,
-                                              onSendPressed: _handleSendComment,
-                                              replyingTo:
-                                                  _viewModel.replyingToName,
-                                              onCancelReply: _handleCancelReply,
+                                          ),
+                                        );
+                                      }
+                                      final answersForIssue = _viewModel.answers
+                                          .where(
+                                            (a) => a.issueId == widget.issueId,
+                                          )
+                                          .toList();
+                                      if (answersForIssue.isEmpty) {
+                                        return const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.all(16.0),
+                                            child: Text(
+                                              'Belum ada jawaban untuk diskusi ini',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontStyle: FontStyle.italic,
+                                                fontFamily: 'Inter',
+                                              ),
                                             ),
-                                          ],
+                                          ),
+                                        );
+                                      }
+                                      return ListView.builder(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          0,
+                                          8,
+                                          8,
+                                          8,
                                         ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                    ],
+                                        itemCount: answersForIssue.length,
+                                        itemBuilder: (context, index) {
+                                          final answer = answersForIssue[index];
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 12.0,
+                                            ),
+                                            child: CommentMessageCard(
+                                              name: answer.userName,
+                                              message: answer.content,
+                                              answerId: answer.id,
+                                              isOnline: false,
+                                              onReplyPressed:
+                                                  _handleReplyPressed,
+                                              initialSubAnswers: answer
+                                                  .subAnswers
+                                                  .map(
+                                                    (sub) => SubAnswer(
+                                                      id: sub.id,
+                                                      userName: sub.userName,
+                                                      content: sub.content,
+                                                      answeredAt:
+                                                          sub.answeredAt,
+                                                      answerId: sub.answerId,
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                              isExpanded:
+                                                  _viewModel.expandedAnswerId ==
+                                                  answer.id,
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
                                   ),
                                 ),
-                              ],
+                              ),
+                            ),
+                          ),
+                          SafeArea(
+                            top: false,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                              child: CommentInputField(
+                                controller: _commentController,
+                                isSubmitting: _viewModel.isSubmitting,
+                                onSendPressed: _handleSendComment,
+                                replyingTo: _viewModel.replyingToName,
+                                onCancelReply: _handleCancelReply,
+                              ),
                             ),
                           ),
                         ],
@@ -439,130 +394,132 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
                   // Main content area
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const SizedBox(height: 8.0),
-                            ClassMessageCard(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
+                            child: ClassMessageCard(
                               issue: mainIssue,
                               showReplyCount: false,
                               forceFullContent: true,
-                              answersWidget: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      minHeight:
-                                          MediaQuery.of(context).size.height *
-                                          0.5,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        if (_viewModel.errorMessage != null)
-                                          Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: Text(
-                                              _viewModel.errorMessage!,
-                                              style: const TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          )
-                                        else if (_viewModel.answers.isEmpty)
-                                          const Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child: Text(
-                                              'Belum ada jawaban untuk diskusi ini',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.grey,
-                                                fontStyle: FontStyle.italic,
-                                                fontFamily: 'Inter',
-                                              ),
-                                            ),
-                                          )
-                                        else
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                              0,
-                                              8.0,
-                                              8.0,
-                                              16.0,
-                                            ),
-                                            child: Column(
-                                              children: _viewModel.answers
-                                                  .where(
-                                                    (answer) =>
-                                                        answer.issueId ==
-                                                        widget.issueId,
-                                                  )
-                                                  .toList()
-                                                  .map(
-                                                    (answer) => Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                            bottom: 12.0,
-                                                          ),
-                                                      child: CommentMessageCard(
-                                                        name: answer.userName,
-                                                        message: answer.content,
-                                                        answerId: answer.id,
-                                                        isOnline: false,
-                                                        onReplyPressed:
-                                                            _handleReplyPressed,
-                                                        initialSubAnswers: answer
-                                                            .subAnswers
-                                                            .map(
-                                                              (
-                                                                sub,
-                                                              ) => SubAnswer(
-                                                                id: sub.id,
-                                                                userName: sub
-                                                                    .userName,
-                                                                content:
-                                                                    sub.content,
-                                                                answeredAt: sub
-                                                                    .answeredAt,
-                                                                answerId: sub
-                                                                    .answerId,
-                                                              ),
-                                                            )
-                                                            .toList(),
-                                                        isExpanded:
-                                                            _viewModel
-                                                                .expandedAnswerId ==
-                                                            answer.id,
-                                                      ),
-                                                    ),
-                                                  )
-                                                  .toList(),
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                32,
+                                32,
+                                32,
+                                12,
+                              ),
+                              answersWidget: Expanded(
+                                child: Builder(
+                                  builder: (context) {
+                                    if (_viewModel.errorMessage != null) {
+                                      return Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Text(
+                                            _viewModel.errorMessage!,
+                                            style: const TextStyle(
+                                              color: Colors.red,
                                             ),
                                           ),
-                                      ],
-                                    ),
-                                  ),
+                                        ),
+                                      );
+                                    }
+                                    final answersForIssue = _viewModel.answers
+                                        .where(
+                                          (a) => a.issueId == widget.issueId,
+                                        )
+                                        .toList();
+                                    if (answersForIssue.isEmpty) {
+                                      return const Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(16.0),
+                                          child: Text(
+                                            'Belum ada jawaban untuk diskusi ini',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontStyle: FontStyle.italic,
+                                              fontFamily: 'Inter',
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
 
-                                  // Input field
-                                  CommentInputField(
-                                    controller: _commentController,
-                                    isSubmitting: _viewModel.isSubmitting,
-                                    onSendPressed: _handleSendComment,
-                                    replyingTo: _viewModel.replyingToName,
-                                    onCancelReply: _handleCancelReply,
-                                  ),
-                                ],
+                                    final safeBottom = MediaQuery.of(
+                                      context,
+                                    ).padding.bottom;
+                                    final keyboardInset = MediaQuery.of(
+                                      context,
+                                    ).viewInsets.bottom;
+                                    final bottomPadding =
+                                        safeBottom +
+                                        16.0 +
+                                        (keyboardInset > 0 ? keyboardInset : 0);
+
+                                    return ListView.builder(
+                                      padding: EdgeInsets.fromLTRB(
+                                        0,
+                                        8,
+                                        8,
+                                        bottomPadding,
+                                      ),
+                                      keyboardDismissBehavior:
+                                          ScrollViewKeyboardDismissBehavior
+                                              .onDrag,
+                                      itemCount: answersForIssue.length,
+                                      itemBuilder: (context, index) {
+                                        final answer = answersForIssue[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 12.0,
+                                          ),
+                                          child: CommentMessageCard(
+                                            name: answer.userName,
+                                            message: answer.content,
+                                            answerId: answer.id,
+                                            isOnline: false,
+                                            onReplyPressed: _handleReplyPressed,
+                                            initialSubAnswers: answer.subAnswers
+                                                .map(
+                                                  (sub) => SubAnswer(
+                                                    id: sub.id,
+                                                    userName: sub.userName,
+                                                    content: sub.content,
+                                                    answeredAt: sub.answeredAt,
+                                                    answerId: sub.answerId,
+                                                  ),
+                                                )
+                                                .toList(),
+                                            isExpanded:
+                                                _viewModel.expandedAnswerId ==
+                                                answer.id,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-
-                            const SizedBox(height: 16),
-                          ],
+                          ),
                         ),
-                      ),
+                        // Input field without background
+                        Container(
+                          color: Colors.transparent,
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                          child: CommentInputField(
+                            controller: _commentController,
+                            isSubmitting: _viewModel.isSubmitting,
+                            onSendPressed: _handleSendComment,
+                            replyingTo: _viewModel.replyingToName,
+                            onCancelReply: _handleCancelReply,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

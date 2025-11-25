@@ -199,7 +199,13 @@ void showAppToast(
   _currentToastOverlay?.remove();
   _currentToastOverlay = null;
 
-  final overlay = Overlay.of(context);
+  final overlayState =
+      Navigator.maybeOf(context, rootNavigator: true)?.overlay ??
+      Overlay.maybeOf(context, rootOverlay: true);
+  if (overlayState == null) {
+    assert(false, 'No Overlay found in the widget tree.');
+    return;
+  }
   late OverlayEntry overlayEntry;
 
   final resolvedTitle = (title == null || title.isEmpty)
@@ -278,7 +284,7 @@ void showAppToast(
   );
 
   _currentToastOverlay = overlayEntry;
-  overlay.insert(overlayEntry);
+  overlayState.insert(overlayEntry);
 
   Future.delayed(duration, () {
     if (_currentToastOverlay == overlayEntry) {

@@ -80,7 +80,7 @@ class CommentInputField extends StatelessWidget {
                   ),
                   maxLines: 1,
                 ),
-                // Label Menjawab
+                // Label Reply
                 if (replyingTo != null || answerId != null)
                   Positioned(
                     left: 12,
