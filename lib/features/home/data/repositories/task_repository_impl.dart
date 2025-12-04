@@ -76,6 +76,32 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> searchTasks(String query) async {
+    try {
+      final response = await _api.get<List<dynamic>>(
+        APIEndpoint.searchTask.path,
+        queryParams: {'q': query},
+        options: Options(
+          headers: {'Authorization': 'Bearer ${AuthService.token}'},
+        ),
+      );
+
+      return response.map<Map<String, dynamic>>((task) {
+        if (task is Map<String, dynamic>) {
+          return task;
+        } else if (task is Map) {
+          return Map<String, dynamic>.from(task);
+        } else {
+          throw Exception('Unexpected task format');
+        }
+      }).toList();
+    } catch (e) {
+      log('Error in TaskRepositoryImpl.searchTasks: $e');
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> deleteTask(int taskId) async {
     try {
       await _api.delete(

@@ -29,6 +29,7 @@ enum APIEndpoint {
   createWeek,
   updateWeek,
   deleteWeek,
+  searchTask,
 }
 
 extension APIEndpointExtension on APIEndpoint {
@@ -90,6 +91,8 @@ extension APIEndpointExtension on APIEndpoint {
         return "/week";
       case APIEndpoint.deleteWeek:
         return "/week";
+      case APIEndpoint.searchTask:
+        return "/tasks/search";
     }
   }
 
