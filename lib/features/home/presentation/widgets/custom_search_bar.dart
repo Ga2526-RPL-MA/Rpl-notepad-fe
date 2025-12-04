@@ -8,6 +8,7 @@ class CustomSearchBar extends StatefulWidget {
   final String hintText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSearch;
   final Duration debounceDuration;
 
   const CustomSearchBar({
@@ -15,6 +16,7 @@ class CustomSearchBar extends StatefulWidget {
     this.hintText = 'Cari catatan...',
     this.controller,
     this.onChanged,
+    this.onSearch,
     this.debounceDuration = const Duration(milliseconds: 500),
   }) : super(key: key);
 
@@ -45,11 +47,18 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
     _debounce = Timer(widget.debounceDuration, () {
-      final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-      viewModel.searchTasks(query);
-
-      if (widget.onChanged != null) {
+      if (widget.onSearch != null) {
+        widget.onSearch!(query);
+      } else if (widget.onChanged != null) {
         widget.onChanged!(query);
+      } else {
+        // For backward compatibility, try to use HomeViewModel if available
+        try {
+          final viewModel = Provider.of<HomeViewModel>(context, listen: false);
+          viewModel.searchTasks(query);
+        } catch (e) {
+          debugPrint('Error accessing HomeViewModel: $e');
+        }
       }
     });
   }

@@ -136,7 +136,6 @@ class DiscussionViewModel extends ChangeNotifier {
           e.type == DioExceptionType.receiveTimeout ||
           (e.error?.toString().contains('SocketException') ?? false);
     }
-    // Also honor the sentinel from ApiService
     return e.toString().contains('no_internet');
   }
 
@@ -154,6 +153,33 @@ class DiscussionViewModel extends ChangeNotifier {
           ? const Color(0xFF43B75D)
           : const Color(0xFF0095FF),
     };
+  }
+
+  Future<void> searchClasses(String query) async {
+    if (query.isEmpty) {
+      await loadClasses();
+      return;
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _classes = await _getClassesUsecase.searchClasses(query);
+      _classes.sort((a, b) {
+        final ka = _timetableSortKey(a.timetable);
+        final kb = _timetableSortKey(b.timetable);
+        return ka.compareTo(kb);
+      });
+      _error = null;
+    } catch (e) {
+      _error = 'Gagal melakukan pencarian. Silakan coba lagi.';
+      debugPrint('Error searching classes: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   int _timetableSortKey(String value) {

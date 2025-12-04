@@ -9,4 +9,8 @@ class GetclassUsecase {
   Future<List<GetClassDto>> execute() async {
     return await repository.getClasses();
   }
+
+  Future<List<GetClassDto>> searchClasses(String query) async {
+    return await repository.searchClasses(query);
+  }
 }

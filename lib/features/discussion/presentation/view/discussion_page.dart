@@ -119,7 +119,16 @@ class _DiscussionViewState extends State<_DiscussionView> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Expanded(child: CustomSearchBar()),
+                        Expanded(
+                          child: CustomSearchBar(
+                            hintText: 'Cari kelas...',
+                            onChanged: (value) {
+                              final viewModel = context
+                                  .read<DiscussionViewModel>();
+                              viewModel.searchClasses(value);
+                            },
+                          ),
+                        ),
                         const SizedBox(width: 20),
                         Consumer<LoginViewModel>(
                           builder: (context, loginVM, _) {
@@ -344,7 +353,11 @@ class _DiscussionViewState extends State<_DiscussionView> {
                           children: [
                             CustomSearchBar(
                               hintText: 'Cari kelas...',
-                              onChanged: (value) {},
+                              onSearch: (value) {
+                                final viewModel = context
+                                    .read<DiscussionViewModel>();
+                                viewModel.searchClasses(value);
+                              },
                             ),
                             const SizedBox(height: 16),
                             const Text(
