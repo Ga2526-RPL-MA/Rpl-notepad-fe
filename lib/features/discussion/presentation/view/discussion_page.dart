@@ -12,6 +12,7 @@ import '../../../../features/home/presentation/widgets/user_profile.dart';
 import '../widgets/class_card.dart';
 import '../widgets/web/discussion_web_layout.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/class_discussion_viewmodel.dart';
 
 class DiscussionPage extends StatelessWidget {
   const DiscussionPage({super.key});
@@ -206,9 +207,13 @@ class _DiscussionViewState extends State<_DiscussionView> {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                ClassDiscussionPage(
-                                                  classId: classDto.id,
-                                                  className: classDto.name,
+                                                ChangeNotifierProvider(
+                                                  create: (_) =>
+                                                      ClassDiscussionViewModel(),
+                                                  child: ClassDiscussionPage(
+                                                    classId: classDto.id,
+                                                    className: classDto.name,
+                                                  ),
                                                 ),
                                           ),
                                         );
@@ -395,9 +400,13 @@ class _DiscussionViewState extends State<_DiscussionView> {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                ClassDiscussionPage(
-                                                  classId: classDto.id,
-                                                  className: classDto.name,
+                                                ChangeNotifierProvider(
+                                                  create: (_) =>
+                                                      ClassDiscussionViewModel(),
+                                                  child: ClassDiscussionPage(
+                                                    classId: classDto.id,
+                                                    className: classDto.name,
+                                                  ),
                                                 ),
                                           ),
                                         );
