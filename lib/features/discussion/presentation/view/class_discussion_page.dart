@@ -577,6 +577,11 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
     int issueId,
     bool isOnline,
   ) async {
+    final viewModel = Provider.of<ClassDiscussionViewModel>(
+      context,
+      listen: false,
+    );
+
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -591,10 +596,6 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
     );
 
     if (mounted && ModalRoute.of(context)?.isCurrent == true) {
-      final viewModel = Provider.of<ClassDiscussionViewModel>(
-        context,
-        listen: false,
-      );
       viewModel.fetchIssues();
     }
   }
