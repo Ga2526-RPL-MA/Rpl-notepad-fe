@@ -3,12 +3,14 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_
 
 class MobileHeader extends StatelessWidget {
   final String hintText;
+  final ValueChanged<String>? onChanged;
   final VoidCallback? onBackPressed;
   final VoidCallback? onMenuPressed;
 
   const MobileHeader({
     super.key,
     required this.hintText,
+    this.onChanged,
     this.onBackPressed,
     this.onMenuPressed,
   });
@@ -32,7 +34,7 @@ class MobileHeader extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: CustomSearchBar(hintText: hintText),
+              child: CustomSearchBar(hintText: hintText, onChanged: onChanged),
             ),
           ),
         ],

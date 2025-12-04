@@ -19,4 +19,6 @@ abstract class IssueRepository {
     required int classId,
     required String content,
   });
+
+  Future<List<GetIssueDto>> searchIssues(String query);
 }

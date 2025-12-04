@@ -44,36 +44,40 @@ class ClassDiscussionViewModel extends ChangeNotifier {
 
   // Fetch issues from repository
   Future<void> fetchIssues() async {
+    if (_currentClassId == null) return;
+
     try {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
 
-      if (_currentClassId != null) {
-        final cached = await _readCachedIssues(_currentClassId!);
-        if (cached.isNotEmpty) {
-          _issues = cached;
-          _issues.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
-          _filterIssues();
-        }
+      // Try to load from cache first
+      final cachedIssues = await _readCachedIssues(_currentClassId!);
+      if (cachedIssues.isNotEmpty) {
+        _issues = cachedIssues;
+        _filteredIssues = List.from(_issues);
+        notifyListeners();
       }
 
-      _issues = await _getIssueUsecase.execute();
-      _issues.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
-      _filterIssues();
+      // Then fetch from network
+      final issues = await _getIssueUsecase.execute();
+      // Filter issues for the current class
+      final classIssues = issues
+          .where((issue) => issue.classId == _currentClassId)
+          .toList();
+      _issues = classIssues;
+      _filteredIssues = List.from(_issues);
 
-      // Local Storage (also persist replyCount)
-      if (_currentClassId != null) {
-        await _cacheIssues(
-          _currentClassId!,
-          _issues.where((i) => i.classId == _currentClassId).toList(),
-        );
-      }
+      // Cache the issues
+      await _cacheIssues(_currentClassId!, classIssues);
 
-      _isLoading = false;
-      notifyListeners();
+      _errorMessage = null;
     } catch (e) {
-      _errorMessage = 'Failed to load discussions. Please try again.';
+      _errorMessage = 'Gagal memuat diskusi';
+      if (kDebugMode) {
+        print('Error fetching issues: $e');
+      }
+    } finally {
       _isLoading = false;
       notifyListeners();
     }
@@ -168,5 +172,33 @@ class ClassDiscussionViewModel extends ChangeNotifier {
         isAnswer: (mm['isAnswer'] as bool?) ?? false,
       );
     }).toList();
+  }
+
+  Future<void> searchIssues(String query) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final searchQuery = query.trim();
+
+      if (searchQuery.isEmpty) {
+        _filteredIssues = List.from(_issues);
+      } else {
+        _filteredIssues = _issues.where((issue) {
+          return issue.content.toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ) ||
+              issue.userName.toLowerCase().contains(searchQuery.toLowerCase());
+        }).toList();
+      }
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Gagal melakukan pencarian';
+      notifyListeners();
+      rethrow;
+    }
   }
 }

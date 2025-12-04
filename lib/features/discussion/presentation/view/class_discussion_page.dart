@@ -31,36 +31,32 @@ class ClassDiscussionPage extends StatefulWidget {
 
 class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
   final TextEditingController _issueController = TextEditingController();
-  final ClassDiscussionViewModel _viewModel = ClassDiscussionViewModel();
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel.setClassId(widget.classId);
-    if (_viewModel.issues.isEmpty) {
-      _viewModel.fetchIssues();
-    }
-  }
-
   @override
   void didUpdateWidget(ClassDiscussionPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.classId != oldWidget.classId) {
-      _viewModel.setClassId(widget.classId);
-      _viewModel.fetchIssues();
+      final viewModel = Provider.of<ClassDiscussionViewModel>(
+        context,
+        listen: false,
+      );
+      viewModel.setClassId(widget.classId);
+      viewModel.fetchIssues();
     }
   }
 
   @override
   void dispose() {
     _issueController.dispose();
-    _viewModel.dispose();
     super.dispose();
   }
 
   void _toggleAddForm() {
-    _viewModel.toggleAddForm();
-    if (!_viewModel.showAddForm) {
+    final viewModel = Provider.of<ClassDiscussionViewModel>(
+      context,
+      listen: false,
+    );
+    viewModel.toggleAddForm();
+    if (!viewModel.showAddForm) {
       _issueController.clear();
     }
   }
@@ -69,7 +65,11 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
     if (_issueController.text.trim().isEmpty) return;
 
     try {
-      final success = await _viewModel.createIssue(
+      final viewModel = Provider.of<ClassDiscussionViewModel>(
+        context,
+        listen: false,
+      );
+      final success = await viewModel.createIssue(
         widget.classId,
         _issueController.text.trim(),
       );
@@ -100,8 +100,15 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
   Widget build(BuildContext context) {
     final isWeb = MediaQuery.of(context).size.width > 800;
 
-    return ChangeNotifierProvider.value(
-      value: _viewModel,
+    return ChangeNotifierProvider(
+      create: (_) {
+        final viewModel = ClassDiscussionViewModel();
+        viewModel.setClassId(widget.classId);
+        if (viewModel.issues.isEmpty) {
+          viewModel.fetchIssues();
+        }
+        return viewModel;
+      },
       child: Scaffold(
         drawer: !isWeb
             ? MenuDrawer(currentPage: 'diskusi', onPageChanged: (page) {})
@@ -143,9 +150,16 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        const Expanded(
+                                        Expanded(
                                           child: CustomSearchBar(
                                             hintText: 'Cari diskusi...',
+                                            onChanged: (query) {
+                                              final viewModel =
+                                                  Provider.of<
+                                                    ClassDiscussionViewModel
+                                                  >(context, listen: false);
+                                              viewModel.searchIssues(query);
+                                            },
                                           ),
                                         ),
                                         const SizedBox(width: 20),
@@ -415,7 +429,12 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
           child: Column(
             children: [
               // Header row
-              const MobileHeader(hintText: 'Cari diskusi...'),
+              MobileHeader(
+                hintText: 'Cari diskusi...',
+                onChanged: (query) {
+                  viewModel.searchIssues(query);
+                },
+              ),
               const SizedBox(height: 16),
               // Second row
               Row(
@@ -572,7 +591,11 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
     );
 
     if (mounted && ModalRoute.of(context)?.isCurrent == true) {
-      _viewModel.fetchIssues();
+      final viewModel = Provider.of<ClassDiscussionViewModel>(
+        context,
+        listen: false,
+      );
+      viewModel.fetchIssues();
     }
   }
 }

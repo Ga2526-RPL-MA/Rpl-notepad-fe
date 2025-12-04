@@ -31,6 +31,7 @@ enum APIEndpoint {
   deleteWeek,
   searchTask,
   searchClass,
+  searchIssue,
 }
 
 extension APIEndpointExtension on APIEndpoint {
@@ -96,6 +97,8 @@ extension APIEndpointExtension on APIEndpoint {
         return "/tasks/search";
       case APIEndpoint.searchClass:
         return "/class/search";
+      case APIEndpoint.searchIssue:
+        return "/issues/search";
     }
   }
 

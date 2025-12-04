@@ -52,7 +52,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       } else if (widget.onChanged != null) {
         widget.onChanged!(query);
       } else {
-        // For backward compatibility, try to use HomeViewModel if available
         try {
           final viewModel = Provider.of<HomeViewModel>(context, listen: false);
           viewModel.searchTasks(query);

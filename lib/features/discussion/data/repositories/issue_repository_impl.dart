@@ -135,4 +135,22 @@ class IssueRepositoryImpl implements IssueRepository {
       rethrow;
     }
   }
+
+
+  Future<List<GetIssueDto>> searchIssues(String query) async {
+    try {
+      final response = await _api.get('${APIEndpoint.searchIssue.path}/$query');
+      
+      if (response is List) {
+        return response
+            .map((e) => GetIssueDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception('Invalid response format for issues');
+      }
+    } catch (e) {
+      print('Error in searchIssues: $e');
+      rethrow;
+    }
+  }
 }
