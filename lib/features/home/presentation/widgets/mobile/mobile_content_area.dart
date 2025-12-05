@@ -40,8 +40,12 @@ class _MobileContentAreaState extends State<MobileContentArea> {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               children: [
-                // Search bar for mobile
-                const CustomSearchBar(),
+                // Search bar 
+                CustomSearchBar(
+                  onSearch: (query) {
+                    widget.viewModel.searchTasks(query);
+                  },
+                ),
                 const SizedBox(height: 24),
                 // Title
                 Text(

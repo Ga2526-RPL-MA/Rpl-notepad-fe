@@ -153,7 +153,7 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                         Expanded(
                                           child: CustomSearchBar(
                                             hintText: 'Cari diskusi...',
-                                            onChanged: (query) {
+                                            onSearch: (query) {
                                               final viewModel =
                                                   Provider.of<
                                                     ClassDiscussionViewModel

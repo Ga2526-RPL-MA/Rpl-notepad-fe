@@ -32,6 +32,8 @@ enum APIEndpoint {
   searchTask,
   searchClass,
   searchIssue,
+  searchAnswers,
+  searchSubAnswers,
 }
 
 extension APIEndpointExtension on APIEndpoint {
@@ -99,6 +101,10 @@ extension APIEndpointExtension on APIEndpoint {
         return "/class/search";
       case APIEndpoint.searchIssue:
         return "/issues/search";
+      case APIEndpoint.searchAnswers:
+        return "/answers/search";
+      case APIEndpoint.searchSubAnswers:
+        return "/subAnswers/search";
     }
   }
 

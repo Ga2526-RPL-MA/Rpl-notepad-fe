@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:rpl_notepad_fe/features/home/presentation/viewmodel/home_viewmodel.dart';
 
 class CustomSearchBar extends StatefulWidget {
   final String hintText;
@@ -49,15 +47,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     _debounce = Timer(widget.debounceDuration, () {
       if (widget.onSearch != null) {
         widget.onSearch!(query);
-      } else if (widget.onChanged != null) {
-        widget.onChanged!(query);
       } else {
-        try {
-          final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-          viewModel.searchTasks(query);
-        } catch (e) {
-          debugPrint('Error accessing HomeViewModel: $e');
-        }
+        widget.onChanged?.call(query);
       }
     });
   }

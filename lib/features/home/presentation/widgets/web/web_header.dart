@@ -25,7 +25,13 @@ class WebHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Search Bar
-            const Expanded(child: CustomSearchBar()),
+            Expanded(
+              child: CustomSearchBar(
+                onSearch: (query) {
+                  viewModel.searchTasks(query);
+                },
+              ),
+            ),
             const SizedBox(width: 20),
             // Profile Section
             Consumer<LoginViewModel>(

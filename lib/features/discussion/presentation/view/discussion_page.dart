@@ -123,10 +123,10 @@ class _DiscussionViewState extends State<_DiscussionView> {
                         Expanded(
                           child: CustomSearchBar(
                             hintText: 'Cari kelas...',
-                            onChanged: (value) {
+                            onSearch: (query) {
                               final viewModel = context
                                   .read<DiscussionViewModel>();
-                              viewModel.searchClasses(value);
+                              viewModel.searchClasses(query);
                             },
                           ),
                         ),
