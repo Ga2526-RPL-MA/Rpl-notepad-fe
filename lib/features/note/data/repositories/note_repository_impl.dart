@@ -43,6 +43,23 @@ class NoteRepositoryImpl implements NoteRepository {
   }
 
   @override
+  Future<List<GetNoteDto>> searchNotes(String query) async {
+    try {
+      final response = await _api.get(
+        '${APIEndpoint.searchNotes.path}?query=$query',
+      );
+      if (response is List) {
+        return response.map((e) => GetNoteDto.fromJson(e)).toList();
+      } else {
+        throw Exception('Invalid response format');
+      }
+    } catch (e) {
+      print('Error in searchNotes: $e');
+      rethrow;
+    }
+  }
+
+  @override
   Future<List<GetNoteFileDto>> getNoteFiles() async {
     try {
       final response = await _api.get(APIEndpoint.getNoteFiles.path);

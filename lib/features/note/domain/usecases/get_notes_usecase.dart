@@ -34,4 +34,32 @@ class GetNotesUsecase {
 
     return notes;
   }
+
+  Future<List<Note>> search(String query) async {
+    final notesDto = await repository.searchNotes(query);
+
+    // Fetch all note files once
+    final allNoteFilesDto = await repository.getNoteFiles();
+
+    final notes = notesDto.map((dto) {
+      // Filter note files for this specific note
+      final noteFilesForThisNote = allNoteFilesDto
+          .where((nf) => nf.noteId == dto.id)
+          .map(
+            (nf) =>
+                NoteFile(id: nf.id, filePath: nf.filePath, noteId: nf.noteId),
+          )
+          .toList();
+
+      return Note(
+        id: dto.id,
+        userName: dto.userName,
+        content: dto.content,
+        weekId: dto.weekId,
+        noteFiles: noteFilesForThisNote,
+      );
+    }).toList();
+
+    return notes;
+  }
 }

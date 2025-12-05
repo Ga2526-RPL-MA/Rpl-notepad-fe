@@ -11,6 +11,9 @@ abstract class NoteRepository {
   Future<void> updateNote({required int noteId, String? content});
   Future<void> deleteNote(int noteId);
 
+  // Search
+  Future<List<GetNoteDto>> searchNotes(String query);
+
   // NoteFile
   Future<List<GetNoteFileDto>> getNoteFiles();
   Future<void> createNoteFiles({

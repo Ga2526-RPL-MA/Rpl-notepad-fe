@@ -62,6 +62,46 @@ class NoteViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Search notes
+  Future<void> searchNotes(String query) async {
+    if (query.isEmpty) {
+      _filterNotes();
+      return;
+    }
+
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _filteredNotes = await _getNotesUsecase.search(query);
+
+      if (_filteredNotes.isEmpty) {
+        _filteredNotes = _notes
+            .where(
+              (note) =>
+                  (note.content?.toLowerCase().contains(query.toLowerCase()) ??
+                  false),
+            )
+            .toList();
+      }
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e, stackTrace) {
+      log(
+        'searchNotes() - Error: $e',
+        name: 'NoteViewModel',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      _errorMessage = 'Failed to search notes. Please try again.';
+      _isLoading = false;
+      _filterNotes(); // Revert to original notes on error
+      notifyListeners();
+    }
+  }
+
   // Fetch notes from repository
   Future<void> fetchNotes() async {
     log('fetchNotes() called', name: 'NoteViewModel');

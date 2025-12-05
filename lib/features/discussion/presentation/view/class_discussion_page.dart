@@ -153,12 +153,12 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                         Expanded(
                                           child: CustomSearchBar(
                                             hintText: 'Cari diskusi...',
-                                            onSearch: (query) {
+                                            onSearch: (query) async {
                                               final viewModel =
                                                   Provider.of<
                                                     ClassDiscussionViewModel
                                                   >(context, listen: false);
-                                              viewModel.searchIssues(query);
+                                              await viewModel.searchIssues(query);
                                             },
                                           ),
                                         ),
@@ -431,8 +431,8 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
               // Header row
               MobileHeader(
                 hintText: 'Cari diskusi...',
-                onChanged: (query) {
-                  viewModel.searchIssues(query);
+                onChanged: (query) async {
+                  await viewModel.searchIssues(query);
                 },
               ),
               const SizedBox(height: 16),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rpl_notepad_fe/core/di/injection.dart';
@@ -31,12 +33,14 @@ class NotePage extends StatefulWidget {
 
 class _NotePageState extends State<NotePage> {
   final TextEditingController _textController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   final ScrollController _notesScrollController = ScrollController();
   int _currentNoteIndex = 0;
   static const double _noteCardWidth = 230;
   static const double _noteCardGap = 8;
   List<PlatformFile> _selectedPdfs = [];
   bool _showOverlay = false;
+  Timer? _searchDebounce;
 
   late final NoteViewModel _noteViewModel;
   late final WeekViewModel _weekViewModel;
@@ -67,8 +71,17 @@ class _NotePageState extends State<NotePage> {
       });
       return;
     }
+
     _noteViewModel = getIt<NoteViewModel>();
     _weekViewModel = getIt<WeekViewModel>();
+
+    _noteViewModel.addListener(() {
+      if (mounted) {
+        setState(() {
+          _showOverlay = _noteViewModel.isLoading;
+        });
+      }
+    });
 
     _weekViewModel.setClassId(widget.classId);
     Future.microtask(() async {
@@ -127,6 +140,19 @@ class _NotePageState extends State<NotePage> {
         if (mounted) setState(() => _showOverlay = false);
       }
     }();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() => _showOverlay = true);
+      if (query.isEmpty) {
+        _noteViewModel.fetchNotes();
+      } else {
+        _noteViewModel.searchNotes(query);
+      }
+    });
   }
 
   Future<void> _saveNote() async {
@@ -270,9 +296,11 @@ class _NotePageState extends State<NotePage> {
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Expanded(
+                                    Expanded(
                                       child: CustomSearchBar(
                                         hintText: 'Cari catatan...',
+                                        controller: _searchController,
+                                        onSearch: _onSearchChanged,
                                       ),
                                     ),
                                     const SizedBox(width: 20),
@@ -386,14 +414,31 @@ class _NotePageState extends State<NotePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const MobileHeader(hintText: 'Cari catatan...'),
+            MobileHeader(
+              hintText: 'Cari catatan...',
+              onSearch: (query) {
+                if (query.isNotEmpty) {
+                  _noteViewModel.searchNotes(query);
+                } else {
+                  _noteViewModel.fetchNotes();
+                }
+              },
+              onBackPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
             const SizedBox(height: 16),
-            Text(
-              '${widget.className} / Catatan',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Inter',
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${widget.className} / Catatan',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Inter',
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -441,7 +486,9 @@ class _NotePageState extends State<NotePage> {
   @override
   void dispose() {
     _textController.dispose();
+    _searchController.dispose();
     _notesScrollController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 }

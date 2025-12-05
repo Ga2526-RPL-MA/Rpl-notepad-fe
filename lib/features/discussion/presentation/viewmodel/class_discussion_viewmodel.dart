@@ -175,10 +175,9 @@ class ClassDiscussionViewModel extends ChangeNotifier {
   }
 
   Future<void> searchIssues(String query) async {
+    _isLoading = true;
+    notifyListeners();
     try {
-      _isLoading = true;
-      notifyListeners();
-
       final searchQuery = query.trim();
 
       if (searchQuery.isEmpty) {
@@ -191,14 +190,12 @@ class ClassDiscussionViewModel extends ChangeNotifier {
               issue.userName.toLowerCase().contains(searchQuery.toLowerCase());
         }).toList();
       }
-
-      _isLoading = false;
-      notifyListeners();
     } catch (e) {
-      _isLoading = false;
       _errorMessage = 'Gagal melakukan pencarian';
-      notifyListeners();
       rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }
