@@ -9,7 +9,6 @@ import 'package:rpl_notepad_fe/features/discussion/domain/entities/sub_answer.da
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/chat_detail_viewmodel.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
-import 'package:rpl_notepad_fe/core/widgets/mobile_header.dart';
 import '../widgets/class_message_card.dart';
 import '../widgets/comment_card.dart';
 import '../widgets/comment_input_field.dart';
@@ -156,9 +155,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: CustomSearchBar(
                                       hintText: 'Cari diskusi...',
+                                      onSearch: (query) {
+                                        _viewModel.searchAnswers(query);
+                                      },
                                     ),
                                   ),
                                   const SizedBox(width: 20),
@@ -257,11 +259,24 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                           ),
                                         );
                                       }
+                                  
+                                      if (_viewModel.isLoading) {
+                                        return const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.all(16.0),
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        );
+                                      }
+                                   
                                       final answersForIssue = _viewModel.answers
                                           .where(
                                             (a) => a.issueId == widget.issueId,
                                           )
                                           .toList();
+
+
+                                      // Show message when there are no answers
                                       if (answersForIssue.isEmpty) {
                                         return const Center(
                                           child: Padding(
@@ -278,6 +293,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                           ),
                                         );
                                       }
+
                                       return ListView.builder(
                                         padding: const EdgeInsets.fromLTRB(
                                           0,
@@ -366,7 +382,45 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
                     child: Column(
                       children: [
-                        const MobileHeader(hintText: 'Cari diskusi...'),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 8.0,
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.black,
+                                ),
+                                onPressed: () =>
+                                    Navigator.of(context).maybePop(),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                  ),
+                                  child: CustomSearchBar(
+                                    hintText: 'Cari diskusi...',
+                                    onSearch: (query) {
+                                      _viewModel.searchAnswers(
+                                        query,
+                                      ); // ✅ CONNECT KE VIEWMODEL
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         // Class name
                         Padding(
@@ -391,7 +445,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       ],
                     ),
                   ),
-
                   // Main content area
                   Expanded(
                     child: Column(

@@ -16,6 +16,9 @@ class ChatDetailViewModel extends ChangeNotifier {
   final String message;
   final String className;
 
+  String? _searchQuery;
+  String? get searchQuery => _searchQuery;
+
   final GetAnswersUsecase _getAnswersUsecase;
   final AddAnswerUsecase _addAnswerUsecase;
   final AddSubAnswerUsecase _addSubAnswerUsecase;
@@ -91,6 +94,86 @@ class ChatDetailViewModel extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+Future<void> searchAnswers(String query) async {
+  _searchQuery = query.isEmpty ? null : query;
+
+  if (query.isEmpty) {
+    await loadAnswers();
+    return;
+  }
+
+  _setLoading(true);
+  _setError(null);
+
+  try {
+    final allAnswers = await _getAnswersUsecase(issueId);
+    final queryLower = query.toLowerCase();
+    
+    final matchingAnswers = allAnswers.where((answer) {
+      final contentMatch = answer.content.toLowerCase().contains(queryLower);
+      
+      final userMatch = answer.userName.toLowerCase().contains(queryLower);
+      
+      final hasMatchingSubAnswer = answer.subAnswers.any(
+        (sub) =>
+            sub.content.toLowerCase().contains(queryLower) ||
+            sub.userName.toLowerCase().contains(queryLower),
+      );
+      
+      return contentMatch || userMatch || hasMatchingSubAnswer;
+    }).toList();
+
+    final filteredResults = matchingAnswers.map((answer) {
+      final mainAnswerMatches = 
+          answer.content.toLowerCase().contains(queryLower) ||
+          answer.userName.toLowerCase().contains(queryLower);
+      
+      if (mainAnswerMatches) {
+        return answer;
+      }
+      
+      final matchingSubAnswers = answer.subAnswers.where((sub) =>
+          sub.content.toLowerCase().contains(queryLower) ||
+          sub.userName.toLowerCase().contains(queryLower),
+      ).toList();
+      
+      return answer.copyWith(subAnswers: matchingSubAnswers);
+    }).toList();
+
+    _setAnswers(filteredResults);
+    
+    if (kDebugMode) {
+      print('🔍 Search query: "$query"');
+      print('📊 Found ${filteredResults.length} matching answers');
+      for (var a in filteredResults) {
+        print('  └─ Answer #${a.id} by ${a.userName}: ${a.subAnswers.length} sub-answers shown');
+      }
+    }
+  } catch (e) {
+    _setError('Gagal melakukan pencarian. Silakan coba lagi.');
+    if (kDebugMode) {
+      print('Error searching answers: $e');
+    }
+  } finally {
+    _setLoading(false);
+  }
+}
+
+int getSearchResultsCount() {
+  if (_searchQuery == null || _searchQuery!.isEmpty) {
+    return _answers.length;
+  }
+  
+  int count = 0;
+  for (var answer in _answers) {
+    count++; 
+    count += answer.subAnswers.length; 
+  }
+  return count;
+}
+
+bool get isSearching => _searchQuery != null && _searchQuery!.isNotEmpty;
 
   // Handle reply button press
   void handleReplyPressed(String name, int answerId) {
