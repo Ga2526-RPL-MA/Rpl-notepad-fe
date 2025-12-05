@@ -19,6 +19,7 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.d
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
+import 'package:rpl_notepad_fe/features/note/presentation/widgets/note_draft_helper.dart';
 
 class NotePage extends StatefulWidget {
   final int classId;
@@ -41,6 +42,7 @@ class _NotePageState extends State<NotePage> {
   List<PlatformFile> _selectedPdfs = [];
   bool _showOverlay = false;
   Timer? _searchDebounce;
+  Timer? _draftDebounce;
 
   late final NoteViewModel _noteViewModel;
   late final WeekViewModel _weekViewModel;
@@ -75,6 +77,8 @@ class _NotePageState extends State<NotePage> {
     _noteViewModel = getIt<NoteViewModel>();
     _weekViewModel = getIt<WeekViewModel>();
 
+    _textController.addListener(_scheduleDraftSave);
+
     _noteViewModel.addListener(() {
       if (mounted) {
         setState(() {
@@ -91,6 +95,7 @@ class _NotePageState extends State<NotePage> {
         await Future.wait([
           _weekViewModel.fetchWeeks(),
           _noteViewModel.fetchNotes(),
+          _loadDraft(),
         ]);
       } finally {
         if (mounted) setState(() => _showOverlay = false);
@@ -122,6 +127,7 @@ class _NotePageState extends State<NotePage> {
       _inputWeekId = weekId;
       _inputWeekLabel = label;
     });
+    _scheduleDraftSave();
   }
 
   void _onFilterWeekSelected(int? weekId, String label) {
@@ -140,6 +146,52 @@ class _NotePageState extends State<NotePage> {
         if (mounted) setState(() => _showOverlay = false);
       }
     }();
+  }
+
+  Future<void> _loadDraft() async {
+    final draft = await NoteDraftHelper.loadDraft(widget.classId);
+
+    if (!mounted) return;
+
+    if (draft.content != null && draft.content!.isNotEmpty) {
+      _textController.text = draft.content!;
+    }
+
+    if (draft.weekId != null && draft.weekLabel != null) {
+      setState(() {
+        _inputWeekId = draft.weekId;
+        _inputWeekLabel = draft.weekLabel!;
+      });
+    }
+
+    if (draft.files.isNotEmpty) {
+      setState(() {
+        _selectedPdfs = List<PlatformFile>.from(draft.files);
+      });
+    }
+  }
+
+  void _scheduleDraftSave() {
+    if (_draftDebounce?.isActive ?? false) {
+      _draftDebounce!.cancel();
+    }
+    _draftDebounce = Timer(const Duration(milliseconds: 500), () {
+      _saveDraft();
+    });
+  }
+
+  Future<void> _saveDraft() {
+    return NoteDraftHelper.saveDraft(
+      classId: widget.classId,
+      content: _textController.text,
+      weekId: _inputWeekId,
+      weekLabel: _inputWeekLabel,
+      files: _selectedPdfs,
+    );
+  }
+
+  Future<void> _clearDraft() async {
+    await NoteDraftHelper.clearDraft(widget.classId);
   }
 
   void _onSearchChanged(String query) {
@@ -191,6 +243,7 @@ class _NotePageState extends State<NotePage> {
         _inputWeekId = null;
         _inputWeekLabel = 'Pilih Minggu';
       });
+      await _clearDraft();
       showAppToast(
         context,
         message: 'Catatan berhasil disimpan',
@@ -244,6 +297,7 @@ class _NotePageState extends State<NotePage> {
         _selectedPdfs = List.from(picked);
       });
     }
+    _scheduleDraftSave();
     showAppToast(
       context,
       message: '${_selectedPdfs.length} PDF dipilih',
@@ -456,7 +510,10 @@ class _NotePageState extends State<NotePage> {
       inputWeekLabel: _inputWeekLabel,
       onWeekSelected: _onInputWeekSelected,
       selectedPdfs: _selectedPdfs,
-      onRemovePdf: (index) => setState(() => _selectedPdfs.removeAt(index)),
+      onRemovePdf: (index) {
+        setState(() => _selectedPdfs.removeAt(index));
+        _scheduleDraftSave();
+      },
       textController: _textController,
       onSaveNote: _saveNote,
       onPickPdfs: _pickPdfs,
@@ -485,6 +542,8 @@ class _NotePageState extends State<NotePage> {
 
   @override
   void dispose() {
+    _draftDebounce?.cancel();
+    _saveDraft();
     _textController.dispose();
     _searchController.dispose();
     _notesScrollController.dispose();
