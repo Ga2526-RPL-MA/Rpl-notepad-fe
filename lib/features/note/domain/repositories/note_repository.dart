@@ -10,6 +10,7 @@ abstract class NoteRepository {
   Future<GetNoteDto> createNote({required int weekId, String? content});
   Future<void> updateNote({required int noteId, String? content});
   Future<void> deleteNote(int noteId);
+  Future<void> deleteNoteWithoutFiles(int noteId);
 
   // Search
   Future<List<GetNoteDto>> searchNotes(String query);

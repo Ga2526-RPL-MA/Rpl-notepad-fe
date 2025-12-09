@@ -51,6 +51,16 @@ class WeekViewModel extends ChangeNotifier {
 
   // Filter weeks by current class ID
   void _filterWeeks() {
+    print(
+      'WeekViewModel: _filterWeeks() - Total parsed weeks: ${_weeks.length}, Filtering for classId: $_currentClassId',
+    );
+
+    if (_weeks.isNotEmpty) {
+      print(
+        'WeekViewModel: First 5 weeks classIds: ${_weeks.take(5).map((w) => w.classId).toList()}',
+      );
+    }
+
     if (_currentClassId == null) {
       _filteredWeeks = _weeks;
     } else {
@@ -60,6 +70,11 @@ class WeekViewModel extends ChangeNotifier {
       // Sort by week number
       _filteredWeeks.sort((a, b) => a.week.compareTo(b.week));
     }
+
+    print(
+      'WeekViewModel: _filterWeeks() - Filtered result count: ${_filteredWeeks.length}',
+    );
+
     notifyListeners();
   }
 

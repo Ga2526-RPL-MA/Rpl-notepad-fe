@@ -137,7 +137,6 @@ class ClassRepositoryImpl implements ClassRepository {
       );
 
       print('🔍 Response type: ${response.runtimeType}');
-      print('🔍 Response data: $response');
 
       if (response == null) {
         print('⚠️ Response is null, returning empty list');
@@ -147,29 +146,69 @@ class ClassRepositoryImpl implements ClassRepository {
       final List<dynamic> data = response as List<dynamic>;
       print('🔍 Parsing ${data.length} items from response');
 
+      // FALLBACK: Fetch all classes to resolve IDs by Name
+      Map<String, int> classNameToId = {};
+      try {
+        print('🔍 Fetching all classes for ID resolution...');
+        final allClasses = await getClasses();
+        for (var c in allClasses) {
+          classNameToId[c.name] = c.id;
+        }
+        print(
+          '✅ Loaded ${classNameToId.length} reference classes for ID matching',
+        );
+      } catch (e) {
+        print('⚠️ Failed to fetch all classes for ID resolution: $e');
+        // Continue, will default to 0 if ID missing
+      }
+
       final result = <GetClassDto>[];
       for (var i = 0; i < data.length; i++) {
         try {
-          print('🔍 Parsing item $i: ${data[i]}');
-
           // The response has structure: { "class": { ... } }
           // We need to extract the class object
           final item = data[i] as Map<String, dynamic>;
           final classData = item['class'] as Map<String, dynamic>;
+          final className = classData['name'] as String;
 
-          // Create GetClassDto with default values for missing fields
+          print('🔍 Processing item $i: $className');
+
+          // Attempt to find ID in multiple places
+          int classId = 0;
+          if (item.containsKey('id')) {
+            classId = int.tryParse(item['id'].toString()) ?? 0;
+          } else if (item.containsKey('classId')) {
+            classId = int.tryParse(item['classId'].toString()) ?? 0;
+          } else if (classData.containsKey('id')) {
+            classId = int.tryParse(classData['id'].toString()) ?? 0;
+          }
+
+          // Fallback: Match by name
+          if (classId == 0) {
+            if (classNameToId.containsKey(className)) {
+              classId = classNameToId[className]!;
+              print(
+                '✅ Resolved ID $classId for "$className" using name matching',
+              );
+            } else {
+              print(
+                '⚠️ Warning: Class ID not found for "$className" and no name match found.',
+              );
+            }
+          }
+
+          // Create GetClassDto
           final classDto = GetClassDto(
-            id: classData['id'] ?? 0, // Default to 0 if not provided
-            name: classData['name'] as String,
+            id: classId,
+            name: className,
             lecturer: classData['lecturer'] as String,
             timetable: classData['timetable'] as String,
             room: classData['room'] as String,
-            students: classData['students'] ?? [], // Default to empty array
-            tasks: classData['tasks'] ?? [], // Default to empty array
+            students: classData['students'] ?? [],
+            tasks: classData['tasks'] ?? [],
           );
 
           result.add(classDto);
-          print('✅ Successfully parsed: ${classDto.name}');
         } catch (e) {
           print('❌ Error parsing item $i: $e');
           print('   Data: ${data[i]}');
@@ -181,7 +220,6 @@ class ClassRepositoryImpl implements ClassRepository {
       log('Error in ClassRepositoryImpl.getUserClassesByLoggedIn: $e');
       log('Stack trace: $stackTrace');
       print('❌ Full error: $e');
-      print('❌ Stack: $stackTrace');
       rethrow;
     }
   }

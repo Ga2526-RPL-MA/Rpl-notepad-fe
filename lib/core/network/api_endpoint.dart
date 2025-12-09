@@ -23,6 +23,7 @@ enum APIEndpoint {
   createNote,
   updateNote,
   deleteNote,
+  deleteNoteWithoutFiles,
   getNoteFiles,
   createNoteFile,
   updateNoteFile,
@@ -89,6 +90,8 @@ extension APIEndpointExtension on APIEndpoint {
       case APIEndpoint.updateNote:
         return "/notes";
       case APIEndpoint.deleteNote:
+        return "/notes/removeNote";
+      case APIEndpoint.deleteNoteWithoutFiles:
         return "/notes";
       case APIEndpoint.getNoteFiles:
         return "/noteFiles";

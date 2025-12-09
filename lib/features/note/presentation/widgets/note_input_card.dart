@@ -63,7 +63,11 @@ class NoteInputCard extends StatelessWidget {
                       focusColor: Colors.transparent,
                     ),
                     child: DropdownButton<String>(
-                      value: inputWeekLabel == 'Pilih Minggu'
+                      value:
+                          inputWeekLabel == 'Pilih Minggu' ||
+                              !weeks.any(
+                                (w) => 'Minggu ${w.week}' == inputWeekLabel,
+                              )
                           ? null
                           : inputWeekLabel,
                       hint: const Text('Pilih Minggu'),

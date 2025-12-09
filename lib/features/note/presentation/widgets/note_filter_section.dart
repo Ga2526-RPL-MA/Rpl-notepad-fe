@@ -68,7 +68,15 @@ class NoteFilterSection extends StatelessWidget {
                                   focusColor: Colors.transparent,
                                 ),
                                 child: DropdownButton<String>(
-                                  value: filterWeekLabel,
+                                  value:
+                                      filterWeekLabel == 'Semua' ||
+                                          weeks.any(
+                                            (w) =>
+                                                'Minggu ${w.week}' ==
+                                                filterWeekLabel,
+                                          )
+                                      ? filterWeekLabel
+                                      : null,
                                   isExpanded: true,
                                   underline: const SizedBox(),
                                   dropdownColor: Colors.white,

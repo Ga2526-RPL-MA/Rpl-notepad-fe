@@ -50,9 +50,17 @@ class NoteViewModel extends ChangeNotifier {
   bool get showAddForm => _showAddForm;
   bool get hasNotes => _filteredNotes.isNotEmpty;
 
+  List<int> _validWeekIds = [];
+
   // Set current week ID and filter notes (null means no filter / all)
   void setWeekId(int? weekId) {
     _currentWeekId = weekId;
+    _filterNotes();
+  }
+
+  // Set the list of valid week IDs for the current class
+  void setValidWeekIds(List<int> weekIds) {
+    _validWeekIds = weekIds;
     _filterNotes();
   }
 
@@ -67,8 +75,9 @@ class NoteViewModel extends ChangeNotifier {
     final currentUsername = AuthService.userName;
 
     _filteredNotes = _notes.where((note) {
-      final matchesWeek =
-          _currentWeekId == null || note.weekId == _currentWeekId;
+      final matchesWeek = _currentWeekId == null
+          ? (_validWeekIds.isEmpty || _validWeekIds.contains(note.weekId))
+          : note.weekId == _currentWeekId;
       final matchesUser =
           !_myNotesOnly ||
           (currentUsername != null && note.userName == currentUsername);
@@ -400,7 +409,9 @@ class NoteViewModel extends ChangeNotifier {
         userName: mm['userName'] as String?,
         content: mm['content'] as String?,
         weekId: (mm['weekId'] as num).toInt(),
-        weekNumber: mm['weekNumber'] != null ? (mm['weekNumber'] as num).toInt() : null,
+        weekNumber: mm['weekNumber'] != null
+            ? (mm['weekNumber'] as num).toInt()
+            : null,
         noteFiles: [], // Files not cached for simplicity
       );
     }).toList();

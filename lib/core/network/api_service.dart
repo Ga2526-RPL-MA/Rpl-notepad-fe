@@ -199,6 +199,20 @@ class ApiService {
     }
   }
 
+  Future<T> patch<T>(String path, {dynamic data, Options? options}) async {
+    try {
+      final response = await _dio.patch<T>(path, data: data, options: options);
+
+      if (response.data == null) {
+        throw Exception('Response kosong dari server (PATCH $path)');
+      }
+
+      return response.data as T;
+    } on DioException {
+      rethrow;
+    }
+  }
+
   Future<T> delete<T>(String path, {dynamic data, Options? options}) async {
     try {
       final response = await _dio.delete<T>(path, data: data, options: options);

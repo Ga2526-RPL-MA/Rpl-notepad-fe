@@ -12,14 +12,36 @@ class WeekRepositoryImpl implements WeekRepository {
   @override
   Future<List<GetWeekDto>> getWeeks() async {
     try {
+      print('WeekRepositoryImpl: fetching weeks...');
       final response = await _api.get(APIEndpoint.getWeeks.path);
+      print('WeekRepositoryImpl: raw response type: ${response.runtimeType}');
+
       if (response is List) {
-        return response.map((e) => GetWeekDto.fromJson(e)).toList();
+        final weeks = response
+            .map((item) {
+              try {
+                if (item == null) return null;
+                // Safely cast to Map<String, dynamic>
+                final json = Map<String, dynamic>.from(item as Map);
+                return GetWeekDto.fromJson(json);
+              } catch (e) {
+                print(
+                  'WeekRepositoryImpl: Error parsing item: $item. Error: $e',
+                );
+                return null;
+              }
+            })
+            .where((item) => item != null)
+            .cast<GetWeekDto>()
+            .toList();
+
+        print('WeekRepositoryImpl: successfully parsed ${weeks.length} weeks');
+        return weeks;
       } else {
         throw Exception('Invalid response format');
       }
     } catch (e) {
-      print('Error in getWeeks: $e');
+      print('WeekRepositoryImpl: Error in getWeeks: $e');
       rethrow;
     }
   }

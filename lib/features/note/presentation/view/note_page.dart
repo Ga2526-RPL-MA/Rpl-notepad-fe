@@ -88,6 +88,13 @@ class _NotePageState extends State<NotePage> {
       }
     });
 
+    _weekViewModel.addListener(() {
+      if (mounted) {
+        final validIds = _weekViewModel.weeks.map((w) => w.id).toList();
+        _noteViewModel.setValidWeekIds(validIds);
+      }
+    });
+
     _weekViewModel.setClassId(widget.classId);
     Future.microtask(() async {
       if (!mounted) return;

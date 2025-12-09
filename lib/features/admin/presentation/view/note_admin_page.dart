@@ -16,6 +16,7 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_file_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_without_files_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/get_notes_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/get_weeks_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/update_note_usecase.dart';
@@ -395,15 +396,20 @@ class _NoteAdminPageContent extends StatelessWidget {
                                       }
 
                                       if (deleteText && deleteFile) {
+                                        // Delete both text and files - use PATCH endpoint
                                         final deleteUseCase =
                                             getIt<DeleteNoteUsecase>();
                                         await deleteUseCase.execute(note.id);
                                       } else if (deleteText) {
                                         if (note.noteFiles.isEmpty) {
+                                          // Delete text-only note - use DELETE endpoint
                                           final deleteUseCase =
-                                              getIt<DeleteNoteUsecase>();
+                                              getIt<
+                                                DeleteNoteWithoutFilesUsecase
+                                              >();
                                           await deleteUseCase.execute(note.id);
                                         } else {
+                                          // Note has files, just clear the text content
                                           final updateUseCase =
                                               getIt<UpdateNoteUsecase>();
                                           await updateUseCase.execute(
@@ -412,6 +418,7 @@ class _NoteAdminPageContent extends StatelessWidget {
                                           );
                                         }
                                       } else if (deleteFile) {
+                                        // Delete files only
                                         final deleteFileUseCase =
                                             getIt<DeleteNoteFileUsecase>();
 
@@ -421,10 +428,13 @@ class _NoteAdminPageContent extends StatelessWidget {
                                           );
                                         }
 
+                                        // If text is empty after deleting files, delete the note
                                         if (note.content == null ||
                                             note.content!.trim().isEmpty) {
                                           final deleteUseCase =
-                                              getIt<DeleteNoteUsecase>();
+                                              getIt<
+                                                DeleteNoteWithoutFilesUsecase
+                                              >();
                                           await deleteUseCase.execute(note.id);
                                         }
                                       }

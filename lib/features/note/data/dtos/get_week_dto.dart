@@ -17,10 +17,17 @@ class GetWeekDto extends Equatable {
 
   // Convert JSON to DTO
   factory GetWeekDto.fromJson(Map<String, dynamic> json) {
+    int parseInt(dynamic value) {
+      if (value is int) return value;
+      if (value is String) return int.tryParse(value) ?? 0;
+      if (value is num) return value.toInt();
+      return 0;
+    }
+
     return GetWeekDto(
-      id: json['id'] as int,
-      week: json['week'] as int,
-      classId: json['classId'] as int,
+      id: parseInt(json['id']),
+      week: parseInt(json['week']),
+      classId: parseInt(json['classId']),
       notes:
           (json['notes'] as List<dynamic>?)
               ?.map((note) => GetNoteDto.fromJson(note as Map<String, dynamic>))

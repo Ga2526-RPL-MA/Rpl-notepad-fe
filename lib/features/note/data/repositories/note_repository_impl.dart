@@ -183,9 +183,19 @@ class NoteRepositoryImpl implements NoteRepository {
   @override
   Future<void> deleteNote(int noteId) async {
     try {
-      await _api.delete('${APIEndpoint.deleteNote.path}/$noteId');
+      await _api.patch('${APIEndpoint.deleteNote.path}/$noteId');
     } catch (e) {
       print('Error in deleteNote: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteNoteWithoutFiles(int noteId) async {
+    try {
+      await _api.delete('${APIEndpoint.deleteNoteWithoutFiles.path}/$noteId');
+    } catch (e) {
+      print('Error in deleteNoteWithoutFiles: $e');
       rethrow;
     }
   }

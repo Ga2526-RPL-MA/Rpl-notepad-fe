@@ -33,6 +33,7 @@ import 'package:rpl_notepad_fe/features/note/domain/repositories/week_repository
 import 'package:rpl_notepad_fe/features/note/domain/usecases/create_note_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/create_note_files_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_without_files_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_file_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/get_note_by_id_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/get_notes_usecase.dart';
@@ -182,6 +183,10 @@ Future<void> setupDependencyInjection() async {
 
   getIt.registerLazySingleton<DeleteNoteUsecase>(
     () => DeleteNoteUsecase(getIt<NoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<DeleteNoteWithoutFilesUsecase>(
+    () => DeleteNoteWithoutFilesUsecase(getIt<NoteRepository>()),
   );
 
   getIt.registerLazySingleton<DeleteNoteFileUsecase>(
