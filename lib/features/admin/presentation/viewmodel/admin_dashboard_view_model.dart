@@ -42,13 +42,10 @@ class AdminDashboardViewModel extends ChangeNotifier {
     // Add listener to discussion VM to get notified when classes are loaded
     _discussionVM.addListener(_onDiscussionVMChanged);
 
-    // Load classes if not already loading and empty
-    if (_discussionVM.classes.isEmpty && !_discussionVM.isLoading) {
-      await _discussionVM.loadClasses();
-    } else if (_discussionVM.classes.isNotEmpty) {
-      // If classes are already loaded, update UI
-      notifyListeners();
-    }
+    // Always load classes for admin dashboard to ensure we get all classes
+    // Admin should see all classes via /classes endpoint
+    await _discussionVM.loadClasses();
+    notifyListeners();
   }
 
   void _onDiscussionVMChanged() {
