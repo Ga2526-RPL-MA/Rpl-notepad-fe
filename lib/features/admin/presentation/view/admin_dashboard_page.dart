@@ -109,7 +109,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                         Expanded(
                                           child: CustomSearchBar(
                                             onChanged: avm.setSearch,
-                                            hintText: 'Cari kelas...'
+                                            hintText: 'Cari kelas...',
                                           ),
                                         ),
                                         const SizedBox(width: 20),
@@ -207,7 +207,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                                           item['cardBackgroundColor'],
                                                       cardOutlineColor:
                                                           item['cardOutlineColor'],
-                                                      onTap: () async {
+                                                      showEditIcon: true,
+                                                      onEdit: () async {
                                                         final result =
                                                             await Navigator.push(
                                                               context,
@@ -224,6 +225,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                                         if (result == true) {
                                                           await avm.refresh();
                                                         }
+                                                      },
+                                                      onTap: () {
+                                                        // Optional: Add any additional tap behavior here
                                                       },
                                                     );
                                                   },
@@ -351,38 +355,36 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                               classDto,
                                               index,
                                             );
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                bottom: 12.0,
-                                              ),
-                                              child: ClassCard(
-                                                iconPath: item['iconPath'],
-                                                className: item['className'],
-                                                classTime: item['classTime'],
-                                                classRoom: item['classRoom'],
-                                                cardBackgroundColor:
-                                                    item['cardBackgroundColor'],
-                                                cardOutlineColor:
-                                                    item['cardOutlineColor'],
-                                                onTap: () async {
-                                                  final result =
-                                                      await Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (_) =>
-                                                              AddClassPage(
-                                                                initialClass:
-                                                                    classDto,
-                                                                showDelete:
-                                                                    true,
-                                                              ),
-                                                        ),
-                                                      );
-                                                  if (result == true) {
-                                                    await avm.refresh();
-                                                  }
-                                                },
-                                              ),
+                                            return ClassCard(
+                                              iconPath: item['iconPath'],
+                                              className: item['className'],
+                                              classTime: item['classTime'],
+                                              classRoom: item['classRoom'],
+                                              cardBackgroundColor:
+                                                  item['cardBackgroundColor'],
+                                              cardOutlineColor:
+                                                  item['cardOutlineColor'],
+                                              showEditIcon: true,
+                                              onEdit: () async {
+                                                final result =
+                                                    await Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (_) =>
+                                                            AddClassPage(
+                                                              initialClass:
+                                                                  classDto,
+                                                              showDelete: true,
+                                                            ),
+                                                      ),
+                                                    );
+                                                if (result == true) {
+                                                  await avm.refresh();
+                                                }
+                                              },
+                                              onTap: () {
+                                                // Optional: Add any additional tap behavior here
+                                              },
                                             );
                                           },
                                         ),

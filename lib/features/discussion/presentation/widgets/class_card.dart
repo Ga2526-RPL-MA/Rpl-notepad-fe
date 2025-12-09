@@ -8,6 +8,8 @@ class ClassCard extends StatelessWidget {
   final Color cardBackgroundColor;
   final Color cardOutlineColor;
   final VoidCallback? onTap;
+  final VoidCallback? onEdit;
+  final bool showEditIcon;
 
   const ClassCard({
     super.key,
@@ -18,6 +20,8 @@ class ClassCard extends StatelessWidget {
     required this.cardBackgroundColor,
     required this.cardOutlineColor,
     this.onTap,
+    this.onEdit,
+    this.showEditIcon = false,
   });
 
   @override
@@ -52,16 +56,36 @@ class ClassCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title
-                    Text(
-                      className,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Inter',
-                      ),
+                    // Title with edit icon
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            className,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Inter',
+                            ),
+                          ),
+                        ),
+                        if (showEditIcon && onEdit != null)
+                          GestureDetector(
+                            onTap: () {
+                              onEdit!();
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Icon(
+                                Icons.edit,
+                                size: 16,
+                                color: cardOutlineColor,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
 
                     const SizedBox(height: 4),
@@ -81,15 +105,17 @@ class ClassCard extends StatelessWidget {
                     const SizedBox(height: 6),
 
                     // Button Lihat
-                    Text(
-                      'Lihat',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: cardOutlineColor,
-                        fontFamily: 'Inter',
-                      ),
-                    ),
+                    onTap != null
+                        ? Text(
+                            'Lihat',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: cardOutlineColor,
+                              fontFamily: 'Inter',
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ],
                 ),
               ),
