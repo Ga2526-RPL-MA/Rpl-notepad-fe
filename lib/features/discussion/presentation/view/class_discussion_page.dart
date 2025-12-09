@@ -10,7 +10,7 @@ import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/class_
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/core/widgets/mobile_header.dart';
 import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';

@@ -6,7 +6,7 @@ import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/core/widgets/menu_drawer.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/widgets/class_card.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/view/add_class_page.dart';

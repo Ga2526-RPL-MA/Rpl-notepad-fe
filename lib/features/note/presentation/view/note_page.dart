@@ -17,7 +17,7 @@ import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
 import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 import 'package:rpl_notepad_fe/features/note/presentation/widgets/note_draft_helper.dart';
 

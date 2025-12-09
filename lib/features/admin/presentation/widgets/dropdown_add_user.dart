@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/class_detail_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/data/dtos/user_dto.dart';
 
 class DropdownAddUser extends StatefulWidget {
   final ValueChanged<UserDto?> onChanged;
+  final String className;
 
-  const DropdownAddUser({super.key, required this.onChanged});
+  const DropdownAddUser({
+    super.key, 
+    required this.onChanged,
+    required this.className,
+  });
 
   static const primaryColor = Color(0xFF43B75D);
   static const borderColor = Color(0xFF256533);
@@ -147,14 +153,46 @@ class _DropdownAddUserState extends State<DropdownAddUser> {
                                         secondaryButtonText: 'Batal',
                                         onPrimaryPressed: () {
                                           Navigator.pop(parentContext);
-                                          viewModel.removeUserFromClass(user.id);
+                                          viewModel.removeUserFromClass(user.id).then((_) {
+                                            if (viewModel.error == null) {
+                                              showAppToast(
+                                                parentContext,
+                                                title: 'Berhasil',
+                                                message: 'Berhasil menghapus mahasiswa ${user.name} dari kelas ${widget.className}',
+                                                type: AppToastType.success,
+                                              );
+                                            } else {
+                                              showAppToast(
+                                                parentContext,
+                                                title: 'Gagal',
+                                                message: 'Gagal menghapus mahasiswa: ${viewModel.error}',
+                                                type: AppToastType.error,
+                                              );
+                                            }
+                                          });
                                         },
                                         onSecondaryPressed: () {
                                           Navigator.pop(parentContext);
                                         },
                                       );
                                   } else {
-                                    viewModel.addUserToClass(user.id);
+                                      viewModel.addUserToClass(user.id).then((_) {
+                                        if (viewModel.error == null) {
+                                          showAppToast(
+                                            parentContext,
+                                            title: 'Berhasil',
+                                            message: 'Berhasil menambahkan mahasiswa ${user.name} ke kelas ${widget.className}',
+                                            type: AppToastType.success,
+                                          );
+                                        } else {
+                                          showAppToast(
+                                            parentContext,
+                                            title: 'Gagal',
+                                            message: 'Gagal menambahkan mahasiswa: ${viewModel.error}',
+                                            type: AppToastType.error,
+                                          );
+                                        }
+                                      });
                                   }
                                 },
                                 child: Padding(

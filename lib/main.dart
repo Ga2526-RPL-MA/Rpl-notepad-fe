@@ -22,8 +22,8 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view/register_page.dar
 import 'package:rpl_notepad_fe/features/discussion/presentation/view/discussion_page.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/view/home_page.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/register_view_model.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/view/admin_dashboard_page.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/view/add_class_page.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/view/discussion_admin_page.dart';

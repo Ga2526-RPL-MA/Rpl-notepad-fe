@@ -4,8 +4,8 @@ import 'package:rpl_notepad_fe/features/auth/data/repositories/auth_repository_i
 import 'package:rpl_notepad_fe/features/auth/domain/repositories/auth_repository.dart';
 import 'package:rpl_notepad_fe/features/auth/domain/usecases/login_usecase.dart';
 import 'package:rpl_notepad_fe/features/auth/domain/usecases/register_usecase.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/register_view_model.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/repositories/class_repository_impl.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/repositories/issue_repository_impl.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/repositories/class_repository.dart';

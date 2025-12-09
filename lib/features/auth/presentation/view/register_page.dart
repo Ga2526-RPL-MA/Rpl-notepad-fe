@@ -4,7 +4,7 @@ import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/register_view_model.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/widgets/custom_input_field.dart';
 import 'package:rpl_notepad_fe/core/widgets/error_modal.dart';
 

@@ -6,7 +6,7 @@ import '../../../../core/widgets/custom_background.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../../core/widgets/menu_drawer.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../../features/auth/presentation/view_models/login_view_model.dart';
+import '../../../../features/auth/presentation/viewmodel/login_view_model.dart';
 import '../../../../features/home/presentation/widgets/custom_search_bar.dart';
 import '../../../../features/home/presentation/widgets/user_profile.dart';
 import '../widgets/class_card.dart';

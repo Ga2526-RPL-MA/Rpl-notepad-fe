@@ -6,13 +6,14 @@ import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/core/widgets/menu_drawer.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 import 'package:rpl_notepad_fe/features/admin/data/repositories/admin_repository_impl.dart';
 import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_all_users_usecase.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/class_detail_view_model.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/widgets/dropdown_add_user.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/widgets/student_list_table.dart';
 import 'package:rpl_notepad_fe/features/auth/data/dtos/user_dto.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
 
@@ -261,6 +262,7 @@ class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
                 ),
                 const SizedBox(height: 16),
                 DropdownAddUser(
+                  className: widget.className,
                   onChanged: (value) {
                   },
                 ),
@@ -270,10 +272,8 @@ class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
                     return StudentListTable(
                       students: viewModel.classStudents,
                       onDelete: (student) {
-                        // If student.id is 0, resolve the real userId from master list
                         int actualUserId = student.id;
                         if (student.id == 0 && student.nrp.isNotEmpty) {
-                          // Find the real user by NRP in the master users list
                           final masterUser = viewModel.users.firstWhere(
                             (u) => u.nrp == student.nrp,
                             orElse: () => student,
@@ -289,7 +289,23 @@ class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
                           secondaryButtonText: 'Batal',
                           onPrimaryPressed: () {
                             Navigator.pop(context);
-                            viewModel.removeUserFromClass(actualUserId);
+                            viewModel.removeUserFromClass(actualUserId).then((_) {
+                              if (viewModel.error == null) {
+                                showAppToast(
+                                  context,
+                                  title: 'Berhasil',
+                                  message: 'Berhasil menghapus mahasiswa ${student.name} dari kelas ${widget.className}',
+                                  type: AppToastType.success,
+                                );
+                              } else {
+                                showAppToast(
+                                  context,
+                                  title: 'Gagal',
+                                  message: 'Gagal menghapus mahasiswa: ${viewModel.error}',
+                                  type: AppToastType.error,
+                                );
+                              }
+                            });
                           },
                           onSecondaryPressed: () {
                             Navigator.pop(context);

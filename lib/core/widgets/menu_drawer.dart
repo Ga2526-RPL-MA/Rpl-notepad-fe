@@ -5,7 +5,7 @@ import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
 import 'package:rpl_notepad_fe/features/auth/data/dtos/logout_dto.dart';
 import 'package:rpl_notepad_fe/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view/login_page.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String currentPage;
