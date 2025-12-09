@@ -7,7 +7,7 @@ class AdminDashboardViewModel extends ChangeNotifier {
   String _search = '';
 
   AdminDashboardViewModel({required DiscussionViewModel discussionVM})
-      : _discussionVM = discussionVM;
+    : _discussionVM = discussionVM;
 
   bool get isLoading => _discussionVM.isLoading;
   String? get error => _discussionVM.error;
@@ -23,12 +23,15 @@ class AdminDashboardViewModel extends ChangeNotifier {
     final list = _discussionVM.classes;
     if (_search.trim().isEmpty) return list;
     final q = _search.toLowerCase();
-    return list.where((c) =>
-      c.name.toLowerCase().contains(q) ||
-      c.lecturer.toLowerCase().contains(q) ||
-      c.room.toLowerCase().contains(q) ||
-      c.timetable.toLowerCase().contains(q)
-    ).toList();
+    return list
+        .where(
+          (c) =>
+              c.name.toLowerCase().contains(q) ||
+              c.lecturer.toLowerCase().contains(q) ||
+              c.room.toLowerCase().contains(q) ||
+              c.timetable.toLowerCase().contains(q),
+        )
+        .toList();
   }
 
   Map<String, dynamic> getClassData(GetClassDto classDto, int index) {
@@ -36,10 +39,27 @@ class AdminDashboardViewModel extends ChangeNotifier {
   }
 
   Future<void> init() async {
+    // Add listener to discussion VM to get notified when classes are loaded
+    _discussionVM.addListener(_onDiscussionVMChanged);
+
+    // Load classes if not already loading and empty
     if (_discussionVM.classes.isEmpty && !_discussionVM.isLoading) {
       await _discussionVM.loadClasses();
+    } else if (_discussionVM.classes.isNotEmpty) {
+      // If classes are already loaded, update UI
       notifyListeners();
     }
+  }
+
+  void _onDiscussionVMChanged() {
+    // Forward the notification when discussion VM changes
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _discussionVM.removeListener(_onDiscussionVMChanged);
+    super.dispose();
   }
 
   Future<void> refresh() async {

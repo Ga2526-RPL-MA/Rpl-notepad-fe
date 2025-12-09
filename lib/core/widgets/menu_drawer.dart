@@ -172,6 +172,8 @@ class MenuDrawer extends StatelessWidget {
                       iconPath: 'assets/icon/add-class-icon.png',
                       pageKey: 'tambah_kelas',
                     ),
+                    const SizedBox(height: 16),
+                    menuItem(iconPath:)
                   ] else ...[
                     menuItem(
                       label: 'Beranda',

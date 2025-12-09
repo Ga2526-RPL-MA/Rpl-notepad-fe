@@ -10,6 +10,7 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/widgets/class_card.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/view/add_class_page.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/view/class_detail_page.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/admin_dashboard_view_model.dart';
 
 class AdminDashboardPage extends StatefulWidget {
@@ -39,6 +40,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _avm.init();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isWeb = MediaQuery.of(context).size.width > 800;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -48,17 +57,28 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       child: Builder(
         builder: (context) {
           final avm = context.watch<AdminDashboardViewModel>();
-          if (avm.isLoading) {
+
+          // Show loading indicator if loading
+          if (avm.isLoading && avm.classes.isEmpty) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          if (avm.error != null) {
+
+          // Show error message if there's an error
+          if (avm.error != null && avm.classes.isEmpty) {
             return Scaffold(
               body: Center(
-                child: Text(
-                  avm.error!,
-                  style: const TextStyle(color: Colors.red),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(avm.error!, style: const TextStyle(color: Colors.red)),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => _avm.refresh(),
+                      child: const Text('Retry'),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -227,7 +247,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                                         }
                                                       },
                                                       onTap: () {
-                                                        // Optional: Add any additional tap behavior here
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                ClassDetailPage(
+                                                                  className:
+                                                                      item['className'],
+                                                                  classTime:
+                                                                      item['classTime'],
+                                                                  classRoom:
+                                                                      item['classRoom'],
+                                                                ),
+                                                          ),
+                                                        );
                                                       },
                                                     );
                                                   },
@@ -347,47 +380,69 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                       ),
                                       const SizedBox(height: 16),
                                       Expanded(
-                                        child: ListView.builder(
-                                          itemCount: avm.classes.length,
-                                          itemBuilder: (context, index) {
-                                            final classDto = avm.classes[index];
-                                            final item = avm.getClassData(
-                                              classDto,
-                                              index,
-                                            );
-                                            return ClassCard(
-                                              iconPath: item['iconPath'],
-                                              className: item['className'],
-                                              classTime: item['classTime'],
-                                              classRoom: item['classRoom'],
-                                              cardBackgroundColor:
-                                                  item['cardBackgroundColor'],
-                                              cardOutlineColor:
-                                                  item['cardOutlineColor'],
-                                              showEditIcon: true,
-                                              onEdit: () async {
-                                                final result =
-                                                    await Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (_) =>
-                                                            AddClassPage(
-                                                              initialClass:
-                                                                  classDto,
-                                                              showDelete: true,
+                                        child: avm.classes.isEmpty
+                                            ? const Center(
+                                                child: Text('No classes found'),
+                                              )
+                                            : ListView.builder(
+                                                itemCount: avm.classes.length,
+                                                itemBuilder: (context, index) {
+                                                  final classDto =
+                                                      avm.classes[index];
+                                                  final item = avm.getClassData(
+                                                    classDto,
+                                                    index,
+                                                  );
+                                                  return ClassCard(
+                                                    iconPath: item['iconPath'],
+                                                    className:
+                                                        item['className'],
+                                                    classTime:
+                                                        item['classTime'],
+                                                    classRoom:
+                                                        item['classRoom'],
+                                                    cardBackgroundColor:
+                                                        item['cardBackgroundColor'],
+                                                    cardOutlineColor:
+                                                        item['cardOutlineColor'],
+                                                    showEditIcon: true,
+                                                    onEdit: () async {
+                                                      final result =
+                                                          await Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (_) =>
+                                                                  AddClassPage(
+                                                                    initialClass:
+                                                                        classDto,
+                                                                    showDelete:
+                                                                        true,
+                                                                  ),
                                                             ),
-                                                      ),
-                                                    );
-                                                if (result == true) {
-                                                  await avm.refresh();
-                                                }
-                                              },
-                                              onTap: () {
-                                                // Optional: Add any additional tap behavior here
-                                              },
-                                            );
-                                          },
-                                        ),
+                                                          );
+                                                      if (result == true) {
+                                                        await avm.refresh();
+                                                      }
+                                                    },
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ClassDetailPage(
+                                                                className:
+                                                                    item['className'],
+                                                                classTime:
+                                                                    item['classTime'],
+                                                                classRoom:
+                                                                    item['classRoom'],
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              ),
                                       ),
                                     ],
                                   ),

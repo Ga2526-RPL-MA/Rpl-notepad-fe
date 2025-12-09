@@ -73,6 +73,7 @@ class ClassCard extends StatelessWidget {
                         ),
                         if (showEditIcon && onEdit != null)
                           GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             onTap: () {
                               onEdit!();
                             },
