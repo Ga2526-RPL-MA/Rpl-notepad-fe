@@ -40,8 +40,9 @@ enum APIEndpoint {
   searchNotes,
   getAllUsers,
   getUsersByClass,
+  getUserClassesByLoggedIn,
   addUserClass,
-  deleteUserClass
+  deleteUserClass,
 }
 
 extension APIEndpointExtension on APIEndpoint {
@@ -123,6 +124,8 @@ extension APIEndpointExtension on APIEndpoint {
         return "/users";
       case APIEndpoint.getUsersByClass:
         return "/userClasses/byclass";
+      case APIEndpoint.getUserClassesByLoggedIn:
+        return "/userClasses/byloggedin";
       case APIEndpoint.addUserClass:
         return "/userClasses";
       case APIEndpoint.deleteUserClass:

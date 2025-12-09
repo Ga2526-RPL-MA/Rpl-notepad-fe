@@ -10,4 +10,5 @@ abstract class ClassRepository {
   );
   Future<void> deleteClass(int classId);
   Future<List<GetClassDto>> searchClasses(String query);
+  Future<List<GetClassDto>> getUserClassesByLoggedIn();
 }

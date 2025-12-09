@@ -127,4 +127,62 @@ class ClassRepositoryImpl implements ClassRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<List<GetClassDto>> getUserClassesByLoggedIn() async {
+    try {
+      print('🔍 Calling /userClasses/byloggedin endpoint...');
+      final response = await _api.get(
+        APIEndpoint.getUserClassesByLoggedIn.path,
+      );
+
+      print('🔍 Response type: ${response.runtimeType}');
+      print('🔍 Response data: $response');
+
+      if (response == null) {
+        print('⚠️ Response is null, returning empty list');
+        return [];
+      }
+
+      final List<dynamic> data = response as List<dynamic>;
+      print('🔍 Parsing ${data.length} items from response');
+
+      final result = <GetClassDto>[];
+      for (var i = 0; i < data.length; i++) {
+        try {
+          print('🔍 Parsing item $i: ${data[i]}');
+
+          // The response has structure: { "class": { ... } }
+          // We need to extract the class object
+          final item = data[i] as Map<String, dynamic>;
+          final classData = item['class'] as Map<String, dynamic>;
+
+          // Create GetClassDto with default values for missing fields
+          final classDto = GetClassDto(
+            id: classData['id'] ?? 0, // Default to 0 if not provided
+            name: classData['name'] as String,
+            lecturer: classData['lecturer'] as String,
+            timetable: classData['timetable'] as String,
+            room: classData['room'] as String,
+            students: classData['students'] ?? [], // Default to empty array
+            tasks: classData['tasks'] ?? [], // Default to empty array
+          );
+
+          result.add(classDto);
+          print('✅ Successfully parsed: ${classDto.name}');
+        } catch (e) {
+          print('❌ Error parsing item $i: $e');
+          print('   Data: ${data[i]}');
+        }
+      }
+
+      return result;
+    } catch (e, stackTrace) {
+      log('Error in ClassRepositoryImpl.getUserClassesByLoggedIn: $e');
+      log('Stack trace: $stackTrace');
+      print('❌ Full error: $e');
+      print('❌ Stack: $stackTrace');
+      rethrow;
+    }
+  }
 }

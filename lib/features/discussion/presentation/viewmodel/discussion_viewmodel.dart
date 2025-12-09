@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_class_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_class_usecase.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 
 class DiscussionViewModel extends ChangeNotifier {
   final GetclassUsecase _getClassesUsecase;
@@ -35,7 +36,6 @@ class DiscussionViewModel extends ChangeNotifier {
     _error = null;
     log('loadClasses() - Setting loading to true', name: 'DiscussionViewModel');
 
-    // Try load cached classes first so UI is not empty
     try {
       final cached = await _readCachedClasses();
       if (cached.isNotEmpty) {
@@ -58,7 +58,16 @@ class DiscussionViewModel extends ChangeNotifier {
       );
       final startTime = DateTime.now();
 
-      _classes = await _getClassesUsecase.execute();
+      // Admin users get all classes, regular users get their registered classes
+      if (AuthService.isAdmin) {
+        print('🔍 [DiscussionVM] Admin user - fetching all classes');
+        _classes = await _getClassesUsecase.execute();
+      } else {
+        print(
+          '🔍 [DiscussionVM] Regular user - fetching user classes by logged in',
+        );
+        _classes = await _getClassesUsecase.getUserClassesByLoggedIn();
+      }
 
       _classes.sort((a, b) {
         final ka = _timetableSortKey(a.timetable);
@@ -166,7 +175,22 @@ class DiscussionViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _classes = await _getClassesUsecase.searchClasses(query);
+      // Admin users search all classes, regular users search their classes
+      if (AuthService.isAdmin) {
+        print('🔍 [DiscussionVM] Admin - searching all classes');
+        _classes = await _getClassesUsecase.searchClasses(query);
+      } else {
+        print(
+          '🔍 [DiscussionVM] Regular user - fetching user classes (search not filtered on backend)',
+        );
+        // Get user classes and filter client-side since backend may not support search for user classes
+        final allUserClasses = await _getClassesUsecase
+            .getUserClassesByLoggedIn();
+        _classes = allUserClasses.where((classDto) {
+          return classDto.name.toLowerCase().contains(query.toLowerCase());
+        }).toList();
+      }
+
       _classes.sort((a, b) {
         final ka = _timetableSortKey(a.timetable);
         final kb = _timetableSortKey(b.timetable);

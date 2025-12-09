@@ -13,4 +13,8 @@ class GetclassUsecase {
   Future<List<GetClassDto>> searchClasses(String query) async {
     return await repository.searchClasses(query);
   }
+
+  Future<List<GetClassDto>> getUserClassesByLoggedIn() async {
+    return await repository.getUserClassesByLoggedIn();
+  }
 }

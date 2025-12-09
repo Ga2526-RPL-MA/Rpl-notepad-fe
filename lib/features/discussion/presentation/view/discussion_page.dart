@@ -75,10 +75,8 @@ class _DiscussionViewState extends State<_DiscussionView> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<DiscussionViewModel>();
-
-      if (viewModel.classes.isEmpty) {
-        viewModel.loadClasses();
-      }
+      // Always reload classes to show fresh data and loading overlay
+      viewModel.loadClasses();
     });
   }
 
