@@ -3,18 +3,33 @@ import 'package:provider/provider.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
+import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
+import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/core/widgets/menu_drawer.dart';
+import 'package:rpl_notepad_fe/features/admin/data/repositories/admin_repository_impl.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_all_users_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/class_detail_view_model.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/widgets/dropdown_add_user.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/widgets/student_list_table.dart';
+import 'package:rpl_notepad_fe/features/auth/data/dtos/user_dto.dart';
+import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
-import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
+
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/add_user_to_class_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/delete_user_from_class_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_users_by_class_usecase.dart';
+
 
 class ClassDetailPage extends StatefulWidget {
+  final int classId;
   final String className;
   final String classTime;
   final String classRoom;
 
   const ClassDetailPage({
     super.key,
+    required this.classId,
     required this.className,
     required this.classTime,
     required this.classRoom,
@@ -27,14 +42,81 @@ class ClassDetailPage extends StatefulWidget {
 class _ClassDetailPageState extends State<ClassDetailPage> {
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => ClassDetailViewModel(
+        getAllUsersUseCase: GetAllUsersUseCase(
+          AdminRepositoryImpl(),
+        ),
+        getUsersByClassUseCase: GetUsersByClassUseCase(
+          AdminRepositoryImpl(),
+        ),
+        addUserToClassUseCase: AddUserToClassUseCase(
+          AdminRepositoryImpl(),
+        ),
+        deleteUserFromClassUseCase: DeleteUserFromClassUseCase(
+          AdminRepositoryImpl(),
+        ),
+      ),
+      child: _ClassDetailPageContent(
+        classId: widget.classId,
+        className: widget.className,
+        classTime: widget.classTime,
+        classRoom: widget.classRoom,
+      ),
+    );
+  }
+}
+
+class _ClassDetailPageContent extends StatefulWidget {
+  final int classId;
+  final String className;
+  final String classTime;
+  final String classRoom;
+
+  const _ClassDetailPageContent({
+    required this.classId,
+    required this.className,
+    required this.classTime,
+    required this.classRoom,
+  });
+
+  @override
+  State<_ClassDetailPageContent> createState() =>
+      _ClassDetailPageContentState();
+}
+
+
+class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ClassDetailViewModel>().fetchClassStudents(widget.classId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isWeb = MediaQuery.of(context).size.width > 800;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      body: GradientBackground(
-        child: isWeb
-            ? _buildWebLayout(context, screenHeight)
-            : _buildMobileLayout(context, screenHeight),
+      body: Stack(
+        children: [
+          GradientBackground(
+            child: isWeb
+                ? _buildWebLayout(context, screenHeight)
+                : _buildMobileLayout(context, screenHeight),
+          ),
+          Consumer<ClassDetailViewModel>(
+            builder: (context, viewModel, child) {
+              if (viewModel.isProcessing || (viewModel.isLoading && viewModel.classStudents.isEmpty)) {
+                return const LoadingOverlay();
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -121,7 +203,16 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: CustomSearchBar(onChanged: (value) {}, hintText: 'Cari...'),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomSearchBar(
+                    onChanged: (value) {},
+                    hintText: 'Cari...',
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 20),
           Consumer<LoginViewModel>(
@@ -155,7 +246,7 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
-              vertical: 8.0,
+              vertical: 16.0,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,6 +258,46 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter',
                   ),
+                ),
+                const SizedBox(height: 16),
+                DropdownAddUser(
+                  onChanged: (value) {
+                  },
+                ),
+                const SizedBox(height: 24),
+                Consumer<ClassDetailViewModel>(
+                  builder: (context, viewModel, _) {
+                    return StudentListTable(
+                      students: viewModel.classStudents,
+                      onDelete: (student) {
+                        // If student.id is 0, resolve the real userId from master list
+                        int actualUserId = student.id;
+                        if (student.id == 0 && student.nrp.isNotEmpty) {
+                          // Find the real user by NRP in the master users list
+                          final masterUser = viewModel.users.firstWhere(
+                            (u) => u.nrp == student.nrp,
+                            orElse: () => student,
+                          );
+                          actualUserId = masterUser.id;
+                        }
+                        
+                        CustomModal.show(
+                          context,
+                          title: 'Konfirmasi Hapus',
+                          message: 'Apakah Anda yakin ingin menghapus ${student.name} dari kelas ini?',
+                          primaryButtonText: 'Hapus',
+                          secondaryButtonText: 'Batal',
+                          onPrimaryPressed: () {
+                            Navigator.pop(context);
+                            viewModel.removeUserFromClass(actualUserId);
+                          },
+                          onSecondaryPressed: () {
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),

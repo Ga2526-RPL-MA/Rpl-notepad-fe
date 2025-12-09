@@ -80,14 +80,14 @@ Future<void> main() async {
       await NotificationService.instance.requestPermissions();
     }
 
+    // Alice (HTTP Inspector)
+    final alice = getIt<ApiService>().alice;
+    alice.setNavigatorKey(navigatorKey);
+
     if (kIsWeb) {
       runApp(const MyApp());
       return;
     }
-
-    // Alice (HTTP Inspector)
-    final alice = getIt<ApiService>().alice;
-    alice.setNavigatorKey(navigatorKey);
 
     // Get initial connectivity state
     final connectivityResult = await Connectivity().checkConnectivity();

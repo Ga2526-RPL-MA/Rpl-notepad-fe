@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entitites/user.dart';
+import '../../domain/entities/user.dart';
 
 class UserDto extends Equatable {
   final int id;
@@ -26,10 +26,10 @@ class UserDto extends Equatable {
 
   // Convert JSON to DTO
   factory UserDto.fromJson(Map<String, dynamic> json) => UserDto(
-        id: json['id'] as int,
-        name: json['name'] as String,
-        nrp: json['nrp'] as String,
-        email: json['email'] as String,
+        id: (json['id'] as int?) ?? 0,
+        name: (json['name'] as String?) ?? '',
+        nrp: (json['nrp'] as String?) ?? '',
+        email: (json['email'] as String?) ?? '',
         password: json['password'] as String?,
         role: (json['role'] as String?) ?? 'user',
         classes: (json['classes'] as List<dynamic>?) ?? [],

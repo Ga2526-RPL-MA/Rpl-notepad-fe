@@ -40,11 +40,13 @@ class CustomModal extends StatelessWidget {
     Color? textColor,
     bool barrierDismissible = true,
     Color? barrierColor,
+    bool useRootNavigator = true,
   }) {
     return showDialog<T>(
       context: context,
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor ?? const Color(0x52000000),
+      useRootNavigator: useRootNavigator,
       builder: (BuildContext context) {
         return CustomModal(
           title: title,

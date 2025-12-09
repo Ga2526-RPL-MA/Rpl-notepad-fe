@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:rpl_notepad_fe/features/auth/domain/entitites/user.dart';
+import 'package:rpl_notepad_fe/features/auth/domain/entities/user.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/entities/class.dart';
 
 class GetTaskDto extends Equatable {

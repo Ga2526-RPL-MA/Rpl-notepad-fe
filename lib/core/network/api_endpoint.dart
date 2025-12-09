@@ -35,6 +35,10 @@ enum APIEndpoint {
   searchAnswers,
   searchSubAnswers,
   searchNotes,
+  getAllUsers,
+  getUsersByClass,
+  addUserClass,
+  deleteUserClass
 }
 
 extension APIEndpointExtension on APIEndpoint {
@@ -108,6 +112,14 @@ extension APIEndpointExtension on APIEndpoint {
         return "/sub-answers/search";
       case APIEndpoint.searchNotes:
         return "/notes/search";
+      case APIEndpoint.getAllUsers:
+        return "/users";
+      case APIEndpoint.getUsersByClass:
+        return "/userClasses/byclass";
+      case APIEndpoint.addUserClass:
+        return "/userClasses";
+      case APIEndpoint.deleteUserClass:
+        return "/userClasses";
     }
   }
 

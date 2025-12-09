@@ -252,6 +252,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                                           MaterialPageRoute(
                                                             builder: (context) =>
                                                                 ClassDetailPage(
+                                                                  classId:
+                                                                      classDto.id,
                                                                   className:
                                                                       item['className'],
                                                                   classTime:
@@ -430,6 +432,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                                         MaterialPageRoute(
                                                           builder: (context) =>
                                                               ClassDetailPage(
+                                                                classId:
+                                                                    classDto.id,
                                                                 className:
                                                                     item['className'],
                                                                 classTime:
