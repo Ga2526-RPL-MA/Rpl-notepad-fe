@@ -3,15 +3,282 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/core/utils/pdf_handler.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
+import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
 import 'package:rpl_notepad_fe/features/note/domain/entities/note.dart';
 import 'package:rpl_notepad_fe/features/note/presentation/view/pdf_viewer_screen.dart';
+import 'package:rpl_notepad_fe/features/note/presentation/viewmodel/note_viewmodel.dart';
 
-class NoteDetailBottomSheet extends StatelessWidget {
+class NoteDetailBottomSheet extends StatefulWidget {
   final Note note;
+  final NoteViewModel noteViewModel;
 
-  const NoteDetailBottomSheet({super.key, required this.note});
+  const NoteDetailBottomSheet({
+    super.key,
+    required this.note,
+    required this.noteViewModel,
+  });
+
+  @override
+  State<NoteDetailBottomSheet> createState() => _NoteDetailBottomSheetState();
+}
+
+class _NoteDetailBottomSheetState extends State<NoteDetailBottomSheet> {
+  late Note _note;
+
+  @override
+  void initState() {
+    super.initState();
+    _note = widget.note;
+  }
+
+  bool _isOwner() {
+    final current = AuthService.userName;
+    if (current == null || current.isEmpty) return false;
+    return _note.userName == current;
+  }
+
+  Future<void> _showEditDialog(BuildContext context) async {
+    final controller = TextEditingController(text: _note.content ?? '');
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Edit Catatan'),
+          content: TextField(
+            controller: controller,
+            maxLines: 6,
+            decoration: const InputDecoration(hintText: 'Tulis catatan...'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Simpan'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != true) return;
+
+    final newContent = controller.text.trim();
+    OverlayEntry? overlay;
+    try {
+      if (context.mounted) {
+        final overlayState = Overlay.of(context, rootOverlay: true);
+        overlay = OverlayEntry(builder: (_) => const LoadingOverlay());
+        overlayState.insert(overlay);
+      }
+
+      await widget.noteViewModel.updateNote(
+        noteId: _note.id,
+        content: newContent,
+      );
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        showAppToast(
+          context,
+          message: 'Catatan berhasil diperbarui',
+          type: AppToastType.success,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } finally {
+      overlay?.remove();
+    }
+  }
+
+  Future<void> _confirmDeleteFile(BuildContext context, int fileId) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Hapus File'),
+          content: const Text('Yakin ingin menghapus file ini?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != true) return;
+
+    OverlayEntry? overlay;
+    bool success = false;
+    try {
+      if (context.mounted) {
+        final overlayState = Overlay.of(context, rootOverlay: true);
+        overlay = OverlayEntry(builder: (_) => const LoadingOverlay());
+        overlayState.insert(overlay);
+      }
+
+      success = await widget.noteViewModel.deleteNoteFile(fileId);
+
+      // Refresh local note from latest data
+      final latest = widget.noteViewModel.allNotes
+          .where((n) => n.id == _note.id)
+          .toList();
+      if (latest.isNotEmpty && mounted) {
+        setState(() {
+          _note = latest.first;
+        });
+      }
+
+      if (context.mounted) {
+        showAppToast(
+          context,
+          message: success
+              ? 'File berhasil dihapus'
+              : 'Gagal menghapus file. Coba lagi.',
+          type: success ? AppToastType.success : AppToastType.error,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } finally {
+      overlay?.remove();
+    }
+  }
+
+  Future<void> _addFiles(BuildContext context) async {
+    final res = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf'],
+      allowMultiple: true,
+      withData: true,
+    );
+
+    if (res == null || res.files.isEmpty) {
+      return;
+    }
+
+    final picked = res.files
+        .where((f) => (f.extension?.toLowerCase() == 'pdf'))
+        .toList();
+
+    if (picked.isEmpty) {
+      showAppToast(
+        context,
+        message: 'Tidak ada PDF yang dipilih',
+        type: AppToastType.info,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (picked.length > 5) {
+      showAppToast(
+        context,
+        message: 'Maksimal 5 PDF. Diambil 5 pertama.',
+        type: AppToastType.warning,
+        duration: const Duration(seconds: 3),
+      );
+    }
+
+    final limited = picked.take(5).toList();
+
+    OverlayEntry? overlay;
+    bool success = false;
+    try {
+      if (context.mounted) {
+        final overlayState = Overlay.of(context);
+        overlay = OverlayEntry(builder: (_) => const LoadingOverlay());
+        overlayState.insert(overlay);
+      }
+
+      success = await widget.noteViewModel.addFilesToNote(
+        noteId: _note.id,
+        files: limited,
+      );
+
+      if (context.mounted && success) {
+        // Refresh local note from latest data
+        final latest = widget.noteViewModel.allNotes
+            .where((n) => n.id == _note.id)
+            .toList();
+        if (latest.isNotEmpty) {
+          setState(() {
+            _note = latest.first;
+          });
+        }
+        showAppToast(
+          context,
+          message: 'File berhasil ditambahkan',
+          type: AppToastType.success,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } finally {
+      overlay?.remove();
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Hapus Catatan'),
+          content: const Text('Yakin ingin menghapus catatan ini?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != true) return;
+
+    OverlayEntry? overlay;
+    bool success = false;
+    try {
+      if (context.mounted) {
+        final overlayState = Overlay.of(context);
+        overlay = OverlayEntry(builder: (_) => const LoadingOverlay());
+        overlayState.insert(overlay);
+      }
+
+      success = await widget.noteViewModel.deleteNote(_note.id);
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        showAppToast(
+          context,
+          message: success
+              ? 'Catatan berhasil dihapus'
+              : 'Gagal menghapus catatan. Coba lagi.',
+          type: success ? AppToastType.success : AppToastType.error,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } finally {
+      overlay?.remove();
+    }
+  }
 
   Future<void> _openPdfFromUrl(
     BuildContext ctx,
@@ -82,6 +349,7 @@ class NoteDetailBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isOwner = _isOwner();
     if (kIsWeb) {
       final size = MediaQuery.of(context).size;
       final panelWidth = size.width * 0.5;
@@ -120,7 +388,7 @@ class NoteDetailBottomSheet extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          'Catatan : ${note.userName ?? 'Anonymous'}',
+                          'Catatan : ${_note.userName ?? 'Anonymous'}',
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
@@ -128,6 +396,18 @@ class NoteDetailBottomSheet extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (isOwner) ...[
+                        IconButton(
+                          tooltip: 'Edit Catatan',
+                          icon: const Icon(Icons.edit_outlined),
+                          onPressed: () => _showEditDialog(context),
+                        ),
+                        IconButton(
+                          tooltip: 'Hapus Catatan',
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () => _confirmDelete(context),
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -144,30 +424,28 @@ class NoteDetailBottomSheet extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (note.noteFiles.isNotEmpty) ...[
+                              if (_note.noteFiles.isNotEmpty) ...[
                                 ListView.separated(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: note.noteFiles.length,
+                                  itemCount: _note.noteFiles.length,
                                   separatorBuilder: (_, __) =>
                                       const SizedBox(height: 8),
                                   itemBuilder: (ctx2, i) {
-                                    final f = note.noteFiles[i];
-                                    final path = (f.filePath ?? '').trim();
+                                    // Di dalam itemBuilder ListView.separated (WEB)
+                                    final f = _note.noteFiles[i];
+                                    final url = f.url ?? '';
+                                    final name = 'Lampiran ${i + 1}';
 
-                                    final segments = path
-                                        .split(RegExp(r'[\\/]+'))
-                                        .where((s) => s.isNotEmpty)
-                                        .toList();
+                                    print(
+                                      'DEBUG NOTE FILE (web) -> id=${f.id}, url=$url',
+                                    );
 
-                                    final name = segments.isEmpty
-                                        ? 'Lampiran ${i + 1}'
-                                        : segments.last;
-
-                                    final fullUrl = path.startsWith("http")
-                                        ? path
-                                        : "https://qpmbyhqiflwnosxlgzfe.supabase.co/storage/v1/object/public/notes/$path";
-
+                                    if (url.isEmpty) {
+                                      print(
+                                        'WARNING: Empty URL for note file id=${f.id}',
+                                      );
+                                    }
                                     return Container(
                                       decoration: BoxDecoration(
                                         color: Colors.grey[100],
@@ -192,36 +470,60 @@ class NoteDetailBottomSheet extends StatelessWidget {
                                               ),
                                             ),
                                             onTap: () async {
-                                              if (path.isEmpty) {
+                                              if (url.isEmpty) {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
                                                   const SnackBar(
                                                     content: Text(
-                                                      "Path kosong",
+                                                      "URL tidak tersedia",
                                                     ),
                                                   ),
                                                 );
                                                 return;
                                               }
 
-                                              _openPdfInNewTab(fullUrl);
+                                              _openPdfInNewTab(url);
                                             },
                                           ),
                                           Positioned(
                                             top: 0,
                                             right: 0,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.all(8),
-                                              constraints:
-                                                  const BoxConstraints(),
-                                              icon: const Icon(
-                                                Icons.open_in_new,
-                                                size: 16,
-                                              ),
-                                              onPressed: () async {
-                                                _openPdfInNewTab(fullUrl);
-                                              },
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  padding: const EdgeInsets.all(
+                                                    8,
+                                                  ),
+                                                  constraints:
+                                                      const BoxConstraints(),
+                                                  icon: const Icon(
+                                                    Icons.open_in_new,
+                                                    size: 16,
+                                                  ),
+                                                  onPressed: () async {
+                                                    _openPdfInNewTab(url);
+                                                  },
+                                                ),
+                                                if (isOwner)
+                                                  IconButton(
+                                                    padding:
+                                                        const EdgeInsets.all(8),
+                                                    constraints:
+                                                        const BoxConstraints(),
+                                                    icon: const Icon(
+                                                      Icons.delete_outline,
+                                                      size: 16,
+                                                    ),
+                                                    onPressed: () {
+                                                      _confirmDeleteFile(
+                                                        context,
+                                                        f.id,
+                                                      );
+                                                    },
+                                                  ),
+                                              ],
                                             ),
                                           ),
                                         ],
@@ -231,9 +533,21 @@ class NoteDetailBottomSheet extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 12),
                               ],
-                              if ((note.content?.trim().isNotEmpty ?? false))
+                              if (isOwner)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: TextButton.icon(
+                                    onPressed: () => _addFiles(context),
+                                    icon: const Icon(
+                                      Icons.attach_file,
+                                      size: 18,
+                                    ),
+                                    label: const Text('Tambah PDF'),
+                                  ),
+                                ),
+                              if ((_note.content?.trim().isNotEmpty ?? false))
                                 Text(
-                                  note.content!,
+                                  _note.content!,
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: Color(0xFF131927),
@@ -276,7 +590,7 @@ class NoteDetailBottomSheet extends StatelessWidget {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    'Catatan : ${note.userName ?? 'Anonymous'}',
+                    'Catatan : ${_note.userName ?? 'Anonymous'}',
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
@@ -284,6 +598,18 @@ class NoteDetailBottomSheet extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (isOwner) ...[
+                  IconButton(
+                    tooltip: 'Edit Catatan',
+                    icon: const Icon(Icons.edit_outlined),
+                    onPressed: () => _showEditDialog(context),
+                  ),
+                  IconButton(
+                    tooltip: 'Hapus Catatan',
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () => _confirmDelete(context),
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 12),
@@ -300,29 +626,27 @@ class NoteDetailBottomSheet extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (note.noteFiles.isNotEmpty) ...[
+                      if (_note.noteFiles.isNotEmpty) ...[
                         ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: note.noteFiles.length,
+                          itemCount: _note.noteFiles.length,
                           separatorBuilder: (_, __) =>
                               const SizedBox(height: 8),
                           itemBuilder: (ctx2, i) {
-                            final f = note.noteFiles[i];
-                            final path = (f.filePath ?? '').trim();
+                            final f = _note.noteFiles[i];
+                            final url = f.url ?? '';
+                            final name = 'Lampiran ${i + 1}';
 
-                            final segments = path
-                                .split(RegExp(r'[\\/]+'))
-                                .where((s) => s.isNotEmpty)
-                                .toList();
+                            print(
+                              'DEBUG NOTE FILE (mobile) -> id=${f.id}, url=$url',
+                            );
 
-                            final name = segments.isEmpty
-                                ? 'Lampiran ${i + 1}'
-                                : segments.last;
-
-                            final fullUrl = path.startsWith("http")
-                                ? path
-                                : "https://qpmbyhqiflwnosxlgzfe.supabase.co/storage/v1/object/public/notes/$path";
+                            if (url.isEmpty) {
+                              print(
+                                'WARNING: Empty URL for note file id=${f.id}',
+                              );
+                            }
 
                             return Container(
                               decoration: BoxDecoration(
@@ -345,51 +669,59 @@ class NoteDetailBottomSheet extends StatelessWidget {
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                     onTap: () async {
-                                      if (path.isEmpty) {
+                                      if (url.isEmpty) {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
                                           const SnackBar(
-                                            content: Text("Path kosong"),
+                                            content: Text("URL tidak tersedia"),
                                           ),
                                         );
                                         return;
                                       }
 
-                                      if (kIsWeb) {
-                                        _openPdfInNewTab(fullUrl);
-                                        return;
-                                      }
-
-                                      await _openPdfFromUrl(
-                                        context,
-                                        fullUrl,
-                                        name,
-                                      );
+                                      await _openPdfFromUrl(context, url, name);
                                     },
                                   ),
                                   Positioned(
                                     top: 0,
                                     right: 0,
-                                    child: IconButton(
-                                      padding: const EdgeInsets.all(8),
-                                      constraints: const BoxConstraints(),
-                                      icon: const Icon(
-                                        Icons.open_in_new,
-                                        size: 16,
-                                      ),
-                                      onPressed: () async {
-                                        if (kIsWeb) {
-                                          _openPdfInNewTab(fullUrl);
-                                          return;
-                                        }
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          padding: const EdgeInsets.all(8),
+                                          constraints: const BoxConstraints(),
+                                          icon: const Icon(
+                                            Icons.open_in_new,
+                                            size: 16,
+                                          ),
+                                          onPressed: () async {
+                                            if (kIsWeb) {
+                                              _openPdfInNewTab(url);
+                                              return;
+                                            }
 
-                                        await _openPdfFromUrl(
-                                          context,
-                                          fullUrl,
-                                          name,
-                                        );
-                                      },
+                                            await _openPdfFromUrl(
+                                              context,
+                                              url,
+                                              name,
+                                            );
+                                          },
+                                        ),
+                                        if (isOwner)
+                                          IconButton(
+                                            padding: const EdgeInsets.all(8),
+                                            constraints: const BoxConstraints(),
+                                            icon: const Icon(
+                                              Icons.delete_outline,
+                                              size: 16,
+                                            ),
+                                            onPressed: () {
+                                              _confirmDeleteFile(context, f.id);
+                                            },
+                                          ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -399,9 +731,18 @@ class NoteDetailBottomSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                       ],
-                      if ((note.content?.trim().isNotEmpty ?? false))
+                      if (isOwner)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton.icon(
+                            onPressed: () => _addFiles(context),
+                            icon: const Icon(Icons.attach_file, size: 18),
+                            label: const Text('Tambah PDF'),
+                          ),
+                        ),
+                      if ((_note.content?.trim().isNotEmpty ?? false))
                         Text(
-                          note.content!,
+                          _note.content!,
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF131927),

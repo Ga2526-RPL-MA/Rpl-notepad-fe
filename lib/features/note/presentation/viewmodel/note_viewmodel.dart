@@ -8,6 +8,7 @@ import 'package:rpl_notepad_fe/features/note/domain/entities/note.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/create_note_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/create_note_files_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_usecase.dart';
+import 'package:rpl_notepad_fe/features/note/domain/usecases/delete_note_file_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/get_notes_usecase.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/update_note_usecase.dart';
 
@@ -17,6 +18,7 @@ class NoteViewModel extends ChangeNotifier {
   final CreateNoteFilesUsecase _createNoteFilesUsecase;
   final UpdateNoteUsecase _updateNoteUsecase;
   final DeleteNoteUsecase _deleteNoteUsecase;
+  final DeleteNoteFileUsecase _deleteNoteFileUsecase;
 
   NoteViewModel({
     required GetNotesUsecase getNotesUsecase,
@@ -24,11 +26,13 @@ class NoteViewModel extends ChangeNotifier {
     required UpdateNoteUsecase updateNoteUsecase,
     required DeleteNoteUsecase deleteNoteUsecase,
     required CreateNoteFilesUsecase createNoteFilesUsecase,
+    required DeleteNoteFileUsecase deleteNoteFileUsecase,
   }) : _getNotesUsecase = getNotesUsecase,
        _createNoteUsecase = createNoteUsecase,
        _updateNoteUsecase = updateNoteUsecase,
        _deleteNoteUsecase = deleteNoteUsecase,
-       _createNoteFilesUsecase = createNoteFilesUsecase;
+       _createNoteFilesUsecase = createNoteFilesUsecase,
+       _deleteNoteFileUsecase = deleteNoteFileUsecase;
 
   List<Note> _notes = [];
   List<Note> _filteredNotes = [];
@@ -117,12 +121,6 @@ class NoteViewModel extends ChangeNotifier {
   // Fetch notes from repository
   Future<void> fetchNotes() async {
     log('fetchNotes() called', name: 'NoteViewModel');
-
-    if (_isLoading) {
-      log('fetchNotes() - Already loading, skipping', name: 'NoteViewModel');
-      return;
-    }
-
     try {
       _isLoading = true;
       _errorMessage = null;
@@ -233,6 +231,69 @@ class NoteViewModel extends ChangeNotifier {
     }
   }
 
+  // Add files to an existing note
+  Future<bool> addFilesToNote({
+    required int noteId,
+    required List<PlatformFile> files,
+  }) async {
+    if (files.isEmpty) return false;
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _createNoteFilesUsecase.execute(noteId: noteId, files: files);
+
+      // Refresh notes to get updated file list
+      await fetchNotes();
+
+      _isLoading = false;
+      notifyListeners();
+
+      return true;
+    } catch (e, stackTrace) {
+      log(
+        'addFilesToNote() - Error: $e',
+        name: 'NoteViewModel',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      _errorMessage = 'Failed to add files. Please try again.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Delete a file from an existing note
+  Future<bool> deleteNoteFile(int fileId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _deleteNoteFileUsecase.execute(fileId);
+
+      // Refresh notes to get updated file list
+      await fetchNotes();
+
+      _isLoading = false;
+      notifyListeners();
+
+      return true;
+    } catch (e, stackTrace) {
+      log(
+        'deleteNoteFile() - Error: $e',
+        name: 'NoteViewModel',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      _errorMessage = 'Failed to delete file. Please try again.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   // Update note
   Future<bool> updateNote({required int noteId, String? content}) async {
     try {
@@ -241,8 +302,19 @@ class NoteViewModel extends ChangeNotifier {
 
       await _updateNoteUsecase.execute(noteId: noteId, content: content);
 
-      // Refresh the notes list after successful update
-      await fetchNotes();
+      // Update the local list so order is preserved
+      final index = _notes.indexWhere((n) => n.id == noteId);
+      if (index != -1) {
+        final existing = _notes[index];
+        _notes[index] = Note(
+          id: existing.id,
+          userName: existing.userName,
+          content: content ?? existing.content,
+          weekId: existing.weekId,
+          noteFiles: existing.noteFiles,
+        );
+        _filterNotes();
+      }
 
       _isLoading = false;
       notifyListeners();

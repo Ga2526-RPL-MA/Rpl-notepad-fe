@@ -5,8 +5,14 @@ class GetNoteFileDto extends Equatable {
   final int id;
   final String? filePath;
   final int noteId;
+  final String? url;
 
-  const GetNoteFileDto({required this.id, this.filePath, required this.noteId});
+  const GetNoteFileDto({
+    required this.id,
+    this.filePath,
+    required this.noteId,
+    this.url,
+  });
 
   // Convert JSON to DTO
   factory GetNoteFileDto.fromJson(Map<String, dynamic> json) {
@@ -14,6 +20,7 @@ class GetNoteFileDto extends Equatable {
       id: json['id'] as int,
       filePath: json['filePath'] as String?,
       noteId: json['noteId'] as int,
+      url: json['url'] as String?,
     );
   }
 
@@ -22,11 +29,12 @@ class GetNoteFileDto extends Equatable {
     'id': id,
     'filePath': filePath,
     'noteId': noteId,
+    'url': url,
   };
 
   // Convert DTO to Entity
   NoteFile toEntity() {
-    return NoteFile(id: id, filePath: filePath, noteId: noteId);
+    return NoteFile(id: id, filePath: filePath, noteId: noteId, url: url);
   }
 
   // Convert Entity to DTO
@@ -35,18 +43,25 @@ class GetNoteFileDto extends Equatable {
       id: entity.id,
       filePath: entity.filePath,
       noteId: entity.noteId,
+      url: entity.url,
     );
   }
 
   // Copy DTO
-  GetNoteFileDto copyWith({int? id, String? filePath, int? noteId}) {
+  GetNoteFileDto copyWith({
+    int? id,
+    String? filePath,
+    int? noteId,
+    String? url,
+  }) {
     return GetNoteFileDto(
       id: id ?? this.id,
       filePath: filePath ?? this.filePath,
       noteId: noteId ?? this.noteId,
+      url: url ?? this.url,
     );
   }
 
   @override
-  List<Object?> get props => [id, filePath, noteId];
+  List<Object?> get props => [id, filePath, noteId, url];
 }

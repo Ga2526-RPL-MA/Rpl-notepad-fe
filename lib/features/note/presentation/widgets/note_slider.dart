@@ -150,6 +150,7 @@ class NoteSlider extends StatelessWidget {
                                         alignment: Alignment.centerRight,
                                         child: NoteDetailBottomSheet(
                                           note: note,
+                                          noteViewModel: noteVM,
                                         ),
                                       );
                                     },
@@ -181,7 +182,10 @@ class NoteSlider extends StatelessWidget {
                                       ),
                                     ),
                                     builder: (ctx) {
-                                      return NoteDetailBottomSheet(note: note);
+                                      return NoteDetailBottomSheet(
+                                        note: note,
+                                        noteViewModel: noteVM,
+                                      );
                                     },
                                   );
                                 }

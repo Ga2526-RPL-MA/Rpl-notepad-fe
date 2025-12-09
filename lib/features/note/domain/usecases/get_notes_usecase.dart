@@ -18,8 +18,12 @@ class GetNotesUsecase {
       final noteFilesForThisNote = allNoteFilesDto
           .where((nf) => nf.noteId == dto.id)
           .map(
-            (nf) =>
-                NoteFile(id: nf.id, filePath: nf.filePath, noteId: nf.noteId),
+            (nf) => NoteFile(
+              id: nf.id,
+              filePath: nf.filePath,
+              noteId: nf.noteId,
+              url: nf.url,
+            ),
           )
           .toList();
 
@@ -46,8 +50,12 @@ class GetNotesUsecase {
       final noteFilesForThisNote = allNoteFilesDto
           .where((nf) => nf.noteId == dto.id)
           .map(
-            (nf) =>
-                NoteFile(id: nf.id, filePath: nf.filePath, noteId: nf.noteId),
+            (nf) => NoteFile(
+              id: nf.id,
+              filePath: nf.filePath,
+              noteId: nf.noteId,
+              url: nf.url,
+            ),
           )
           .toList();
 
