@@ -6,6 +6,7 @@ class Note extends Equatable {
   final String? userName;
   final String? content;
   final int weekId;
+  final int? weekNumber;
   final List<NoteFile> noteFiles;
 
   const Note({
@@ -13,9 +14,10 @@ class Note extends Equatable {
     this.userName,
     this.content,
     required this.weekId,
+    this.weekNumber,
     this.noteFiles = const [],
   });
 
   @override
-  List<Object?> get props => [id, userName, content, weekId, noteFiles];
+  List<Object?> get props => [id, userName, content, weekId, weekNumber, noteFiles];
 }

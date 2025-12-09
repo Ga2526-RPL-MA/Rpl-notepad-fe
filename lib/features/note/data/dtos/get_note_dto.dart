@@ -7,6 +7,7 @@ class GetNoteDto extends Equatable {
   final String? userName;
   final String? content;
   final int weekId;
+  final int? weekNumber;
   final List<GetNoteFileDto> noteFiles;
 
   const GetNoteDto({
@@ -14,16 +15,28 @@ class GetNoteDto extends Equatable {
     this.userName,
     this.content,
     required this.weekId,
+    this.weekNumber,
     this.noteFiles = const [],
   });
 
   // Convert JSON to DTO
   factory GetNoteDto.fromJson(Map<String, dynamic> json) {
+    // Parse week number - handle both Map and int formats
+    int? weekNumber;
+    if (json['week'] != null) {
+      if (json['week'] is Map) {
+        weekNumber = json['week']['week'] as int?;
+      } else if (json['week'] is int) {
+        weekNumber = json['week'] as int;
+      }
+    }
+    
     return GetNoteDto(
       id: json['id'] as int,
       userName: json['userName'] as String?,
       content: json['content'] as String?,
       weekId: json['weekId'] as int,
+      weekNumber: weekNumber,
       noteFiles:
           (json['noteFiles'] as List<dynamic>?)
               ?.map(
@@ -41,6 +54,7 @@ class GetNoteDto extends Equatable {
     'userName': userName,
     'content': content,
     'weekId': weekId,
+    'weekNumber': weekNumber,
     'noteFiles': noteFiles.map((noteFile) => noteFile.toJson()).toList(),
   };
 
@@ -51,6 +65,7 @@ class GetNoteDto extends Equatable {
       userName: userName,
       content: content,
       weekId: weekId,
+      weekNumber: weekNumber,
       noteFiles: noteFiles.map((dto) => dto.toEntity()).toList(),
     );
   }
@@ -62,6 +77,7 @@ class GetNoteDto extends Equatable {
       userName: entity.userName,
       content: entity.content,
       weekId: entity.weekId,
+      weekNumber: entity.weekNumber,
       noteFiles: entity.noteFiles
           .map((noteFile) => GetNoteFileDto.fromEntity(noteFile))
           .toList(),
@@ -74,6 +90,7 @@ class GetNoteDto extends Equatable {
     String? userName,
     String? content,
     int? weekId,
+    int? weekNumber,
     List<GetNoteFileDto>? noteFiles,
   }) {
     return GetNoteDto(
@@ -81,10 +98,11 @@ class GetNoteDto extends Equatable {
       userName: userName ?? this.userName,
       content: content ?? this.content,
       weekId: weekId ?? this.weekId,
+      weekNumber: weekNumber ?? this.weekNumber,
       noteFiles: noteFiles ?? this.noteFiles,
     );
   }
 
   @override
-  List<Object?> get props => [id, userName, content, weekId, noteFiles];
+  List<Object?> get props => [id, userName, content, weekId, weekNumber, noteFiles];
 }

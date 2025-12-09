@@ -47,6 +47,8 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/admin/add-class');
             } else if (pageKey == 'diskusi') {
               Navigator.pushNamed(context, '/admin/discussion');
+            } else if (pageKey == 'catatan') {
+              Navigator.pushNamed(context, '/admin/note');
             }
           } else {
             if (pageKey == 'diskusi') {
@@ -179,6 +181,12 @@ class MenuDrawer extends StatelessWidget {
                       iconPath: 'assets/icon/discussion-icon.png',
                       label: 'Diskusi',
                       pageKey: 'diskusi',
+                    ),
+                    const SizedBox(height: 16),
+                    menuItem(
+                      iconPath: 'assets/icon/task-icon.png',
+                      label: 'Catatan',
+                      pageKey: 'catatan',
                     ),
                   ] else ...[
                     menuItem(

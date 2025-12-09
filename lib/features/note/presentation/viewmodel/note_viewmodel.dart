@@ -311,6 +311,7 @@ class NoteViewModel extends ChangeNotifier {
           userName: existing.userName,
           content: content ?? existing.content,
           weekId: existing.weekId,
+          weekNumber: existing.weekNumber,
           noteFiles: existing.noteFiles,
         );
         _filterNotes();
@@ -371,6 +372,7 @@ class NoteViewModel extends ChangeNotifier {
             'userName': n.userName,
             'content': n.content,
             'weekId': n.weekId,
+            'weekNumber': n.weekNumber,
             'noteFiles': n.noteFiles
                 .map(
                   (f) => {
@@ -398,6 +400,7 @@ class NoteViewModel extends ChangeNotifier {
         userName: mm['userName'] as String?,
         content: mm['content'] as String?,
         weekId: (mm['weekId'] as num).toInt(),
+        weekNumber: mm['weekNumber'] != null ? (mm['weekNumber'] as num).toInt() : null,
         noteFiles: [], // Files not cached for simplicity
       );
     }).toList();
