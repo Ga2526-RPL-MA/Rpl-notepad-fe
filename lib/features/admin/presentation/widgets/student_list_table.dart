@@ -4,22 +4,24 @@ import 'package:rpl_notepad_fe/features/auth/data/dtos/user_dto.dart';
 class StudentListTable extends StatelessWidget {
   final List<UserDto> students;
   final void Function(UserDto student)? onDelete;
+  final bool isSearching;
 
   const StudentListTable({
-    super.key, 
+    super.key,
     required this.students,
     this.onDelete,
+    this.isSearching = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (students.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 200,
         child: Center(
           child: Text(
-            'Belum ada mahasiswa',
-            style: TextStyle(
+            isSearching ? 'Tidak ditemukan' : 'Belum ada mahasiswa',
+            style: const TextStyle(
               color: Colors.black54,
               fontSize: 14,
               fontFamily: 'Inter',
@@ -31,9 +33,7 @@ class StudentListTable extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Table(
         columnWidths: const {
           0: FixedColumnWidth(80),
@@ -62,10 +62,7 @@ class StudentListTable extends StatelessWidget {
           ...students.asMap().entries.map((entry) {
             final index = entry.key;
             final student = entry.value;
-            return _buildDataRow(
-              index + 1,
-              student,
-            );
+            return _buildDataRow(index + 1, student);
           }).toList(),
         ],
       ),

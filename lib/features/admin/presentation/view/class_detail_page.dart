@@ -12,7 +12,6 @@ import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_all_users_usec
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/class_detail_view_model.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/widgets/dropdown_add_user.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/widgets/student_list_table.dart';
-import 'package:rpl_notepad_fe/features/auth/data/dtos/user_dto.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
@@ -20,7 +19,6 @@ import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.d
 import 'package:rpl_notepad_fe/features/admin/domain/usecases/add_user_to_class_usecase.dart';
 import 'package:rpl_notepad_fe/features/admin/domain/usecases/delete_user_from_class_usecase.dart';
 import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_users_by_class_usecase.dart';
-
 
 class ClassDetailPage extends StatefulWidget {
   final int classId;
@@ -45,15 +43,9 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ClassDetailViewModel(
-        getAllUsersUseCase: GetAllUsersUseCase(
-          AdminRepositoryImpl(),
-        ),
-        getUsersByClassUseCase: GetUsersByClassUseCase(
-          AdminRepositoryImpl(),
-        ),
-        addUserToClassUseCase: AddUserToClassUseCase(
-          AdminRepositoryImpl(),
-        ),
+        getAllUsersUseCase: GetAllUsersUseCase(AdminRepositoryImpl()),
+        getUsersByClassUseCase: GetUsersByClassUseCase(AdminRepositoryImpl()),
+        addUserToClassUseCase: AddUserToClassUseCase(AdminRepositoryImpl()),
         deleteUserFromClassUseCase: DeleteUserFromClassUseCase(
           AdminRepositoryImpl(),
         ),
@@ -86,7 +78,6 @@ class _ClassDetailPageContent extends StatefulWidget {
       _ClassDetailPageContentState();
 }
 
-
 class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
   @override
   void initState() {
@@ -111,7 +102,8 @@ class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
           ),
           Consumer<ClassDetailViewModel>(
             builder: (context, viewModel, child) {
-              if (viewModel.isProcessing || (viewModel.isLoading && viewModel.classStudents.isEmpty)) {
+              if (viewModel.isProcessing ||
+                  (viewModel.isLoading && viewModel.classStudents.isEmpty)) {
                 return const LoadingOverlay();
               }
               return const SizedBox.shrink();
@@ -207,9 +199,15 @@ class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
             child: Row(
               children: [
                 Expanded(
-                  child: CustomSearchBar(
-                    onChanged: (value) {},
-                    hintText: 'Cari...',
+                  child: Consumer<ClassDetailViewModel>(
+                    builder: (context, viewModel, _) {
+                      return CustomSearchBar(
+                        onChanged: (value) {
+                          viewModel.updateSearchQuery(value);
+                        },
+                        hintText: 'Cari Mahasiswa',
+                      );
+                    },
                   ),
                 ),
               ],
@@ -263,14 +261,14 @@ class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
                 const SizedBox(height: 16),
                 DropdownAddUser(
                   className: widget.className,
-                  onChanged: (value) {
-                  },
+                  onChanged: (value) {},
                 ),
                 const SizedBox(height: 24),
                 Consumer<ClassDetailViewModel>(
                   builder: (context, viewModel, _) {
                     return StudentListTable(
-                      students: viewModel.classStudents,
+                      students: viewModel.filteredStudents,
+                      isSearching: viewModel.isSearching,
                       onDelete: (student) {
                         int actualUserId = student.id;
                         if (student.id == 0 && student.nrp.isNotEmpty) {
@@ -280,28 +278,33 @@ class _ClassDetailPageContentState extends State<_ClassDetailPageContent> {
                           );
                           actualUserId = masterUser.id;
                         }
-                        
+
                         CustomModal.show(
                           context,
                           title: 'Konfirmasi Hapus',
-                          message: 'Apakah Anda yakin ingin menghapus ${student.name} dari kelas ini?',
+                          message:
+                              'Apakah Anda yakin ingin menghapus ${student.name} dari kelas ini?',
                           primaryButtonText: 'Hapus',
                           secondaryButtonText: 'Batal',
                           onPrimaryPressed: () {
                             Navigator.pop(context);
-                            viewModel.removeUserFromClass(actualUserId).then((_) {
+                            viewModel.removeUserFromClass(actualUserId).then((
+                              _,
+                            ) {
                               if (viewModel.error == null) {
                                 showAppToast(
                                   context,
                                   title: 'Berhasil',
-                                  message: 'Berhasil menghapus mahasiswa ${student.name} dari kelas ${widget.className}',
+                                  message:
+                                      'Berhasil menghapus mahasiswa ${student.name} dari kelas ${widget.className}',
                                   type: AppToastType.success,
                                 );
                               } else {
                                 showAppToast(
                                   context,
                                   title: 'Gagal',
-                                  message: 'Gagal menghapus mahasiswa: ${viewModel.error}',
+                                  message:
+                                      'Gagal menghapus mahasiswa: ${viewModel.error}',
                                   type: AppToastType.error,
                                 );
                               }

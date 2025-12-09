@@ -18,22 +18,44 @@ class ClassDetailViewModel extends ChangeNotifier {
     required GetUsersByClassUseCase getUsersByClassUseCase,
     required AddUserToClassUseCase addUserToClassUseCase,
     required DeleteUserFromClassUseCase deleteUserFromClassUseCase,
-  })  : _getAllUsersUseCase = getAllUsersUseCase,
-        _getUsersByClassUseCase = getUsersByClassUseCase,
-        _addUserToClassUseCase = addUserToClassUseCase,
-        _deleteUserFromClassUseCase = deleteUserFromClassUseCase;
+  }) : _getAllUsersUseCase = getAllUsersUseCase,
+       _getUsersByClassUseCase = getUsersByClassUseCase,
+       _addUserToClassUseCase = addUserToClassUseCase,
+       _deleteUserFromClassUseCase = deleteUserFromClassUseCase;
 
   List<UserDto> _users = [];
   List<UserDto> _classStudents = [];
   bool _isLoading = false;
   bool _isProcessing = false;
   String? _error;
+  String _searchQuery = '';
 
   List<UserDto> get users => _users;
   List<UserDto> get classStudents => _classStudents;
   bool get isLoading => _isLoading;
   bool get isProcessing => _isProcessing;
   String? get error => _error;
+
+  // Filtered students based on search query
+  List<UserDto> get filteredStudents {
+    if (_searchQuery.isEmpty) {
+      return _classStudents;
+    }
+
+    final query = _searchQuery.toLowerCase();
+    return _classStudents.where((student) {
+      final nrp = student.nrp.toLowerCase();
+      final name = student.name.toLowerCase();
+      return nrp.contains(query) || name.contains(query);
+    }).toList();
+  }
+
+  bool get isSearching => _searchQuery.isNotEmpty;
+
+  void updateSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
 
   static const String _usersCacheKey = 'cached_all_users';
   static const String _classStudentsCachePrefix = 'cached_class_students_';
@@ -66,7 +88,10 @@ class ClassDetailViewModel extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonList = _classStudents.map((u) => u.toJson()).toList();
-      await prefs.setString('${_classStudentsCachePrefix}$classId', jsonEncode(jsonList));
+      await prefs.setString(
+        '${_classStudentsCachePrefix}$classId',
+        jsonEncode(jsonList),
+      );
     } catch (e) {
       print('Cache class save error: $e');
     }
@@ -75,7 +100,9 @@ class ClassDetailViewModel extends ChangeNotifier {
   Future<void> _loadClassStudentsFromCache(int classId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonString = prefs.getString('${_classStudentsCachePrefix}$classId');
+      final jsonString = prefs.getString(
+        '${_classStudentsCachePrefix}$classId',
+      );
       if (jsonString != null) {
         final List<dynamic> jsonList = jsonDecode(jsonString);
         _classStudents = jsonList.map((j) => UserDto.fromJson(j)).toList();
@@ -88,7 +115,7 @@ class ClassDetailViewModel extends ChangeNotifier {
 
   Future<void> fetchUsers() async {
     await _loadUsersFromCache();
-    
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -110,7 +137,7 @@ class ClassDetailViewModel extends ChangeNotifier {
 
   Future<void> fetchClassStudents(int classId) async {
     _currentClassId = classId;
-    
+
     await _loadClassStudentsFromCache(classId);
 
     _isLoading = true;
@@ -133,12 +160,12 @@ class ClassDetailViewModel extends ChangeNotifier {
 
   Future<void> addUserToClass(int userId) async {
     if (_currentClassId == null) return;
-    
+
     final userToAdd = _users.firstWhere(
-      (u) => u.id == userId, 
+      (u) => u.id == userId,
       orElse: () => UserDto(id: userId, name: 'Unknown', nrp: '', email: ''),
     );
-    
+
     if (!_classStudents.any((u) => u.id == userId)) {
       _classStudents.add(userToAdd);
       notifyListeners();
@@ -147,7 +174,7 @@ class ClassDetailViewModel extends ChangeNotifier {
     try {
       _isProcessing = true;
       notifyListeners();
-      
+
       await _addUserToClassUseCase(userId, _currentClassId!);
       await fetchClassStudents(_currentClassId!);
     } catch (e) {
@@ -161,9 +188,9 @@ class ClassDetailViewModel extends ChangeNotifier {
 
   Future<void> removeUserFromClass(int userId) async {
     if (_currentClassId == null) return;
-    
+
     final masterUser = _users.firstWhere(
-      (u) => u.id == userId, 
+      (u) => u.id == userId,
       orElse: () => UserDto(id: userId, name: '', nrp: '', email: ''),
     );
 
