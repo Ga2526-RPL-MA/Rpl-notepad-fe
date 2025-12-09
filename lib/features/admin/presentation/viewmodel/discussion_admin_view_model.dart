@@ -17,16 +17,41 @@ class DiscussionAdminViewModel extends ChangeNotifier {
   List<Issue> _issues = [];
   bool _isLoading = false;
   String? _error;
+  String _searchQuery = '';
 
   DiscussionAdminViewModel({
     required GetIssuesUseCase getIssuesUseCase,
     required GetAllUsersUseCase getAllUsersUseCase,
-  })  : _getIssuesUseCase = getIssuesUseCase,
-        _getAllUsersUseCase = getAllUsersUseCase;
+  }) : _getIssuesUseCase = getIssuesUseCase,
+       _getAllUsersUseCase = getAllUsersUseCase;
 
   List<Issue> get issues => _issues;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  // Filtered issues based on search query
+  List<Issue> get filteredIssues {
+    if (_searchQuery.isEmpty) {
+      return _issues;
+    }
+
+    final query = _searchQuery.toLowerCase();
+    return _issues.where((issue) {
+      final userName = issue.userName.toLowerCase();
+      final nrp = issue.nrp.toLowerCase();
+      final content = issue.content.toLowerCase();
+      return userName.contains(query) ||
+          nrp.contains(query) ||
+          content.contains(query);
+    }).toList();
+  }
+
+  bool get isSearching => _searchQuery.isNotEmpty;
+
+  void updateSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
 
   Future<void> _loadIssuesFromCache() async {
     try {
@@ -34,7 +59,9 @@ class DiscussionAdminViewModel extends ChangeNotifier {
       final jsonString = prefs.getString(_issuesCacheKey);
       if (jsonString != null) {
         final List<dynamic> jsonList = jsonDecode(jsonString);
-        _issues = jsonList.map((j) => GetIssueDto.fromJson(j).toEntity()).toList();
+        _issues = jsonList
+            .map((j) => GetIssueDto.fromJson(j).toEntity())
+            .toList();
         notifyListeners();
       }
     } catch (e) {
@@ -45,7 +72,9 @@ class DiscussionAdminViewModel extends ChangeNotifier {
   Future<void> _saveIssuesToCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonList = _issues.map((issue) => GetIssueDto.fromEntity(issue).toJson()).toList();
+      final jsonList = _issues
+          .map((issue) => GetIssueDto.fromEntity(issue).toJson())
+          .toList();
       await prefs.setString(_issuesCacheKey, jsonEncode(jsonList));
     } catch (e) {
       print('Cache save error: $e');
@@ -76,7 +105,7 @@ class DiscussionAdminViewModel extends ChangeNotifier {
         );
         return issue.copyWith(nrp: user.nrp);
       }).toList();
-      
+
       await _saveIssuesToCache();
     } catch (e) {
       _error = e.toString();

@@ -4,22 +4,24 @@ import 'package:rpl_notepad_fe/features/discussion/domain/entities/issue.dart';
 class DiscussionListTable extends StatelessWidget {
   final List<Issue> issues;
   final Function(Issue) onDetail;
+  final bool isSearching;
 
   const DiscussionListTable({
     super.key,
     required this.issues,
     required this.onDetail,
+    this.isSearching = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (issues.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 200,
         child: Center(
           child: Text(
-            'Belum ada diskusi',
-            style: TextStyle(
+            isSearching ? 'Tidak ditemukan' : 'Belum ada diskusi',
+            style: const TextStyle(
               color: Colors.black54,
               fontSize: 14,
               fontFamily: 'Inter',
@@ -31,9 +33,7 @@ class DiscussionListTable extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Table(
         columnWidths: const {
           0: FixedColumnWidth(60), // No
@@ -74,7 +74,9 @@ class DiscussionListTable extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
       child: Text(
         text,
-        textAlign: text == 'No' || text == 'Aksi' ? TextAlign.center : TextAlign.left,
+        textAlign: text == 'No' || text == 'Aksi'
+            ? TextAlign.center
+            : TextAlign.left,
         style: const TextStyle(
           color: Color(0XFF5A607F),
           fontSize: 14,
@@ -116,10 +118,7 @@ class DiscussionListTable extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Text(
-            issue.nrp,
-            style: baseStyle,
-          ),
+          child: Text(issue.nrp, style: baseStyle),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -137,7 +136,10 @@ class DiscussionListTable extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF131927),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 minimumSize: const Size(0, 32),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

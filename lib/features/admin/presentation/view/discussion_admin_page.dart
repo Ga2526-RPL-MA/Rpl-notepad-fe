@@ -153,9 +153,15 @@ class _DiscussionAdminPageContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: CustomSearchBar(
-              onChanged: (value) {},
-              hintText: 'Cari diskusi...',
+            child: Consumer<DiscussionAdminViewModel>(
+              builder: (context, viewModel, _) {
+                return CustomSearchBar(
+                  onChanged: (value) {
+                    viewModel.updateSearchQuery(value);
+                  },
+                  hintText: 'Cari diskusi...',
+                );
+              },
             ),
           ),
           const SizedBox(width: 20),
@@ -186,10 +192,7 @@ class _DiscussionAdminPageContent extends StatelessWidget {
         width: double.infinity,
         height: 620,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16.0,
-            vertical: 24.0,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -216,7 +219,8 @@ class _DiscussionAdminPageContent extends StatelessWidget {
 
                     return SingleChildScrollView(
                       child: DiscussionListTable(
-                        issues: viewModel.issues,
+                        issues: viewModel.filteredIssues,
+                        isSearching: viewModel.isSearching,
                         onDetail: (issue) async {
                           final result = await Navigator.push(
                             context,
@@ -229,7 +233,7 @@ class _DiscussionAdminPageContent extends StatelessWidget {
                               ),
                             ),
                           );
-                          
+
                           // Refresh data if issue was deleted
                           if (result == true) {
                             viewModel.fetchIssues();
