@@ -18,6 +18,13 @@ import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_subanswer
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_class_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/domain/usecases/get_issue_usecase.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
+import 'package:rpl_notepad_fe/features/admin/data/repositories/admin_repository_impl.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/repositories/admin_repository.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_issues_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_all_users_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/delete_issue_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/delete_answer_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/delete_sub_answer_usecase.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/add_class_view_model.dart';
 import 'package:rpl_notepad_fe/features/note/data/repositories/note_repository_impl.dart';
 import 'package:rpl_notepad_fe/features/note/data/repositories/week_repository_impl.dart';
@@ -107,6 +114,29 @@ Future<void> setupDependencyInjection() async {
 
   getIt.registerLazySingleton<GetIssueUsecase>(
     () => GetIssueUsecase(getIt<IssueRepository>()),
+  );
+
+  // Admin Feature
+  // Repository
+  getIt.registerLazySingleton<AdminRepository>(
+    () => AdminRepositoryImpl(api: getIt<ApiService>()),
+  );
+
+  // Use Cases
+  getIt.registerLazySingleton<GetIssuesUseCase>(
+    () => GetIssuesUseCase(getIt<AdminRepository>()),
+  );
+  getIt.registerLazySingleton<GetAllUsersUseCase>(
+    () => GetAllUsersUseCase(getIt<AdminRepository>()),
+  );
+  getIt.registerLazySingleton<DeleteIssueUseCase>(
+    () => DeleteIssueUseCase(getIt<AdminRepository>()),
+  );
+  getIt.registerLazySingleton<DeleteAnswerUseCase>(
+    () => DeleteAnswerUseCase(getIt<AdminRepository>()),
+  );
+  getIt.registerLazySingleton<DeleteSubAnswerUseCase>(
+    () => DeleteSubAnswerUseCase(getIt<AdminRepository>()),
   );
 
   // Discussion Feature

@@ -3,6 +3,8 @@ import 'package:rpl_notepad_fe/core/network/api_endpoint.dart';
 import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/features/admin/domain/repositories/admin_repository.dart';
 import 'package:rpl_notepad_fe/features/auth/data/dtos/user_dto.dart';
+import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_issue_dto.dart';
+import 'package:rpl_notepad_fe/features/discussion/domain/entities/issue.dart';
 
 class AdminRepositoryImpl implements AdminRepository {
   final ApiService _api;
@@ -99,6 +101,52 @@ class AdminRepositoryImpl implements AdminRepository {
         return [];
       }
       throw e.toString();
+    }
+  }
+  @override
+  Future<List<Issue>> getIssues() async {
+    try {
+      final response = await _api.get<dynamic>(
+        APIEndpoint.getIssues.path,
+      );
+
+      if (response is Map<String, dynamic> && response.containsKey('data')) {
+        final List<dynamic> data = response['data'];
+        return data.map((json) => GetIssueDto.fromJson(json).toEntity()).toList();
+      } else if (response is List) {
+        return response.map((json) => GetIssueDto.fromJson(json).toEntity()).toList();
+      }
+      
+      return [];
+    } catch (e) {
+      throw Exception('Failed to fetch issues: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteIssue(int issueId) async {
+    try {
+      await _api.delete('${APIEndpoint.deleteIssues.path}/$issueId');
+    } catch (e) {
+      throw Exception('Failed to delete issue: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteAnswer(int answerId) async {
+    try {
+      await _api.delete('${APIEndpoint.deleteAnswer.path}/$answerId');
+    } catch (e) {
+      throw Exception('Failed to delete answer: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteSubAnswer(int subAnswerId) async {
+    try {
+      await _api.delete('${APIEndpoint.deleteSubAnswer.path}/$subAnswerId');
+    } catch (e) {
+      throw Exception('Failed to delete subanswer: $e');
     }
   }
 }

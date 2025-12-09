@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rpl_notepad_fe/core/di/injection.dart';
 import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
+import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/core/widgets/menu_drawer.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_all_users_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/get_issues_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/discussion_admin_view_model.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/widgets/discussion_list_table.dart';
+import 'package:rpl_notepad_fe/features/discussion/presentation/view/chat_detail_page.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
@@ -16,6 +23,30 @@ class DiscussionAdminPage extends StatefulWidget {
 }
 
 class _DiscussionAdminPageState extends State<DiscussionAdminPage> {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => DiscussionAdminViewModel(
+        getIssuesUseCase: getIt<GetIssuesUseCase>(),
+        getAllUsersUseCase: getIt<GetAllUsersUseCase>(),
+      )..fetchIssues(),
+      child: Consumer<DiscussionAdminViewModel>(
+        builder: (context, viewModel, _) {
+          return Stack(
+            children: [
+              const _DiscussionAdminPageContent(),
+              if (viewModel.isLoading) const LoadingOverlay(),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _DiscussionAdminPageContent extends StatelessWidget {
+  const _DiscussionAdminPageContent();
+
   @override
   Widget build(BuildContext context) {
     final isWeb = MediaQuery.of(context).size.width > 800;
@@ -36,7 +67,7 @@ class _DiscussionAdminPageState extends State<DiscussionAdminPage> {
       children: [
         MenuDrawer(
           mode: 'admin',
-          currentPage: 'diskusi', // Update this based on your menu structure
+          currentPage: 'diskusi',
           onPageChanged: (page) {
             if (page == 'beranda') {
               Navigator.pushNamedAndRemoveUntil(
@@ -80,7 +111,7 @@ class _DiscussionAdminPageState extends State<DiscussionAdminPage> {
       children: [
         AppBar(
           title: const Text(
-            'Diskusi Admin',
+            'Diskusi Kembali ke Dashboard Admin',
             style: TextStyle(
               fontWeight: FontWeight.w600,
               fontFamily: 'Inter',
@@ -90,6 +121,16 @@ class _DiscussionAdminPageState extends State<DiscussionAdminPage> {
           centerTitle: true,
           backgroundColor: Colors.white,
           elevation: 0,
+          leading: Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu, color: Colors.black87),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              );
+            },
+          ),
           iconTheme: const IconThemeData(color: Colors.black87),
         ),
         Expanded(
@@ -140,44 +181,66 @@ class _DiscussionAdminPageState extends State<DiscussionAdminPage> {
   Widget _buildDiscussionContent(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: SizedBox(
+      child: CustomCard(
+        color: Colors.white,
         width: double.infinity,
-        child: CustomCard(
-          color: Colors.white,
-          width: double.infinity,
-          height: 700,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 24.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Diskusi',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
-                  ),
+        height: 620,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 24.0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Diskusi',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Inter',
                 ),
-                const SizedBox(height: 20),
-                // TODO
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      'Daftar diskusi akan muncul di sini',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                        fontStyle: FontStyle.italic,
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: Consumer<DiscussionAdminViewModel>(
+                  builder: (context, viewModel, child) {
+                    if (viewModel.error != null) {
+                      return Center(
+                        child: Text(
+                          'Error: ${viewModel.error}',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: DiscussionListTable(
+                        issues: viewModel.issues,
+                        onDetail: (issue) async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatDetailPage(
+                                issueId: issue.id,
+                                className: 'Kembali ke Dashboard Admin',
+                                message: issue.content,
+                                userName: issue.userName,
+                              ),
+                            ),
+                          );
+                          
+                          // Refresh data if issue was deleted
+                          if (result == true) {
+                            viewModel.fetchIssues();
+                          }
+                        },
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

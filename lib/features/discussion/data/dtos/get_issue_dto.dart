@@ -9,6 +9,7 @@ class GetIssueDto extends Equatable {
   final DateTime reportedAt;
   final int classId;
   final List<GetAnswerDto> answers;
+  final String nrp;
 
   const GetIssueDto({
     required this.id,
@@ -17,6 +18,7 @@ class GetIssueDto extends Equatable {
     required this.reportedAt,
     required this.classId,
     this.answers = const [],
+    this.nrp = '',
   });
 
   // Convert JSON to DTO
@@ -30,6 +32,7 @@ class GetIssueDto extends Equatable {
       answers: (json['answers'] as List<dynamic>?)
               ?.map((answer) => GetAnswerDto.fromJson(answer as Map<String, dynamic>))
               .toList() ?? [],
+      nrp: (json['nrp'] as String?) ?? '',
     );
   }
 
@@ -41,6 +44,7 @@ class GetIssueDto extends Equatable {
         'reportedAt': reportedAt.toIso8601String(),
         'classId': classId,
         'answers': answers.map((answer) => answer.toJson()).toList(),
+        'nrp': nrp,
       };
 
   // Convert DTO to Entity
@@ -52,6 +56,7 @@ class GetIssueDto extends Equatable {
       reportedAt: reportedAt,
       classId: classId,
       answers: answers.map((dto) => dto.toEntity()).toList(),
+      nrp: nrp,
     );
   }
 
@@ -64,6 +69,7 @@ class GetIssueDto extends Equatable {
       reportedAt: entity.reportedAt,
       classId: entity.classId,
       answers: entity.answers.map((answer) => GetAnswerDto.fromEntity(answer)).toList(),
+      nrp: entity.nrp,
     );
   }
 
@@ -75,6 +81,7 @@ class GetIssueDto extends Equatable {
     DateTime? reportedAt,
     int? classId,
     List<GetAnswerDto>? answers,
+    String? nrp,
   }) {
     return GetIssueDto(
       id: id ?? this.id,
@@ -83,6 +90,7 @@ class GetIssueDto extends Equatable {
       reportedAt: reportedAt ?? this.reportedAt,
       classId: classId ?? this.classId,
       answers: answers ?? this.answers,
+      nrp: nrp ?? this.nrp,
     );
   }
 
@@ -94,5 +102,6 @@ class GetIssueDto extends Equatable {
         reportedAt,
         classId,
         answers,
+        nrp,
       ];
 }

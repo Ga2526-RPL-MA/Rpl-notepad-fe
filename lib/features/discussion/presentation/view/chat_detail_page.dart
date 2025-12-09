@@ -14,6 +14,11 @@ import '../widgets/comment_card.dart';
 import '../widgets/comment_input_field.dart';
 import 'package:rpl_notepad_fe/core/widgets/loading_overlay.dart';
 import 'package:rpl_notepad_fe/core/widgets/toast_notification.dart';
+import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
+import 'package:rpl_notepad_fe/core/di/injection.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/delete_issue_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/delete_answer_usecase.dart';
+import 'package:rpl_notepad_fe/features/admin/domain/usecases/delete_sub_answer_usecase.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final int issueId;
@@ -237,6 +242,46 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                 issue: mainIssue,
                                 showReplyCount: false,
                                 forceFullContent: true,
+                                showDeleteButton: AuthService.isAdmin,
+                                onDelete: () async {
+                                  CustomModal.show(
+                                    context,
+                                    title: 'Konfirmasi Hapus',
+                                    message: 'Apakah Anda yakin ingin menghapus diskusi ini?',
+                                    primaryButtonText: 'Hapus',
+                                    secondaryButtonText: 'Batal',
+                                    onPrimaryPressed: () async {
+                                      Navigator.pop(context);
+                                      
+                                      try {
+                                        final deleteUseCase = getIt<DeleteIssueUseCase>();
+                                        await deleteUseCase(widget.issueId);
+                                        
+                                        if (mounted) {
+                                          Navigator.of(context).pop(true); // Return true to indicate deletion
+                                          showAppToast(
+                                            context,
+                                            title: 'Berhasil',
+                                            message: 'Diskusi berhasil dihapus',
+                                            type: AppToastType.success,
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          showAppToast(
+                                            context,
+                                            title: 'Gagal',
+                                            message: 'Gagal menghapus diskusi: $e',
+                                            type: AppToastType.error,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    onSecondaryPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  );
+                                },
                                 contentPadding: const EdgeInsets.fromLTRB(
                                   32,
                                   32,
@@ -260,14 +305,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                         );
                                       }
                                   
-                                      if (_viewModel.isLoading) {
-                                        return const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        );
-                                      }
                                    
                                       final answersForIssue = _viewModel.answers
                                           .where(
@@ -315,6 +352,95 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                               isOnline: false,
                                               onReplyPressed:
                                                   _handleReplyPressed,
+                                              showDeleteButton: AuthService.isAdmin,
+                                              onDeleteAnswer: () {
+                                                final parentContext = context;
+                                                CustomModal.show(
+                                                  context,
+                                                  title: 'Konfirmasi Hapus',
+                                                  message: 'Apakah Anda yakin ingin menghapus komentar ini?',
+                                                  primaryButtonText: 'Hapus',
+                                                  secondaryButtonText: 'Batal',
+                                                  onPrimaryPressed: () async {
+                                                    Navigator.pop(context);
+                                                    
+                                                    // Wait for modal to close completely
+                                                    await Future.delayed(const Duration(milliseconds: 300));
+                                                    
+                                                    try {
+                                                      final deleteUseCase = getIt<DeleteAnswerUseCase>();
+                                                      await deleteUseCase(answer.id);
+                                                      if (mounted) {
+                                                        await _viewModel.loadAnswers();
+                                                        if (mounted) {
+                                                          showAppToast(
+                                                            parentContext,
+                                                            title: 'Berhasil',
+                                                            message: 'Komentar berhasil dihapus',
+                                                            type: AppToastType.success,
+                                                          );
+                                                        }
+                                                      }
+                                                    } catch (e) {
+                                                      if (mounted) {
+                                                        showAppToast(
+                                                          parentContext,
+                                                          title: 'Gagal',
+                                                          message: 'Gagal menghapus komentar: $e',
+                                                          type: AppToastType.error,
+                                                        );
+                                                      }
+                                                    }
+                                                  },
+                                                  onSecondaryPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                );
+                                              },
+                                              onDeleteSubAnswer: (subAnswerId) {
+                                                final parentContext = context;
+                                                CustomModal.show(
+                                                  context,
+                                                  title: 'Konfirmasi Hapus',
+                                                  message: 'Apakah Anda yakin ingin menghapus balasan ini?',
+                                                  primaryButtonText: 'Hapus',
+                                                  secondaryButtonText: 'Batal',
+                                                  onPrimaryPressed: () async {
+                                                    Navigator.pop(context);
+                                                    
+                                                    // Wait for modal to close completely
+                                                    await Future.delayed(const Duration(milliseconds: 300));
+                                                    
+                                                    try {
+                                                      final deleteUseCase = getIt<DeleteSubAnswerUseCase>();
+                                                      await deleteUseCase(subAnswerId);
+                                                      if (mounted) {
+                                                        await _viewModel.loadAnswers();
+                                                        if (mounted) {
+                                                          showAppToast(
+                                                            parentContext,
+                                                            title: 'Berhasil',
+                                                            message: 'Balasan berhasil dihapus',
+                                                            type: AppToastType.success,
+                                                          );
+                                                        }
+                                                      }
+                                                    } catch (e) {
+                                                      if (mounted) {
+                                                        showAppToast(
+                                                          parentContext,
+                                                          title: 'Gagal',
+                                                          message: 'Gagal menghapus balasan: $e',
+                                                          type: AppToastType.error,
+                                                        );
+                                                      }
+                                                    }
+                                                  },
+                                                  onSecondaryPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                );
+                                              },
                                               initialSubAnswers: answer
                                                   .subAnswers
                                                   .map(
@@ -458,6 +584,46 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                               issue: mainIssue,
                               showReplyCount: false,
                               forceFullContent: true,
+                              showDeleteButton: AuthService.isAdmin,
+                              onDelete: () async {
+                                CustomModal.show(
+                                  context,
+                                  title: 'Konfirmasi Hapus',
+                                  message: 'Apakah Anda yakin ingin menghapus diskusi ini?',
+                                  primaryButtonText: 'Hapus',
+                                  secondaryButtonText: 'Batal',
+                                  onPrimaryPressed: () async {
+                                    Navigator.pop(context);
+                                    
+                                    try {
+                                      final deleteUseCase = getIt<DeleteIssueUseCase>();
+                                      await deleteUseCase(widget.issueId);
+                                      
+                                      if (mounted) {
+                                        Navigator.of(context).pop(true); // Return true to indicate deletion
+                                        showAppToast(
+                                          context,
+                                          title: 'Berhasil',
+                                          message: 'Diskusi berhasil dihapus',
+                                          type: AppToastType.success,
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        showAppToast(
+                                          context,
+                                          title: 'Gagal',
+                                          message: 'Gagal menghapus diskusi: $e',
+                                          type: AppToastType.error,
+                                        );
+                                      }
+                                    }
+                                  },
+                                  onSecondaryPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
                               contentPadding: const EdgeInsets.fromLTRB(
                                 32,
                                 32,
@@ -536,6 +702,95 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                             answerId: answer.id,
                                             isOnline: false,
                                             onReplyPressed: _handleReplyPressed,
+                                            showDeleteButton: AuthService.isAdmin,
+                                            onDeleteAnswer: () {
+                                              final parentContext = context;
+                                              CustomModal.show(
+                                                context,
+                                                title: 'Konfirmasi Hapus',
+                                                message: 'Apakah Anda yakin ingin menghapus komentar ini?',
+                                                primaryButtonText: 'Hapus',
+                                                secondaryButtonText: 'Batal',
+                                                onPrimaryPressed: () async {
+                                                  Navigator.pop(context);
+                                                  
+                                                  // Wait for modal to close completely
+                                                  await Future.delayed(const Duration(milliseconds: 300));
+                                                  
+                                                  try {
+                                                    final deleteUseCase = getIt<DeleteAnswerUseCase>();
+                                                    await deleteUseCase(answer.id);
+                                                    if (mounted) {
+                                                      await _viewModel.loadAnswers();
+                                                      if (mounted) {
+                                                        showAppToast(
+                                                          parentContext,
+                                                          title: 'Berhasil',
+                                                          message: 'Komentar berhasil dihapus',
+                                                          type: AppToastType.success,
+                                                        );
+                                                      }
+                                                    }
+                                                  } catch (e) {
+                                                    if (mounted) {
+                                                      showAppToast(
+                                                        parentContext,
+                                                        title: 'Gagal',
+                                                        message: 'Gagal menghapus komentar: $e',
+                                                        type: AppToastType.error,
+                                                      );
+                                                    }
+                                                  }
+                                                },
+                                                onSecondaryPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              );
+                                            },
+                                            onDeleteSubAnswer: (subAnswerId) {
+                                              final parentContext = context;
+                                              CustomModal.show(
+                                                context,
+                                                title: 'Konfirmasi Hapus',
+                                                message: 'Apakah Anda yakin ingin menghapus balasan ini?',
+                                                primaryButtonText: 'Hapus',
+                                                secondaryButtonText: 'Batal',
+                                                onPrimaryPressed: () async {
+                                                  Navigator.pop(context);
+                                                  
+                                                  // Wait for modal to close completely
+                                                  await Future.delayed(const Duration(milliseconds: 300));
+                                                  
+                                                  try {
+                                                    final deleteUseCase = getIt<DeleteSubAnswerUseCase>();
+                                                    await deleteUseCase(subAnswerId);
+                                                    if (mounted) {
+                                                      await _viewModel.loadAnswers();
+                                                      if (mounted) {
+                                                        showAppToast(
+                                                          parentContext,
+                                                          title: 'Berhasil',
+                                                          message: 'Balasan berhasil dihapus',
+                                                          type: AppToastType.success,
+                                                        );
+                                                      }
+                                                    }
+                                                  } catch (e) {
+                                                    if (mounted) {
+                                                      showAppToast(
+                                                        parentContext,
+                                                        title: 'Gagal',
+                                                        message: 'Gagal menghapus balasan: $e',
+                                                        type: AppToastType.error,
+                                                      );
+                                                    }
+                                                  }
+                                                },
+                                                onSecondaryPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              );
+                                            },
                                             initialSubAnswers: answer.subAnswers
                                                 .map(
                                                   (sub) => SubAnswer(

@@ -9,8 +9,11 @@ enum APIEndpoint {
   updateClasses,
   deleteClasses,
   getIssues,
+  deleteIssues,
   postIssues,
+  deleteAnswer,
   postAnswer,
+  deleteSubAnswer,
   postSubAnswer,
   getTask,
   createTask,
@@ -62,8 +65,12 @@ extension APIEndpointExtension on APIEndpoint {
         return "/issues";
       case APIEndpoint.postIssues:
         return "/issues";
+      case APIEndpoint.deleteAnswer:
+        return "/answers";
       case APIEndpoint.postAnswer:
         return "/answers";
+      case APIEndpoint.deleteSubAnswer:
+        return "/subAnswers";
       case APIEndpoint.postSubAnswer:
         return "/subAnswers";
       case APIEndpoint.getTask:
@@ -120,6 +127,8 @@ extension APIEndpointExtension on APIEndpoint {
         return "/userClasses";
       case APIEndpoint.deleteUserClass:
         return "/userClasses";
+      case APIEndpoint.deleteIssues:
+        return "/issues";
     }
   }
 

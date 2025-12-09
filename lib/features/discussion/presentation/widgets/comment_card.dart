@@ -10,6 +10,9 @@ class CommentMessageCard extends StatefulWidget {
   final List<SubAnswer>? initialSubAnswers;
   final Function(String, int) onReplyPressed;
   final bool isExpanded;
+  final VoidCallback? onDeleteAnswer;
+  final Function(int)? onDeleteSubAnswer;
+  final bool showDeleteButton;
 
   const CommentMessageCard({
     super.key,
@@ -21,6 +24,9 @@ class CommentMessageCard extends StatefulWidget {
     this.initialSubAnswers,
     required this.onReplyPressed,
     this.isExpanded = false,
+    this.onDeleteAnswer,
+    this.onDeleteSubAnswer,
+    this.showDeleteButton = false,
   });
 
   @override
@@ -86,11 +92,15 @@ class _CommentMessageCardState extends State<CommentMessageCard> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Main message card
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Avatar with center alignment
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Avatar with center alignment
                   Padding(
                     padding: const EdgeInsets.only(top: 12, right: 8, left: 4),
                     child: Stack(
@@ -169,9 +179,30 @@ class _CommentMessageCardState extends State<CommentMessageCard> {
                         ],
                       ),
                     ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
+              if (widget.showDeleteButton)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 16),
+                  child: GestureDetector(
+                    onTap: widget.onDeleteAnswer,
+                    child: ColorFiltered(
+                      colorFilter: const ColorFilter.mode(
+                        Color(0xFFEE443F),
+                        BlendMode.srcIn,
+                      ),
+                      child: Image.asset(
+                        'assets/icon/trash-icon.png',
+                        width: 24,
+                        height: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             // Action buttons
@@ -269,7 +300,11 @@ class _CommentMessageCardState extends State<CommentMessageCard> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profile avatar 
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile avatar 
           Padding(
             padding: const EdgeInsets.only(top: 12, right: 8, left: 4),
             child: Container(
@@ -282,34 +317,55 @@ class _CommentMessageCardState extends State<CommentMessageCard> {
               child: const Icon(Icons.person, size: 24, color: Colors.white),
             ),
           ),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(top: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD2D5DB),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    subAnswer.userName,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Inter',
-                      color: Colors.black,
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD2D5DB),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          subAnswer.userName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Inter',
+                            color: Colors.black,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(subAnswer.content, style: const TextStyle(fontSize: 14)),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(subAnswer.content, style: const TextStyle(fontSize: 14)),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
+          if (widget.showDeleteButton)
+            Padding(
+              padding: const EdgeInsets.only(left: 8, top: 16),
+              child: GestureDetector(
+                onTap: () => widget.onDeleteSubAnswer?.call(subAnswer.id),
+                child: ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Color(0xFFEE443F),
+                    BlendMode.srcIn,
+                  ),
+                  child: Image.asset(
+                    'assets/icon/trash-icon.png',
+                    width: 24,
+                    height: 24,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

@@ -8,6 +8,7 @@ class Issue extends Equatable {
   final DateTime reportedAt;
   final int classId;
   final List<Answer> answers;
+  final String nrp;
   final bool isAnswer;
 
   const Issue({
@@ -17,6 +18,7 @@ class Issue extends Equatable {
     required this.reportedAt,
     required this.classId,
     this.answers = const [],
+    this.nrp = '',
     this.isAnswer = false,
   });
 
@@ -28,6 +30,29 @@ class Issue extends Equatable {
         reportedAt,
         classId,
         answers,
+        nrp,
         isAnswer,
       ];
+
+  Issue copyWith({
+    int? id,
+    String? userName,
+    String? content,
+    DateTime? reportedAt,
+    int? classId,
+    List<Answer>? answers,
+    String? nrp,
+    bool? isAnswer,
+  }) {
+    return Issue(
+      id: id ?? this.id,
+      userName: userName ?? this.userName,
+      content: content ?? this.content,
+      reportedAt: reportedAt ?? this.reportedAt,
+      classId: classId ?? this.classId,
+      answers: answers ?? this.answers,
+      nrp: nrp ?? this.nrp,
+      isAnswer: isAnswer ?? this.isAnswer,
+    );
+  }
 }

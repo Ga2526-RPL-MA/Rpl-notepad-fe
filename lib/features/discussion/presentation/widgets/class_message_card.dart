@@ -11,6 +11,8 @@ class ClassMessageCard extends StatefulWidget {
   final int? replyCount;
   final bool forceFullContent;
   final EdgeInsets? contentPadding;
+  final VoidCallback? onDelete;
+  final bool showDeleteButton;
 
   const ClassMessageCard({
     super.key,
@@ -21,6 +23,8 @@ class ClassMessageCard extends StatefulWidget {
     this.replyCount,
     this.forceFullContent = false,
     this.contentPadding,
+    this.onDelete,
+    this.showDeleteButton = false,
   });
 
   @override
@@ -75,6 +79,22 @@ class _ClassMessageCardState extends State<ClassMessageCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                if (widget.showDeleteButton)
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEE443F),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: widget.onDelete,
+                    child: const Text(
+                      'Hapus',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
+                  ),
               ],
             ),
 

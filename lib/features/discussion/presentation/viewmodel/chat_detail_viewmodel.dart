@@ -58,11 +58,16 @@ class ChatDetailViewModel extends ChangeNotifier {
 
   // Load answers for the current issue
   Future<void> loadAnswers() async {
-    _setLoading(true);
+    // Only show loading if we don't have cached data
+    final cached = await _readCachedAnswers(issueId);
+    final shouldShowLoading = cached.isEmpty;
+    
+    if (shouldShowLoading) {
+      _setLoading(true);
+    }
     _setError(null);
 
     try {
-      final cached = await _readCachedAnswers(issueId);
       if (cached.isNotEmpty) {
         _setAnswers(cached);
       }
@@ -83,7 +88,7 @@ class ChatDetailViewModel extends ChangeNotifier {
       }
 
       _setAnswers(answers);
-      // Locak Storage
+      // Local Storage
       try {
         await _cacheAnswers(issueId, answers);
       } catch (_) {}
@@ -91,7 +96,9 @@ class ChatDetailViewModel extends ChangeNotifier {
       print('Error loading answers: $e');
       _setError('Failed to load answers. Please try again.');
     } finally {
-      _setLoading(false);
+      if (shouldShowLoading) {
+        _setLoading(false);
+      }
     }
   }
 
