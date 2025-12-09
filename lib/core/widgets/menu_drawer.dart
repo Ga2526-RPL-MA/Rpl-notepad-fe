@@ -45,6 +45,8 @@ class MenuDrawer extends StatelessWidget {
               );
             } else if (pageKey == 'tambah_kelas') {
               Navigator.pushNamed(context, '/admin/add-class');
+            } else if (pageKey == 'diskusi') {
+              Navigator.pushNamed(context, '/admin/discussion');
             }
           } else {
             if (pageKey == 'diskusi') {
@@ -173,7 +175,11 @@ class MenuDrawer extends StatelessWidget {
                       pageKey: 'tambah_kelas',
                     ),
                     const SizedBox(height: 16),
-                    menuItem(iconPath:)
+                    menuItem(
+                      iconPath: 'assets/icon/discussion-icon.png',
+                      label: 'Diskusi',
+                      pageKey: 'diskusi',
+                    ),
                   ] else ...[
                     menuItem(
                       label: 'Beranda',

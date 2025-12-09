@@ -26,6 +26,7 @@ import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/register_view_model.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/view/admin_dashboard_page.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/view/add_class_page.dart';
+import 'package:rpl_notepad_fe/features/admin/presentation/view/discussion_admin_page.dart';
 import 'package:rpl_notepad_fe/features/admin/presentation/viewmodel/add_class_view_model.dart';
 import 'package:rpl_notepad_fe/features/note/presentation/view/note_page.dart';
 
@@ -252,6 +253,7 @@ class MyApp extends StatelessWidget {
                   '/discussion',
                   '/admin',
                   '/admin/add-class',
+                  '/admin/discussion',
                 };
                 if (protected.contains(name)) {
                   getIt<LoginViewModel>().reset();
@@ -327,6 +329,11 @@ class MyApp extends StatelessWidget {
             case '/admin/add-class':
               return MaterialPageRoute(
                 builder: (_) => const AddClassPage(),
+                settings: settings,
+              );
+            case '/admin/discussion':
+              return MaterialPageRoute(
+                builder: (_) => const DiscussionAdminPage(),
                 settings: settings,
               );
             default:

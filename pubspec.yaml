@@ -109,7 +109,6 @@ flutter:
     #Icons No Connection
     - assets/icon/no-connection-icon.png
     #   - images/a_dot_ham.jpeg
-    - assets/icon/discussion-icon.png
 
     # Images
     - assets/images/logo.png
