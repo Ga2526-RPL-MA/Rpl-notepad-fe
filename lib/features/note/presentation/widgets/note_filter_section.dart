@@ -4,13 +4,17 @@ import 'package:rpl_notepad_fe/features/note/presentation/viewmodel/week_viewmod
 
 class NoteFilterSection extends StatelessWidget {
   final String filterWeekLabel;
+  final bool myNotesOnly;
   final void Function(int? weekId, String label) onFilterWeekSelected;
+  final ValueChanged<bool> onMyNotesOnlyChanged;
   final Widget notesSlider;
 
   const NoteFilterSection({
     super.key,
     required this.filterWeekLabel,
+    required this.myNotesOnly,
     required this.onFilterWeekSelected,
+    required this.onMyNotesOnlyChanged,
     required this.notesSlider,
   });
 
@@ -106,6 +110,21 @@ class NoteFilterSection extends StatelessWidget {
                     );
                   },
                 ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Checkbox(
+                    value: myNotesOnly,
+                    onChanged: (value) {
+                      if (value != null) {
+                        onMyNotesOnlyChanged(value);
+                      }
+                    },
+                  ),
+                  const Text('Catatan Saya'),
+                ],
               ),
             ],
           ),

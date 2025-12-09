@@ -50,6 +50,7 @@ class _NotePageState extends State<NotePage> {
   String _inputWeekLabel = 'Pilih Minggu';
 
   String _filterWeekLabel = 'Semua';
+  bool _myNotesOnly = false;
 
   @override
   void initState() {
@@ -131,13 +132,33 @@ class _NotePageState extends State<NotePage> {
   }
 
   void _onFilterWeekSelected(int? weekId, String label) {
-    if (_filterWeekLabel == label) return;
+    if (_filterWeekLabel == label && _noteViewModel.notes.isNotEmpty) {
+      return;
+    }
 
     setState(() {
       _filterWeekLabel = label;
     });
 
     _noteViewModel.setWeekId(weekId);
+
+    () async {
+      setState(() => _showOverlay = true);
+      try {
+        await _noteViewModel.fetchNotes();
+      } finally {
+        if (mounted) setState(() => _showOverlay = false);
+      }
+    }();
+  }
+
+  void _onMyNotesOnlyChanged(bool value) {
+    setState(() {
+      _myNotesOnly = value;
+    });
+
+    _noteViewModel.setMyNotesOnly(value);
+
     () async {
       setState(() => _showOverlay = true);
       try {
@@ -523,7 +544,9 @@ class _NotePageState extends State<NotePage> {
   Widget buildFilterSection() {
     return NoteFilterSection(
       filterWeekLabel: _filterWeekLabel,
+      myNotesOnly: _myNotesOnly,
       onFilterWeekSelected: _onFilterWeekSelected,
+      onMyNotesOnlyChanged: _onMyNotesOnlyChanged,
       notesSlider: buildNotesSlider(),
     );
   }

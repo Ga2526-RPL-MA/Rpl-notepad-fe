@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:rpl_notepad_fe/core/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rpl_notepad_fe/features/note/domain/entities/note.dart';
 import 'package:rpl_notepad_fe/features/note/domain/usecases/create_note_usecase.dart';
@@ -35,6 +36,7 @@ class NoteViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   bool _showAddForm = false;
+  bool _myNotesOnly = false;
 
   // Getters
   List<Note> get notes => _filteredNotes;
@@ -50,15 +52,25 @@ class NoteViewModel extends ChangeNotifier {
     _filterNotes();
   }
 
-  // Filter notes by current week ID
+  // Set whether to show only current user's notes
+  void setMyNotesOnly(bool value) {
+    _myNotesOnly = value;
+    _filterNotes();
+  }
+
+  // Filter notes by current week ID and myNotesOnly flag
   void _filterNotes() {
-    if (_currentWeekId == null) {
-      _filteredNotes = _notes;
-    } else {
-      _filteredNotes = _notes
-          .where((note) => note.weekId == _currentWeekId)
-          .toList();
-    }
+    final currentUsername = AuthService.userName;
+
+    _filteredNotes = _notes.where((note) {
+      final matchesWeek =
+          _currentWeekId == null || note.weekId == _currentWeekId;
+      final matchesUser =
+          !_myNotesOnly ||
+          (currentUsername != null && note.userName == currentUsername);
+      return matchesWeek && matchesUser;
+    }).toList();
+
     notifyListeners();
   }
 

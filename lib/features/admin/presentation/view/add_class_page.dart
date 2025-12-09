@@ -6,7 +6,6 @@ import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/core/widgets/menu_drawer.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_modal.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/view_models/login_view_model.dart';
-import 'package:rpl_notepad_fe/features/home/presentation/widgets/custom_search_bar.dart';
 import 'package:rpl_notepad_fe/features/home/presentation/widgets/user_profile.dart';
 import 'package:rpl_notepad_fe/features/discussion/data/dtos/get_class_dto.dart';
 import 'package:rpl_notepad_fe/features/discussion/presentation/viewmodel/discussion_viewmodel.dart';
@@ -151,7 +150,6 @@ class _AddClassPageState extends State<AddClassPage> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const Expanded(child: CustomSearchBar()),
                                   const SizedBox(width: 20),
                                   Consumer<LoginViewModel>(
                                     builder: (context, loginVM, _) {
@@ -320,9 +318,6 @@ class _AddClassPageState extends State<AddClassPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const CustomSearchBar(
-                                      hintText: 'Cari kelas...',
-                                    ),
                                     const SizedBox(height: 16),
                                     Text(
                                       isEditing ? 'Edit Kelas' : 'Tambah Kelas',
