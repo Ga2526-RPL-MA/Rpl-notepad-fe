@@ -21,6 +21,7 @@ class NoteAdminViewModel extends ChangeNotifier {
   List<Week> _weeks = [];
   List<GetClassDto> _classes = [];
   GetClassDto? _selectedClass;
+  String _searchQuery = '';
 
   static const String _notesCacheKey = 'cached_admin_notes';
   static const String _classesCacheKey = 'cached_admin_classes';
@@ -31,6 +32,7 @@ class NoteAdminViewModel extends ChangeNotifier {
   List<Note> get notes => _filteredNotes;
   List<GetClassDto> get classes => _classes;
   GetClassDto? get selectedClass => _selectedClass;
+  bool get isSearching => _searchQuery.isNotEmpty;
 
   NoteAdminViewModel({
     required GetNotesUsecase getNotesUsecase,
@@ -120,8 +122,11 @@ class NoteAdminViewModel extends ChangeNotifier {
   }
 
   void _applyFilter() {
+    List<Note> tempFiltered;
+
+    // First filter by class
     if (_selectedClass == null) {
-      _filteredNotes = List.from(_allNotes);
+      tempFiltered = List.from(_allNotes);
     } else {
       // Get week IDs for selected class
       final weekIdsForClass = _weeks
@@ -130,10 +135,28 @@ class NoteAdminViewModel extends ChangeNotifier {
           .toSet();
 
       // Filter notes by week IDs
-      _filteredNotes = _allNotes
+      tempFiltered = _allNotes
           .where((note) => weekIdsForClass.contains(note.weekId))
           .toList();
     }
+
+    // Then filter by search query
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      tempFiltered = tempFiltered.where((note) {
+        final userName = (note.userName ?? '').toLowerCase();
+        final content = (note.content ?? '').toLowerCase();
+        return userName.contains(query) || content.contains(query);
+      }).toList();
+    }
+
+    _filteredNotes = tempFiltered;
+  }
+
+  void updateSearchQuery(String query) {
+    _searchQuery = query;
+    _applyFilter();
+    notifyListeners();
   }
 
   Future<void> _loadFromCache() async {

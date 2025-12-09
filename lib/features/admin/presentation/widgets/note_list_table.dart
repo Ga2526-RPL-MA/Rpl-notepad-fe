@@ -6,22 +6,24 @@ import 'package:rpl_notepad_fe/features/note/domain/entities/note.dart';
 class NoteListTable extends StatelessWidget {
   final List<Note> notes;
   final Function(Note) onDelete;
+  final bool isSearching;
 
   const NoteListTable({
     super.key,
     required this.notes,
     required this.onDelete,
+    this.isSearching = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (notes.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 200,
         child: Center(
           child: Text(
-            'Belum ada catatan',
-            style: TextStyle(
+            isSearching ? 'Tidak ditemukan' : 'Belum ada catatan',
+            style: const TextStyle(
               color: Colors.black54,
               fontSize: 14,
               fontFamily: 'Inter',
@@ -41,9 +43,7 @@ class NoteListTable extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Table(
         columnWidths: const {
           0: FixedColumnWidth(80),
@@ -186,9 +186,7 @@ class NoteListTable extends StatelessWidget {
           final offsetTween = Tween<Offset>(
             begin: const Offset(1, 0),
             end: Offset.zero,
-          ).chain(
-            CurveTween(curve: Curves.easeOutCubic),
-          );
+          ).chain(CurveTween(curve: Curves.easeOutCubic));
           return SlideTransition(
             position: anim.drive(offsetTween),
             child: child,
@@ -201,9 +199,7 @@ class NoteListTable extends StatelessWidget {
         isScrollControlled: true,
         backgroundColor: const Color(0xFFE7F0FF),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(10),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
         ),
         builder: (ctx) {
           return _NoteDetailPanel(note: note, isMobile: true);
@@ -218,16 +214,13 @@ class _NoteDetailPanel extends StatelessWidget {
   final Note note;
   final bool isMobile;
 
-  const _NoteDetailPanel({
-    required this.note,
-    this.isMobile = false,
-  });
+  const _NoteDetailPanel({required this.note, this.isMobile = false});
 
   void _openPdf(BuildContext context, String url) {
     if (url.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('URL tidak tersedia')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('URL tidak tersedia')));
       return;
     }
     // Open PDF in new tab (web) using pdf_handler
@@ -287,7 +280,8 @@ class _NoteDetailPanel extends StatelessWidget {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: note.noteFiles.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 8),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 8),
                             itemBuilder: (ctx2, i) {
                               final f = note.noteFiles[i];
                               final url = f.url ?? '';
@@ -309,7 +303,10 @@ class _NoteDetailPanel extends StatelessWidget {
                                     style: const TextStyle(fontSize: 14),
                                   ),
                                   trailing: IconButton(
-                                    icon: const Icon(Icons.open_in_new, size: 18),
+                                    icon: const Icon(
+                                      Icons.open_in_new,
+                                      size: 18,
+                                    ),
                                     onPressed: () => _openPdf(context, url),
                                   ),
                                 ),
@@ -326,7 +323,8 @@ class _NoteDetailPanel extends StatelessWidget {
                               color: Color(0xFF131927),
                             ),
                           ),
-                        if (note.noteFiles.isEmpty && (note.content?.trim().isEmpty ?? true))
+                        if (note.noteFiles.isEmpty &&
+                            (note.content?.trim().isEmpty ?? true))
                           const Text(
                             'Tidak ada konten',
                             style: TextStyle(
@@ -413,7 +411,8 @@ class _NoteDetailPanel extends StatelessWidget {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: note.noteFiles.length,
-                                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 8),
                                 itemBuilder: (ctx2, i) {
                                   final f = note.noteFiles[i];
                                   final url = f.url ?? '';
@@ -435,7 +434,10 @@ class _NoteDetailPanel extends StatelessWidget {
                                         style: const TextStyle(fontSize: 14),
                                       ),
                                       trailing: IconButton(
-                                        icon: const Icon(Icons.open_in_new, size: 18),
+                                        icon: const Icon(
+                                          Icons.open_in_new,
+                                          size: 18,
+                                        ),
                                         onPressed: () => _openPdf(context, url),
                                       ),
                                     ),
@@ -452,7 +454,8 @@ class _NoteDetailPanel extends StatelessWidget {
                                   color: Color(0xFF131927),
                                 ),
                               ),
-                            if (note.noteFiles.isEmpty && (note.content?.trim().isEmpty ?? true))
+                            if (note.noteFiles.isEmpty &&
+                                (note.content?.trim().isEmpty ?? true))
                               const Text(
                                 'Tidak ada konten',
                                 style: TextStyle(

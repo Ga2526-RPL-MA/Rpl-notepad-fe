@@ -82,10 +82,14 @@ class _NoteAdminPageContent extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Expanded(
-                                child: CustomSearchBar(
-                                  hintText: 'Cari catatan...',
-                                  onSearch: (query) {
-                                    // TODO: Implement search
+                                child: Consumer<NoteAdminViewModel>(
+                                  builder: (context, viewModel, _) {
+                                    return CustomSearchBar(
+                                      hintText: 'Cari catatan...',
+                                      onChanged: (query) {
+                                        viewModel.updateSearchQuery(query);
+                                      },
+                                    );
                                   },
                                 ),
                               ),
@@ -245,6 +249,7 @@ class _NoteAdminPageContent extends StatelessWidget {
     return SingleChildScrollView(
       child: NoteListTable(
         notes: viewModel.notes,
+        isSearching: viewModel.isSearching,
         onDelete: (note) {
           _showDeleteModal(context, note, viewModel);
         },
