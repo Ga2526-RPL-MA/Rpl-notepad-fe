@@ -50,25 +50,17 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
     super.dispose();
   }
 
-  void _toggleAddForm() {
-    final viewModel = Provider.of<ClassDiscussionViewModel>(
-      context,
-      listen: false,
-    );
+  void _toggleAddForm(ClassDiscussionViewModel viewModel) {
     viewModel.toggleAddForm();
     if (!viewModel.showAddForm) {
       _issueController.clear();
     }
   }
 
-  Future<void> _handlePostIssue() async {
+  Future<void> _handlePostIssue(ClassDiscussionViewModel viewModel) async {
     if (_issueController.text.trim().isEmpty) return;
 
     try {
-      final viewModel = Provider.of<ClassDiscussionViewModel>(
-        context,
-        listen: false,
-      );
       final success = await viewModel.createIssue(
         widget.classId,
         _issueController.text.trim(),
@@ -158,7 +150,9 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                                   Provider.of<
                                                     ClassDiscussionViewModel
                                                   >(context, listen: false);
-                                              await viewModel.searchIssues(query);
+                                              await viewModel.searchIssues(
+                                                query,
+                                              );
                                             },
                                           ),
                                         ),
@@ -264,7 +258,8 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                           ),
                                           const SizedBox(width: 8),
                                           ElevatedButton.icon(
-                                            onPressed: _toggleAddForm,
+                                            onPressed: () =>
+                                                _toggleAddForm(viewModel),
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: Colors.black,
                                               foregroundColor: Colors.white,
@@ -309,8 +304,10 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                                     ),
                                     child: DiscussionInputForm(
                                       controller: _issueController,
-                                      onPostPressed: _handlePostIssue,
-                                      onCancelPressed: _toggleAddForm,
+                                      onPostPressed: () =>
+                                          _handlePostIssue(viewModel),
+                                      onCancelPressed: () =>
+                                          _toggleAddForm(viewModel),
                                       isVisible: viewModel.showAddForm,
                                       maxLines: 6,
                                       minHeight: 180,
@@ -484,7 +481,7 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
                       const SizedBox(width: 8),
                       // Tambah button
                       ElevatedButton.icon(
-                        onPressed: _toggleAddForm,
+                        onPressed: () => _toggleAddForm(viewModel),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
@@ -514,8 +511,8 @@ class _ClassDiscussionPageState extends State<ClassDiscussionPage> {
               // Add form
               DiscussionInputForm(
                 controller: _issueController,
-                onPostPressed: _handlePostIssue,
-                onCancelPressed: _toggleAddForm,
+                onPostPressed: () => _handlePostIssue(viewModel),
+                onCancelPressed: () => _toggleAddForm(viewModel),
                 isVisible: viewModel.showAddForm,
               ),
             ],
