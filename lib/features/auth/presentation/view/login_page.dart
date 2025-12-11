@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rpl_notepad_fe/core/di/injection.dart';
-import 'package:rpl_notepad_fe/core/network/api_service.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_background.dart';
 import 'package:rpl_notepad_fe/core/widgets/custom_card.dart';
 import 'package:rpl_notepad_fe/features/auth/presentation/viewmodel/login_view_model.dart';
@@ -28,13 +26,6 @@ class LoginPage extends StatelessWidget {
                 )
               : Center(child: _buildLoginCard(context)),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          getIt<ApiService>().alice.showInspector();
-        },
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.bug_report, color: Colors.white),
       ),
     );
   }

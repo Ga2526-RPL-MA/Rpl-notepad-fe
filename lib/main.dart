@@ -168,23 +168,7 @@ class AppWithDebug extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        child,
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: FloatingActionButton(
-            onPressed: () {
-              getIt<ApiService>().alice.showInspector();
-            },
-            backgroundColor: Colors.black,
-            mini: true,
-            child: const Icon(Icons.bug_report, color: Colors.white, size: 20),
-          ),
-        ),
-      ],
-    );
+    return Stack(children: [child]);
   }
 }
 
